@@ -1,0 +1,220 @@
+package main
+
+import (
+	"context"
+	"github.com/gtfierro/xboswave/ingester/types"
+	"github.com/pkg/errors"
+	logrus "github.com/sirupsen/logrus"
+	"gopkg.in/btrdb.v4"
+	"math/rand"
+	"sync"
+	"sync/atomic"
+	"time"
+)
+
+var errStreamNotExist = errors.New("Stream does not exist")
+
+type btrdbClient struct {
+	addresses       []string
+	conn            *btrdb.BTrDB
+	streamCache     map[string]*btrdb.Stream
+	streamCacheLock sync.RWMutex
+
+	writebuffer         map[[16]byte]*types.ExtractedTimeseries
+	lastwrite           map[[16]byte]time.Time
+	outstandingReadings int64
+	writebufferLock     sync.Mutex
+}
+
+type btrdbConfig struct {
+	addresses []string
+}
+
+func newBTrDBv4(c *btrdbConfig) *btrdbClient {
+	b := &btrdbClient{
+		addresses:   c.addresses,
+		streamCache: make(map[string]*btrdb.Stream),
+		writebuffer: make(map[[16]byte]*types.ExtractedTimeseries),
+		lastwrite:   make(map[[16]byte]time.Time),
+	}
+	logrus.Infof("Connecting to BtrDBv4 at addresses %v...", b.addresses)
+	conn, err := btrdb.Connect(context.Background(), b.addresses...)
+	if err != nil {
+		logrus.Warningf("Could not connect to btrdbv4: %v", err)
+		return nil
+	}
+	b.conn = conn
+	logrus.Info("Connected to BtrDB!")
+
+	go func() {
+		for _ = range time.NewTicker(10 * time.Second).C {
+			b.writebufferLock.Lock()
+
+			var commitset []*types.ExtractedTimeseries
+			for uuid, lastwritten := range b.lastwrite {
+				randomDuration := 30*time.Second + time.Duration(rand.Intn(270))*time.Second
+				if time.Now().Sub(lastwritten) > randomDuration {
+					commitset = append(commitset, b.writebuffer[uuid])
+				}
+			}
+			logrus.Info("BTRDB STATUS writebuffers=", len(b.writebuffer), " committingBuffers=", len(commitset), " outstanding=", atomic.LoadInt64(&b.outstandingReadings))
+			b.writebufferLock.Unlock()
+			for _, buf := range commitset {
+				if err := b.commitBuffer(buf); err != nil {
+					logrus.Error(errors.Wrapf(err, "Could not commit buffer for %s", buf.UUID.String()))
+				}
+			}
+		}
+	}()
+
+	return b
+}
+
+func (bdb *btrdbClient) Flush() error {
+	var commitset []*types.ExtractedTimeseries
+	bdb.writebufferLock.Lock()
+	for _, buf := range bdb.writebuffer {
+		commitset = append(commitset, buf)
+	}
+	bdb.writebufferLock.Unlock()
+	var reterr error
+	for _, buf := range commitset {
+		if err := bdb.commitBuffer(buf); err != nil {
+			if reterr != nil {
+				reterr = err
+			}
+		}
+	}
+	bdb.conn.Disconnect()
+	return nil
+}
+
+// Fetch the stream object so we can read/write. This will first check the internal in-memory
+// cache of stream objects, then it will check the BtrDB client cache. If the stream
+// is not found there, then this method will return errStreamNotExist and a nil stream
+func (bdb *btrdbClient) getStream(extracted types.ExtractedTimeseries) (stream *btrdb.Stream, err error) {
+	// first check cache
+	streamuuid := extracted.UUID
+	bdb.streamCacheLock.RLock()
+	stream, found := bdb.streamCache[streamuuid.String()]
+	bdb.streamCacheLock.RUnlock()
+	if found {
+		return // from cache
+	}
+	// then check BtrDB for existing stream
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, TimeseriesOperationTimeout)
+	defer cancel()
+	stream = bdb.conn.StreamFromUUID(streamuuid)
+
+	exists, existsErr := stream.Exists(ctx)
+	if existsErr != nil {
+		e := btrdb.ToCodedError(existsErr)
+		if e.Code != 404 && e.Code != 501 { // if error is NOT unfound or permission denied, then return it
+			err = errors.Wrap(existsErr, "Could not fetch stream")
+			return
+		}
+	} else if exists {
+		// if stream exists, add to cache
+		bdb.streamCacheLock.Lock()
+		bdb.streamCache[streamuuid.String()] = stream
+		bdb.streamCacheLock.Unlock()
+		return
+	}
+
+	logrus.Info("Initializing stream with uuid: ", extracted.UUID.String())
+	stream, err = bdb.conn.Create(ctx, extracted.UUID, extracted.Collection, extracted.Tags, extracted.Annotations)
+	if err == nil {
+		bdb.streamCacheLock.Lock()
+		bdb.streamCache[streamuuid.String()] = stream
+		bdb.streamCacheLock.Unlock()
+	} else {
+		e := btrdb.ToCodedError(err)
+		if e.Code == 501 {
+			err = nil
+		} else {
+			logrus.Info(e.Code)
+		}
+
+	}
+
+	return
+}
+
+func (bdb *btrdbClient) write(extracted types.ExtractedTimeseries) error {
+
+	bdb.writebufferLock.Lock()
+	buf, found := bdb.writebuffer[extracted.UUID.Array()]
+	if !found {
+		bdb.writebuffer[extracted.UUID.Array()] = &extracted
+		bdb.lastwrite[extracted.UUID.Array()] = time.Now()
+		buf = &extracted
+	} else {
+		buf.Values = append(buf.Values, extracted.Values...)
+		buf.Times = append(buf.Times, extracted.Times...)
+	}
+	bdb.writebufferLock.Unlock()
+	atomic.AddInt64(&bdb.outstandingReadings, int64(len(extracted.Values)))
+
+	if len(buf.Values) >= MaxInMemoryTimeseriesBuffer {
+		bdb.commitBuffer(buf)
+	}
+
+	return nil
+}
+
+func (bdb *btrdbClient) commitBuffer(buf *types.ExtractedTimeseries) error {
+	stream, err := bdb.getStream(*buf)
+	if err != nil {
+		return err
+	}
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, TimeseriesOperationTimeout)
+	defer cancel()
+	if ctx.Err() == context.Canceled {
+		logrus.Warning("CANCELLED")
+	}
+
+	bdb.writebufferLock.Lock()
+	bdb.lastwrite[buf.UUID.Array()] = time.Now()
+	bdb.writebufferLock.Unlock()
+
+	if len(buf.Values) == 0 {
+		return nil
+	}
+
+	// TODO: delete the range before inserting
+	var minTime int64 = 1 << 62
+	var maxTime int64 = -1
+	for _, ts := range buf.Times {
+		if ts < minTime {
+			minTime = ts
+		}
+		if ts > maxTime {
+			maxTime = ts
+		}
+	}
+	// TODO: use nearest on the start time of the range.
+	if minTime != maxTime {
+		rv, _, err := stream.Nearest(ctx, minTime, 0, true)
+		if err != nil {
+			return err
+		}
+		// if this is true, then there is data inside the range we are going to commit; in this case, delete the old data
+		if rv.Time >= minTime {
+			if _, err := stream.DeleteRange(ctx, minTime, maxTime); err != nil {
+				return err
+			}
+		}
+	}
+	commitDuration := time.Duration(maxTime-minTime) * time.Nanosecond
+	logrus.Debug("Committing uuid=", buf.UUID.String(), " #values=", len(buf.Values), " start=", time.Unix(0, minTime), " dur=", commitDuration)
+	err = stream.InsertTV(ctx, buf.Times, buf.Values)
+	if err != nil {
+		return err
+	}
+	atomic.AddInt64(&bdb.outstandingReadings, -int64(len(buf.Values)))
+	buf.Values = buf.Values[:0]
+	buf.Times = buf.Times[:0]
+	return nil
+}
