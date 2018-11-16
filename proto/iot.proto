@@ -43,12 +43,32 @@ message XBOSIoTDeviceState {
     // current time at device/service
     //unit:ns
     uint64 time = 1;
+    // unique identifier for this request; used to line up with device state requests
+    int64 requestid = 2;
+    // any error that occured since the last device report. If requestid above is non-zero,
+    // then this error corresponds to the request with the given requestid
+    string error = 3;
 
     // XBOS IoT devices
-    Thermostat thermostat = 2; 
-    Meter meter = 3;
-    Light light = 4;
-    EVSE evse = 5;
+    Thermostat thermostat = 4;
+    Meter meter = 5;
+    Light light = 6;
+    EVSE evse = 7;
+}
+
+
+message XBOSIoTDeviceActuation {
+    // current time at device/service
+    //unit:ns
+    uint64 time = 1;
+    // unique identifier for this request; used to line up with device state responses
+    int64 requestid = 2;
+
+    // XBOS IoT devices
+    Thermostat thermostat = 3;
+    Meter meter = 4;
+    Light light = 5;
+    EVSE evse = 6;
 }
 
 message XBOSIoTContext {

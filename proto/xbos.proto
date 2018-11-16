@@ -27,5 +27,6 @@ message XBOS {
 
   //IoT Fields
   XBOSIoTDeviceState XBOSIoTDeviceState = 100;
-  XBOSIoTContext XBOSIoTContext = 101;
+  XBOSIoTDeviceActuation XBOSIoTDeviceActuation = 101;
+  XBOSIoTContext XBOSIoTContext = 102;
 }
