@@ -26,6 +26,6 @@ message XBOS {
   HamiltonBRMessage HamiltonBRMessage = 52;
 
   //IoT Fields
-  XBOSIoTMessage XBOSIoTDeviceState = 100;
-  XBOSContextMessage XBOSIoTContext = 101;
+  XBOSIoTDeviceState XBOSIoTDeviceState = 100;
+  XBOSIoTContext XBOSIoTContext = 101;
 }

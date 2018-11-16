@@ -39,16 +39,19 @@ enum HVACState {
     HVACStateCoolStage2 = 4;
 }
 
-message XBOSIoTMessage {
+message XBOSIoTDeviceState {
     // current time at device/service
     //unit:ns
     uint64 time = 1;
 
     // XBOS IoT devices
     Thermostat thermostat = 2; 
+    Meter meter = 3;
+    Light light = 4;
+    EVSE evse = 5;
 }
 
-message XBOSContextMessage {
+message XBOSIoTContext {
     // current time at device/service
     //unit:ns
     uint64 time = 1;
@@ -85,3 +88,39 @@ message Thermostat {
     //number of cool stages enabled
     int32 enabled_cool_stages = 9;
 }
+
+message Meter {
+    //unit: kW
+    double power = 1;
+    //unit: V
+    double voltage = 2;
+    //unit: kVA
+    double apparent_power = 3;
+}
+
+message Light {
+    // True if the light is on
+    //unit: on/off
+    bool state = 1;
+    // 100 is maximum brightness
+    int64 brightness = 2;
+}
+
+message EVSE {
+    // maximum allowed current for charging
+    //unit: A
+    double current_limit = 1;
+    // active charge current
+    //unit: A
+    double current = 2;
+    // active charge voltage
+    //unit: V
+    double voltage = 3;
+    // seconds left until car is charged
+    //unit: seconds
+    int64 charging_time_left = 4;
+    // charge state of the EVSE
+    //unit: on/off
+    bool state = 5;
+}
+
