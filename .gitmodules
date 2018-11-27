@@ -4,3 +4,6 @@
 [submodule "proto/googleapis"]
 	path = proto/googleapis
 	url = https://github.com/googleapis/googleapis
+[submodule "wave"]
+	path = wave
+	url = https://github.com/immesys/wave

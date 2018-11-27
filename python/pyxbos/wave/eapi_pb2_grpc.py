@@ -15,114 +15,124 @@ class WAVEStub(object):
       channel: A grpc.Channel.
     """
     self.CreateEntity = channel.unary_unary(
-        '/mqpb.WAVE/CreateEntity',
+        '/pb.WAVE/CreateEntity',
         request_serializer=eapi__pb2.CreateEntityParams.SerializeToString,
         response_deserializer=eapi__pb2.CreateEntityResponse.FromString,
         )
     self.CreateAttestation = channel.unary_unary(
-        '/mqpb.WAVE/CreateAttestation',
+        '/pb.WAVE/CreateAttestation',
         request_serializer=eapi__pb2.CreateAttestationParams.SerializeToString,
         response_deserializer=eapi__pb2.CreateAttestationResponse.FromString,
         )
     self.PublishEntity = channel.unary_unary(
-        '/mqpb.WAVE/PublishEntity',
+        '/pb.WAVE/PublishEntity',
         request_serializer=eapi__pb2.PublishEntityParams.SerializeToString,
         response_deserializer=eapi__pb2.PublishEntityResponse.FromString,
         )
     self.PublishAttestation = channel.unary_unary(
-        '/mqpb.WAVE/PublishAttestation',
+        '/pb.WAVE/PublishAttestation',
         request_serializer=eapi__pb2.PublishAttestationParams.SerializeToString,
         response_deserializer=eapi__pb2.PublishAttestationResponse.FromString,
         )
     self.AddAttestation = channel.unary_unary(
-        '/mqpb.WAVE/AddAttestation',
+        '/pb.WAVE/AddAttestation',
         request_serializer=eapi__pb2.AddAttestationParams.SerializeToString,
         response_deserializer=eapi__pb2.AddAttestationResponse.FromString,
         )
     self.LookupAttestations = channel.unary_unary(
-        '/mqpb.WAVE/LookupAttestations',
+        '/pb.WAVE/LookupAttestations',
         request_serializer=eapi__pb2.LookupAttestationsParams.SerializeToString,
         response_deserializer=eapi__pb2.LookupAttestationsResponse.FromString,
         )
     self.ResyncPerspectiveGraph = channel.unary_unary(
-        '/mqpb.WAVE/ResyncPerspectiveGraph',
+        '/pb.WAVE/ResyncPerspectiveGraph',
         request_serializer=eapi__pb2.ResyncPerspectiveGraphParams.SerializeToString,
         response_deserializer=eapi__pb2.ResyncPerspectiveGraphResponse.FromString,
         )
     self.SyncStatus = channel.unary_unary(
-        '/mqpb.WAVE/SyncStatus',
+        '/pb.WAVE/SyncStatus',
         request_serializer=eapi__pb2.SyncParams.SerializeToString,
         response_deserializer=eapi__pb2.SyncResponse.FromString,
         )
     self.WaitForSyncComplete = channel.unary_stream(
-        '/mqpb.WAVE/WaitForSyncComplete',
+        '/pb.WAVE/WaitForSyncComplete',
         request_serializer=eapi__pb2.SyncParams.SerializeToString,
         response_deserializer=eapi__pb2.SyncResponse.FromString,
         )
     self.BuildRTreeProof = channel.unary_unary(
-        '/mqpb.WAVE/BuildRTreeProof',
+        '/pb.WAVE/BuildRTreeProof',
         request_serializer=eapi__pb2.BuildRTreeProofParams.SerializeToString,
         response_deserializer=eapi__pb2.BuildRTreeProofResponse.FromString,
         )
     self.VerifyProof = channel.unary_unary(
-        '/mqpb.WAVE/VerifyProof',
+        '/pb.WAVE/VerifyProof',
         request_serializer=eapi__pb2.VerifyProofParams.SerializeToString,
         response_deserializer=eapi__pb2.VerifyProofResponse.FromString,
         )
     self.ListLocations = channel.unary_unary(
-        '/mqpb.WAVE/ListLocations',
+        '/pb.WAVE/ListLocations',
         request_serializer=eapi__pb2.ListLocationsParams.SerializeToString,
         response_deserializer=eapi__pb2.ListLocationsResponse.FromString,
         )
     self.Inspect = channel.unary_unary(
-        '/mqpb.WAVE/Inspect',
+        '/pb.WAVE/Inspect',
         request_serializer=eapi__pb2.InspectParams.SerializeToString,
         response_deserializer=eapi__pb2.InspectResponse.FromString,
         )
     self.ResolveHash = channel.unary_unary(
-        '/mqpb.WAVE/ResolveHash',
+        '/pb.WAVE/ResolveHash',
         request_serializer=eapi__pb2.ResolveHashParams.SerializeToString,
         response_deserializer=eapi__pb2.ResolveHashResponse.FromString,
         )
     self.EncryptMessage = channel.unary_unary(
-        '/mqpb.WAVE/EncryptMessage',
+        '/pb.WAVE/EncryptMessage',
         request_serializer=eapi__pb2.EncryptMessageParams.SerializeToString,
         response_deserializer=eapi__pb2.EncryptMessageResponse.FromString,
         )
     self.DecryptMessage = channel.unary_unary(
-        '/mqpb.WAVE/DecryptMessage',
+        '/pb.WAVE/DecryptMessage',
         request_serializer=eapi__pb2.DecryptMessageParams.SerializeToString,
         response_deserializer=eapi__pb2.DecryptMessageResponse.FromString,
         )
     self.CreateNameDeclaration = channel.unary_unary(
-        '/mqpb.WAVE/CreateNameDeclaration',
+        '/pb.WAVE/CreateNameDeclaration',
         request_serializer=eapi__pb2.CreateNameDeclarationParams.SerializeToString,
         response_deserializer=eapi__pb2.CreateNameDeclarationResponse.FromString,
         )
     self.ResolveName = channel.unary_unary(
-        '/mqpb.WAVE/ResolveName',
+        '/pb.WAVE/ResolveName',
         request_serializer=eapi__pb2.ResolveNameParams.SerializeToString,
         response_deserializer=eapi__pb2.ResolveNameResponse.FromString,
         )
     self.MarkEntityInteresting = channel.unary_unary(
-        '/mqpb.WAVE/MarkEntityInteresting',
+        '/pb.WAVE/MarkEntityInteresting',
         request_serializer=eapi__pb2.MarkEntityInterestingParams.SerializeToString,
         response_deserializer=eapi__pb2.MarkEntityInterestingResponse.FromString,
         )
     self.ResolveReverseName = channel.unary_unary(
-        '/mqpb.WAVE/ResolveReverseName',
+        '/pb.WAVE/ResolveReverseName',
         request_serializer=eapi__pb2.ResolveReverseNameParams.SerializeToString,
         response_deserializer=eapi__pb2.ResolveReverseNameResponse.FromString,
         )
     self.Revoke = channel.unary_unary(
-        '/mqpb.WAVE/Revoke',
+        '/pb.WAVE/Revoke',
         request_serializer=eapi__pb2.RevokeParams.SerializeToString,
         response_deserializer=eapi__pb2.RevokeResponse.FromString,
         )
     self.CompactProof = channel.unary_unary(
-        '/mqpb.WAVE/CompactProof',
+        '/pb.WAVE/CompactProof',
         request_serializer=eapi__pb2.CompactProofParams.SerializeToString,
         response_deserializer=eapi__pb2.CompactProofResponse.FromString,
+        )
+    self.Sign = channel.unary_unary(
+        '/pb.WAVE/Sign',
+        request_serializer=eapi__pb2.SignParams.SerializeToString,
+        response_deserializer=eapi__pb2.SignResponse.FromString,
+        )
+    self.VerifySignature = channel.unary_unary(
+        '/pb.WAVE/VerifySignature',
+        request_serializer=eapi__pb2.VerifySignatureParams.SerializeToString,
+        response_deserializer=eapi__pb2.VerifySignatureResponse.FromString,
         )
 
 
@@ -285,6 +295,20 @@ class WAVEServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def Sign(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def VerifySignature(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_WAVEServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -398,7 +422,17 @@ def add_WAVEServicer_to_server(servicer, server):
           request_deserializer=eapi__pb2.CompactProofParams.FromString,
           response_serializer=eapi__pb2.CompactProofResponse.SerializeToString,
       ),
+      'Sign': grpc.unary_unary_rpc_method_handler(
+          servicer.Sign,
+          request_deserializer=eapi__pb2.SignParams.FromString,
+          response_serializer=eapi__pb2.SignResponse.SerializeToString,
+      ),
+      'VerifySignature': grpc.unary_unary_rpc_method_handler(
+          servicer.VerifySignature,
+          request_deserializer=eapi__pb2.VerifySignatureParams.FromString,
+          response_serializer=eapi__pb2.VerifySignatureResponse.SerializeToString,
+      ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'mqpb.WAVE', rpc_method_handlers)
+      'pb.WAVE', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))
