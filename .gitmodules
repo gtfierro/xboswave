@@ -1,0 +1,3 @@
+[submodule "wavemq"]
+	path = wavemq
+	url = https://github.com/immesys/wavemq
