@@ -1,3 +1,6 @@
 [submodule "wavemq"]
 	path = wavemq
 	url = https://github.com/immesys/wavemq
+[submodule "proto/googleapis"]
+	path = proto/googleapis
+	url = https://github.com/googleapis/googleapis
