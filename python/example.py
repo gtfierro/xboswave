@@ -9,7 +9,6 @@ class Example(Driver):
 
     def read(self):
         temp = 20 + random.random() * 70
-        print(temp)
         msg = xbos_pb2.XBOS(
             XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
                 time = int(time.time()*1e9),
@@ -18,7 +17,7 @@ class Example(Driver):
                 )
             )
         )
-        return msg
+        yield (msg, "temp")
 
 e = Example()
 e.begin()

@@ -27,7 +27,7 @@ class Driver:
             "entity": "driver",
             "rate": 2,
             "namespace": "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==",
-            "uri": "driver/test/a/b/c",
+            "publish_uri": "driver/test/gabe/light1",
         }
 
 
@@ -40,7 +40,7 @@ class Driver:
             entitySecret=EntitySecret(DER=self.ent.SecretDER)
         )
         self.namespace = b64decode(self.cfg['namespace'])
-        self.uri = self.cfg['uri']
+        self.uri = self.cfg['publish_uri']
 
     def connect(self):
         # connect to wavemq agent
@@ -60,18 +60,17 @@ class Driver:
         @asyncio.coroutine
         async def periodic():
             while True:
-                data = self.read()
-                po = PayloadObject(
-                    schema = "xbosproto/XBOS",
-                    content = data.SerializeToString(),
-                )
-                print("read", data)
-                x = self.cl.Publish(PublishParams(
-                    perspective=self.perspective,
-                    namespace=self.namespace,
-                    uri = self.uri,
-                    content = [po],
-                ))
+                for (data, name) in self.read():
+                    po = PayloadObject(
+                        schema = "xbosproto/XBOS",
+                        content = data.SerializeToString(),
+                    )
+                    x = self.cl.Publish(PublishParams(
+                        perspective=self.perspective,
+                        namespace=self.namespace,
+                        uri = self.uri+"/"+name,
+                        content = [po],
+                    ))
                 await asyncio.sleep(self.cfg['rate'])
         loop = asyncio.get_event_loop()
         task = loop.create_task(periodic())
