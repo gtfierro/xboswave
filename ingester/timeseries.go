@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/gtfierro/xboswave/ingester/types"
+	influx "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	logrus "github.com/sirupsen/logrus"
 	"gopkg.in/btrdb.v4"
@@ -13,6 +14,11 @@ import (
 )
 
 var errStreamNotExist = errors.New("Stream does not exist")
+
+type timeseriesInterface interface {
+	Flush() error
+	write(extracted types.ExtractedTimeseries) error
+}
 
 type btrdbClient struct {
 	addresses       []string
@@ -216,5 +222,81 @@ func (bdb *btrdbClient) commitBuffer(buf *types.ExtractedTimeseries) error {
 	atomic.AddInt64(&bdb.outstandingReadings, -int64(len(buf.Values)))
 	buf.Values = buf.Values[:0]
 	buf.Times = buf.Times[:0]
+	return nil
+}
+
+type influxdbConfig struct {
+	address string
+	user    string
+	pass    string
+}
+
+type influxClient struct {
+	conn influx.Client
+
+	writebuffer         map[[16]byte]*types.ExtractedTimeseries
+	lastwrite           map[[16]byte]time.Time
+	outstandingReadings int64
+	writebufferLock     sync.Mutex
+}
+
+func newInfluxDB(c *influxdbConfig) *influxClient {
+	logrus.Infof("Connecting to InfluxDB at address %v...", c.address)
+	conn, err := influx.NewHTTPClient(influx.HTTPConfig{
+		Addr:     c.address,
+		Username: c.user,
+		Password: c.pass,
+	})
+	if err != nil {
+		logrus.Fatal(errors.Wrap(err, "could not connect influx"))
+	}
+	logrus.Info("Connected to InfluxDB!")
+
+	i := &influxClient{
+		conn:        conn,
+		writebuffer: make(map[[16]byte]*types.ExtractedTimeseries),
+		lastwrite:   make(map[[16]byte]time.Time),
+	}
+
+	return i
+}
+
+func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
+
+	bp, err := influx.NewBatchPoints(influx.BatchPointsConfig{
+		Database:  "xbos",
+		Precision: "s",
+	})
+	if err != nil {
+		return errors.Wrap(err, "could not create new batch")
+	}
+
+	for idx, t := range extracted.Times {
+		val := extracted.Values[idx]
+		tags := map[string]string{
+			"unit": extracted.Unit,
+			"uuid": extracted.UUID.String(),
+		}
+		for k, v := range extracted.Annotations {
+			tags[k] = v
+		}
+		for k, v := range extracted.Tags {
+			tags[k] = v
+		}
+		fields := map[string]interface{}{
+			"value": val,
+		}
+
+		pt, err := influx.NewPoint(extracted.Collection, tags, fields, time.Unix(0, t))
+		if err != nil {
+			return errors.Wrap(err, "could not create new point")
+		}
+		bp.AddPoint(pt)
+	}
+
+	return inf.conn.Write(bp)
+}
+
+func (inf *influxClient) Flush() error {
 	return nil
 }

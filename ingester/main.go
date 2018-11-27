@@ -85,10 +85,13 @@ func main() {
 			DER: perspective,
 		},
 	}
-	btrdbCfg := &btrdbConfig{
-		addresses: []string{"127.0.0.1:4410"},
+	//btrdbCfg := &btrdbConfig{
+	//	addresses: []string{"127.0.0.1:4410"},
+	//}
+	influxCfg := &influxdbConfig{
+		address: "http://127.0.0.1:8086",
 	}
-	ingest := NewIngester(client, persp, btrdbCfg, ctx)
+	ingest := NewIngester(client, persp, nil, influxCfg, ctx)
 
 	//store := NewArchiveRequestStore(client, persp, extract)
 	req := &ArchiveRequest{
@@ -102,6 +105,19 @@ func main() {
 	if err := ingest.addArchiveRequest(req); err != nil {
 		logrus.Fatal(err)
 	}
+
+	req2 := &ArchiveRequest{
+		Schema: "xbosproto/XBOS",
+		Plugin: "plugins/iot_plugin.so",
+		URI: types.SubscriptionURI{
+			Namespace: "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==", // XBOS
+			Resource:  "*",
+		},
+	}
+	if err := ingest.addArchiveRequest(req2); err != nil {
+		logrus.Fatal(err)
+	}
+
 	<-done
 	logrus.Info(ingest.Finish())
 }

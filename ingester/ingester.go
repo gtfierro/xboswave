@@ -20,21 +20,26 @@ type Ingester struct {
 	plugin_mapping map[string]pluginlist
 	client         mqpb.WAVEMQClient
 	perspective    *mqpb.Perspective
-	btrdbClient    *btrdbClient
-	ctx            context.Context
+	//btrdbClient    *btrdbClient
+	tsdbClient timeseriesInterface
+	ctx        context.Context
 
 	subs     map[types.SubscriptionURI]*subscription
 	subsLock sync.RWMutex
 }
 
-func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, btrdbCfg *btrdbConfig, ctx context.Context) *Ingester {
+func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, btrdbCfg *btrdbConfig, influxCfg *influxdbConfig, ctx context.Context) *Ingester {
 	ingest := &Ingester{
 		plugin_mapping: make(map[string]pluginlist),
 		perspective:    persp,
 		client:         client,
 		subs:           make(map[types.SubscriptionURI]*subscription),
-		btrdbClient:    newBTrDBv4(btrdbCfg),
 		ctx:            ctx,
+	}
+	if btrdbCfg != nil {
+		ingest.tsdbClient = newBTrDBv4(btrdbCfg)
+	} else if influxCfg != nil {
+		ingest.tsdbClient = newInfluxDB(influxCfg)
 	}
 
 	return ingest
@@ -49,7 +54,7 @@ func (ingest *Ingester) Finish() error {
 		sub.stop <- struct{}{}
 	}
 	logrus.Info("Flushing BTrDB")
-	return ingest.btrdbClient.Flush()
+	return ingest.tsdbClient.Flush()
 }
 
 // registers a .so with a schema
@@ -98,7 +103,10 @@ func (ingest *Ingester) runPlugins(uri types.SubscriptionURI, msg *mqpb.Message)
 		}
 		for _, extractFunc := range list.mapping {
 			err := extractFunc(msgUri, msg, func(extracted types.ExtractedTimeseries) error {
-				err = ingest.btrdbClient.write(extracted)
+				if len(extracted.Times) == 0 {
+					return nil
+				}
+				err = ingest.tsdbClient.write(extracted)
 				if err != nil {
 					logrus.Error(errors.Wrap(err, "Could not write to btrdb buffer"))
 				}
@@ -168,11 +176,11 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 			}
 			m, err := sub.S.Recv()
 			if err != nil {
-				logrus.Error("subscribe err:", err)
+				logrus.Error("subscribe err1:", err)
 				continue
 			}
 			if m.Error != nil {
-				logrus.Error("subscribe err:", err)
+				logrus.Error("subscribe err2:", err)
 				continue
 			}
 			// get uri
