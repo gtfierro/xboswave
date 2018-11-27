@@ -7,3 +7,6 @@ ansible/*.retry
 
 # python files
 *.pyc
+
+# ingester shared objects
+ingester/plugins/*.so
