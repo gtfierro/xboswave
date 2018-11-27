@@ -1,0 +1,26 @@
+---
+- hosts:
+    - 127.0.0.1
+  vars:
+    http_port: 80
+  remote_user: root
+  become: yes
+  tasks:
+  - name: ensure ssl
+    apt:
+      name: libssl-dev
+      state: latest
+  - name: download wavemq
+    get_url:
+      url: https://github.com/immesys/wavemq/releases/download/v1.3.0/wavemq
+      dest: /usr/local/bin/wavemq
+      mode: 0775
+  - name: get wavemq config
+    copy: 
+      src: wavemq.toml
+      dest: /etc/wavemq/wavemq.toml
+      owner: root
+      group: root
+      mode: 0644
+
+
