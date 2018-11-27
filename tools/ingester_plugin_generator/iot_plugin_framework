@@ -1,24 +1,26 @@
 func build(uri types.SubscriptionURI, name string, msg xbospb.XBOS) types.ExtractedTimeseries {
 
-	value := lookup[name](msg)
-
-	var extracted types.ExtractedTimeseries
-	time := int64(msg.XBOSIoTDeviceState.Time)
-	extracted.Values = append(extracted.Values, value)
-	extracted.Times = append(extracted.Times, time)
-	extracted.UUID = types.GenerateUUID(uri, []byte(name))
-	parts := strings.Split(uri.Resource, "/")
-	extracted.Collection = fmt.Sprintf("hamilton/%s/%s", name, parts[2]) //uri.Resource
-	extracted.Tags = map[string]string{
-		"unit": "seconds",
-		"name": name,
+	if extractfunc, found := lookup[name]; found {
+		value := extractfunc(msg)
+		var extracted types.ExtractedTimeseries
+		time := int64(msg.XBOSIoTDeviceState.Time)
+		extracted.Values = append(extracted.Values, value)
+		extracted.Times = append(extracted.Times, time)
+		extracted.UUID = types.GenerateUUID(uri, []byte(name))
+		extracted.Collection = fmt.Sprintf("xbos/%s", uri.Resource)
+		extracted.Tags = map[string]string{
+			"unit": "seconds",
+			"name": name,
+		}
+		return extracted
 	}
-	return extracted
+
+	return types.ExtractedTimeseries{}
 }
 
 func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.ExtractedTimeseries) error) error {
 	if msg.XBOSIoTDeviceState != nil {
-		for name := range lookup {
+		for _, name := range []string{"state", "brightness"} {
 			extracted := build(uri, name, msg)
 			if err := add(extracted); err != nil {
 				return err
@@ -27,4 +29,3 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 	}
 	return nil
 }
-
