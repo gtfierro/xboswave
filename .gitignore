@@ -1,0 +1,9 @@
+# wave files
+*.pem
+*.ent
+
+# ansible files
+ansible/*.retry
+
+# python files
+*.pyc
