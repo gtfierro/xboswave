@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package xbospb;
+
+message DentMeterState {
+    //unit:ns
+    uint64 time = 1;
+
+    repeated PhaseState phases = 2;
+}
+
+message PhaseState {
+    string phase = 1;
+    string annotation = 14;
+
+    //unit: kWh
+    double true_energy = 2;
+    //unit: kVARh
+    double reactive_energy = 3;
+    //unit: kVAh
+    double apparent_energy = 4;
+
+    //unit: kW
+    double true_power = 5;
+    //unit: kVAR
+    double reactive_power = 6;
+    //unit: kVA
+    double apparent_power = 7;
+
+    //unit: PF
+    double displacement_pf = 8;
+    //unit: PF
+    double apparent_pf = 9;
+    //unit: A
+    double current = 10;
+    //unit: HZ
+    double line_frequency = 11;
+    //unit: V
+    double volts = 12;
+    //unit: V
+    double phase_neutral_voltage = 13;
+}

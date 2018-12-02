@@ -14,6 +14,8 @@ import "hamilton.proto";
 // XBOS IoT device definitions
 import "iot.proto";
 
+// Dent meters
+import "dentmeter.proto";
 
 
 // Root union type
@@ -29,4 +31,7 @@ message XBOS {
   XBOSIoTDeviceState XBOSIoTDeviceState = 100;
   XBOSIoTDeviceActuation XBOSIoTDeviceActuation = 101;
   XBOSIoTContext XBOSIoTContext = 102;
+
+  //Dent Fields
+  DentMeterState DentMeterState = 150;
 }
