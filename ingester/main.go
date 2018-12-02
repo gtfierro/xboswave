@@ -118,6 +118,18 @@ func main() {
 		logrus.Fatal(err)
 	}
 
+	req3 := &ArchiveRequest{
+		Schema: "xbosproto/XBOS",
+		Plugin: "plugins/dent.so",
+		URI: types.SubscriptionURI{
+			Namespace: "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==", // cory-hall
+			Resource:  "dentmeter/*",
+		},
+	}
+	if err := ingest.addArchiveRequest(req3); err != nil {
+		logrus.Fatal(err)
+	}
+
 	<-done
 	logrus.Info(ingest.Finish())
 }
