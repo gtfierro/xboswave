@@ -67,7 +67,7 @@ func newBTrDBv4(c *btrdbConfig) *btrdbClient {
 			b.writebufferLock.Unlock()
 			for _, buf := range commitset {
 				if err := b.commitBuffer(buf); err != nil {
-					logrus.Error(errors.Wrapf(err, "Could not commit buffer for %s", buf.UUID.String()))
+					logrus.Error(errors.Wrapf(err, "Could not commit buffer for %s (%s)", buf.UUID.String(), buf.Collection))
 				}
 			}
 		}
@@ -92,7 +92,7 @@ func (bdb *btrdbClient) Flush() error {
 		}
 	}
 	bdb.conn.Disconnect()
-	return nil
+	return reterr
 }
 
 // Fetch the stream object so we can read/write. This will first check the internal in-memory
@@ -115,12 +115,14 @@ func (bdb *btrdbClient) getStream(extracted types.ExtractedTimeseries) (stream *
 
 	exists, existsErr := stream.Exists(ctx)
 	if existsErr != nil {
+		logrus.Error("problem checking stream exists", streamuuid.String(), stream.UUID().String(), extracted.Collection)
 		e := btrdb.ToCodedError(existsErr)
 		if e.Code != 404 && e.Code != 501 { // if error is NOT unfound or permission denied, then return it
 			err = errors.Wrap(existsErr, "Could not fetch stream")
 			return
 		}
 	} else if exists {
+		//logrus.Info("exists already", streamuuid.String())
 		// if stream exists, add to cache
 		bdb.streamCacheLock.Lock()
 		bdb.streamCache[streamuuid.String()] = stream
@@ -128,9 +130,10 @@ func (bdb *btrdbClient) getStream(extracted types.ExtractedTimeseries) (stream *
 		return
 	}
 
-	logrus.Info("Initializing stream with uuid: ", extracted.UUID.String())
+	logrus.Info("Initializing stream with uuid: ", extracted.UUID.String(), extracted.Collection)
 	stream, err = bdb.conn.Create(ctx, extracted.UUID, extracted.Collection, extracted.Tags, extracted.Annotations)
 	if err == nil {
+		//logrus.Info("Created stream", extracted.Collection)
 		bdb.streamCacheLock.Lock()
 		bdb.streamCache[streamuuid.String()] = stream
 		bdb.streamCacheLock.Unlock()
@@ -139,7 +142,7 @@ func (bdb *btrdbClient) getStream(extracted types.ExtractedTimeseries) (stream *
 		if e.Code == 501 {
 			err = nil
 		} else {
-			logrus.Info(e.Code)
+			logrus.Info("Error", e.Code)
 		}
 
 	}
@@ -204,20 +207,20 @@ func (bdb *btrdbClient) commitBuffer(buf *types.ExtractedTimeseries) error {
 	if minTime != maxTime {
 		rv, _, err := stream.Nearest(ctx, minTime, 0, true)
 		if err != nil {
-			return err
+			logrus.Warning(errors.Wrapf(err, "Could not get nearest for (%s %s)", buf.UUID.String(), buf.Collection))
 		}
 		// if this is true, then there is data inside the range we are going to commit; in this case, delete the old data
 		if rv.Time >= minTime {
 			if _, err := stream.DeleteRange(ctx, minTime, maxTime); err != nil {
-				return err
+				logrus.Warning(errors.Wrapf(err, "Could not delete range for (%s %s)", buf.UUID.String(), buf.Collection))
 			}
 		}
 	}
 	commitDuration := time.Duration(maxTime-minTime) * time.Nanosecond
-	logrus.Debug("Committing uuid=", buf.UUID.String(), " #values=", len(buf.Values), " start=", time.Unix(0, minTime), " dur=", commitDuration)
+	logrus.Debug("Committing collection=", buf.Collection, " uuid=", buf.UUID.String(), "(", stream.UUID().String(), ")", " #values=", len(buf.Values), " start=", time.Unix(0, minTime), " dur=", commitDuration)
 	err = stream.InsertTV(ctx, buf.Times, buf.Values)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "Could not insert into %s", buf.Collection)
 	}
 	atomic.AddInt64(&bdb.outstandingReadings, -int64(len(buf.Values)))
 	buf.Values = buf.Values[:0]
