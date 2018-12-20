@@ -177,6 +177,19 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 			m, err := sub.S.Recv()
 			if err != nil {
 				logrus.Error("subscribe err1:", err)
+				sub.S, err = ingest.client.Subscribe(context.Background(), &mqpb.SubscribeParams{
+					Perspective: ingest.perspective,
+					Namespace:   nsbytes,
+					Uri:         uri.Resource,
+					Identifier:  IngesterName,
+					Expiry:      IngestSubscriptionExpiry,
+				})
+				if err != nil {
+					logrus.Error("err resubscribe", err)
+					continue
+				} else {
+					logrus.Info("Restablished subscription to", uri.Resource)
+				}
 				continue
 			}
 			if m.Error != nil {
