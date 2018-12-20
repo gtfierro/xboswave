@@ -58,7 +58,7 @@ func newBTrDBv4(c *btrdbConfig) *btrdbClient {
 
 			var commitset []*types.ExtractedTimeseries
 			for uuid, lastwritten := range b.lastwrite {
-				randomDuration := 30*time.Second + time.Duration(rand.Intn(270))*time.Second
+				randomDuration := 10*time.Second + time.Duration(rand.Intn(10))*time.Second
 				if time.Now().Sub(lastwritten) > randomDuration {
 					commitset = append(commitset, b.writebuffer[uuid])
 				}
