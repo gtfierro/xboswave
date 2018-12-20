@@ -1,5 +1,9 @@
 # XBOS(2) 
 
+- [Issues](https://todo.sr.ht/%7Egabe/xbos)
+
+## Ingester
+
 How do get started:
 
 
