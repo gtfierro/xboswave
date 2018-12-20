@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gtfierro/xboswave/ingester/types"
 	xbospb "github.com/gtfierro/xboswave/proto"
+	"strings"
 )
 
 var lookup = map[string]func(msg xbospb.XBOS, idx int) float64{
@@ -70,8 +71,14 @@ func build(uri types.SubscriptionURI, name string, msg xbospb.XBOS, idx int) typ
 	time := int64(msg.DentMeterState.Time)
 	extracted.Values = append(extracted.Values, value)
 	extracted.Times = append(extracted.Times, time)
-	extracted.UUID = types.GenerateUUID(uri, []byte(name+phasename+eltname))
-	extracted.Collection = fmt.Sprintf("%s", uri.Resource) //uri.Resource
+
+	// incomming uri is dentmeter/<bldg>/<meterid>
+	parts := strings.Split(uri.Resource, "/")
+	// remove initial part
+	baseuri := strings.Join(parts[1:], "/") // now just <bldg>/<meterid>
+	extracted.UUID = types.GenerateUUID(uri, []byte(uri.Resource+name+phasename+eltname+"dent_meter_archive_1"))
+	extracted.Collection = fmt.Sprintf("dent_meter/berkeley/%s/%s/%s", baseuri, eltname, phasename) //uri.Resource
+	//fmt.Println(extracted.Collection, extracted.UUID.String())
 	extracted.Tags = map[string]string{
 		"unit":  units[name],
 		"name":  name,
@@ -86,6 +93,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 		for idx := range msg.DentMeterState.Phases {
 			for name := range lookup {
 				extracted := build(uri, name, msg, idx)
+				//fmt.Println(idx, name, uri, len(extracted.Values))
 				if err := add(extracted); err != nil {
 					return err
 				}
