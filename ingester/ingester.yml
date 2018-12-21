@@ -1,0 +1,12 @@
+database:
+    influxdb:
+        address: "http://127.0.0.1:8086"
+        database: "xbos"
+        username: ""
+        password: ""
+
+wavemq:
+    entityfile: "wavemqingester.ent"
+    siterouter: "127.0.0.1:4516"
+    subscriptionexpiry: 10
+    #clientid: ""
