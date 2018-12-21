@@ -41,7 +41,7 @@ func main() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	logrus.Printf("%+v\n", cfg)
+	DrawConfig(cfg)
 
 	ctx := context.Background()
 

@@ -2,12 +2,14 @@ package main
 
 import (
 	"encoding/base64"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
+	"time"
 
 	//"github.com/op/go-logging"
 	logrus "github.com/sirupsen/logrus"
@@ -132,3 +134,31 @@ func ReadConfigFromString(configString string) (*Config, error) {
 
 	return getCfg(), nil
 }
+
+func DrawConfig(cfg *Config) {
+	fmt.Printf("╭──────────────────────\n")
+	fmt.Printf("╞══════ Database ══════\n")
+	if cfg.Database.BTrDB != nil {
+		fmt.Printf("│ Name: BTrDB\n")
+		fmt.Printf("│ Address: %s\n", cfg.Database.BTrDB.Address)
+	} else if cfg.Database.InfluxDB != nil {
+		fmt.Printf("│ Name: InfluxDB\n")
+		fmt.Printf("│ Address: %s\n", cfg.Database.InfluxDB.Address)
+		fmt.Printf("│ Database: %s\n", cfg.Database.InfluxDB.Database)
+		fmt.Printf("│ Username: %s\n", cfg.Database.InfluxDB.Username)
+		fmt.Printf("│ Password: %s\n", cfg.Database.InfluxDB.Password)
+	}
+	fmt.Printf("╞═══════ WAVEMQ ═══════\n")
+	fmt.Printf("│ EntityFile: %s\n", cfg.WAVEMQ.EntityFile)
+	fmt.Printf("│ SiteRouter: %s\n", cfg.WAVEMQ.SiteRouter)
+	dur := time.Duration(cfg.WAVEMQ.SubscriptionExpiry) * time.Second
+	fmt.Printf("│ SubscriptionExpiry: %s\n", dur)
+	cid := cfg.WAVEMQ.ClientID
+	if cid == "" {
+		cid = "<random on start>"
+	}
+	fmt.Printf("│ ClientID: %s\n", cid)
+	fmt.Printf("╰──────────────────────\n")
+}
+
+// TODO: pretty print the config for fun
