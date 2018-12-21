@@ -28,7 +28,7 @@ type Ingester struct {
 	subsLock sync.RWMutex
 }
 
-func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, btrdbCfg *btrdbConfig, influxCfg *influxdbConfig, ctx context.Context) *Ingester {
+func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, dbcfg Database, ctx context.Context) *Ingester {
 	ingest := &Ingester{
 		plugin_mapping: make(map[string]pluginlist),
 		perspective:    persp,
@@ -36,10 +36,10 @@ func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, btrdbCfg *bt
 		subs:           make(map[types.SubscriptionURI]*subscription),
 		ctx:            ctx,
 	}
-	if btrdbCfg != nil {
-		ingest.tsdbClient = newBTrDBv4(btrdbCfg)
-	} else if influxCfg != nil {
-		ingest.tsdbClient = newInfluxDB(influxCfg)
+	if dbcfg.BTrDB != nil {
+		ingest.tsdbClient = newBTrDBv4(dbcfg.BTrDB)
+	} else if dbcfg.InfluxDB != nil {
+		ingest.tsdbClient = newInfluxDB(dbcfg.InfluxDB)
 	}
 
 	return ingest
@@ -118,8 +118,6 @@ func (ingest *Ingester) runPlugins(uri types.SubscriptionURI, msg *mqpb.Message)
 				logrus.Error(errors.Wrap(err, "Could not run extractfunc"))
 			}
 		}
-
-		//matchSchema(po.Schema, msg)
 	}
 	return nil
 }

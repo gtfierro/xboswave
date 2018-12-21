@@ -32,13 +32,9 @@ type btrdbClient struct {
 	writebufferLock     sync.Mutex
 }
 
-type btrdbConfig struct {
-	addresses []string
-}
-
-func newBTrDBv4(c *btrdbConfig) *btrdbClient {
+func newBTrDBv4(c *BTrDBConfig) *btrdbClient {
 	b := &btrdbClient{
-		addresses:   c.addresses,
+		addresses:   []string{c.Address},
 		streamCache: make(map[string]*btrdb.Stream),
 		writebuffer: make(map[[16]byte]*types.ExtractedTimeseries),
 		lastwrite:   make(map[[16]byte]time.Time),
@@ -228,27 +224,22 @@ func (bdb *btrdbClient) commitBuffer(buf *types.ExtractedTimeseries) error {
 	return nil
 }
 
-type influxdbConfig struct {
-	address string
-	user    string
-	pass    string
-}
-
 type influxClient struct {
 	conn influx.Client
 
+	dbname              string
 	writebuffer         map[[16]byte]*types.ExtractedTimeseries
 	lastwrite           map[[16]byte]time.Time
 	outstandingReadings int64
 	writebufferLock     sync.Mutex
 }
 
-func newInfluxDB(c *influxdbConfig) *influxClient {
-	logrus.Infof("Connecting to InfluxDB at address %v...", c.address)
+func newInfluxDB(c *InfluxDBConfig) *influxClient {
+	logrus.Infof("Connecting to InfluxDB at address %v...", c.Address)
 	conn, err := influx.NewHTTPClient(influx.HTTPConfig{
-		Addr:     c.address,
-		Username: c.user,
-		Password: c.pass,
+		Addr:     c.Address,
+		Username: c.Username,
+		Password: c.Password,
 	})
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "could not connect influx"))
@@ -257,6 +248,7 @@ func newInfluxDB(c *influxdbConfig) *influxClient {
 
 	i := &influxClient{
 		conn:        conn,
+		dbname:      c.Database,
 		writebuffer: make(map[[16]byte]*types.ExtractedTimeseries),
 		lastwrite:   make(map[[16]byte]time.Time),
 	}
@@ -267,7 +259,7 @@ func newInfluxDB(c *influxdbConfig) *influxClient {
 func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
 
 	bp, err := influx.NewBatchPoints(influx.BatchPointsConfig{
-		Database:  "xbos",
+		Database:  inf.dbname,
 		Precision: "s",
 	})
 	if err != nil {
