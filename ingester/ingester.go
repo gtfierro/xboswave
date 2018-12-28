@@ -34,7 +34,7 @@ type Ingester struct {
 	subsLock sync.RWMutex
 }
 
-func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, dbcfg Database, cfgmgr *ConfigManager, ctx context.Context) *Ingester {
+func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, cfg Config, cfgmgr *ConfigManager, ctx context.Context) *Ingester {
 	ingest := &Ingester{
 		plugin_mapping: make(map[string]pluginlist),
 		perspective:    persp,
@@ -49,17 +49,18 @@ func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, dbcfg Databa
 	// TODO: configurable
 	http.Handle("/metrics", promhttp.Handler())
 	go func() {
-		logrus.Info("Prometheus endpoint at :2112")
-		if err := http.ListenAndServe(":2112", nil); err != nil {
+		port := fmt.Sprintf(":%d", cfg.Monitoring.PrometheusPort)
+		logrus.Infof("Prometheus endpoint at %s", port)
+		if err := http.ListenAndServe(port, nil); err != nil {
 			logrus.Fatal(err)
 		}
 	}()
 
 	// instantiate the timeseries database
-	if dbcfg.BTrDB != nil {
-		ingest.tsdbClient = newBTrDBv4(dbcfg.BTrDB)
-	} else if dbcfg.InfluxDB != nil {
-		ingest.tsdbClient = newInfluxDB(dbcfg.InfluxDB)
+	if cfg.Database.BTrDB != nil {
+		ingest.tsdbClient = newBTrDBv4(cfg.Database.BTrDB)
+	} else if cfg.Database.InfluxDB != nil {
+		ingest.tsdbClient = newInfluxDB(cfg.Database.InfluxDB)
 	}
 
 	// monitor pendingSubs channel for changes to the subscriptions

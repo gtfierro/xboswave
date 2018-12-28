@@ -99,7 +99,7 @@ func main() {
 	//influxCfg := &influxdbConfig{
 	//	address: "http://127.0.0.1:8086",
 	//}
-	ingest := NewIngester(client, persp, cfg.Database, cfgmgr, ctx)
+	ingest := NewIngester(client, persp, *cfg, cfgmgr, ctx)
 
 	//store := NewArchiveRequestStore(client, persp, extract)
 	req := &ArchiveRequest{
