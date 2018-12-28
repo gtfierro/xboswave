@@ -12,3 +12,6 @@ build: plugins/hamilton1.so plugins/iot_plugin.so plugins/dent.so
 
 run: build 
 	./ingester
+
+prometheus:
+	docker run --rm --name prometheus -p 9090:9090 -v `pwd`/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
