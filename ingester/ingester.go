@@ -89,7 +89,7 @@ func (ingest *Ingester) Finish() error {
 		logrus.Info("stopping ", uri)
 		sub.stop <- struct{}{}
 	}
-	logrus.Info("Flushing BTrDB")
+	logrus.Info("Flushing buffered timeseries values")
 	return ingest.tsdbClient.Flush()
 }
 
