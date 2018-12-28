@@ -18,4 +18,12 @@ var (
 		Name: "ingester_active_subscriptions",
 		Help: "# of active WAVEMQ subscriptions",
 	})
+	commitTimes = promauto.NewSummary(prometheus.SummaryOpts{
+		Name: "ingester_commit_time_milliseconds",
+		Help: "amount of time it takes to commit a batch",
+	})
+	commitSizes = promauto.NewSummary(prometheus.SummaryOpts{
+		Name: "ingester_commit_buffer_size_msgs",
+		Help: "number of readings in each batch",
+	})
 )

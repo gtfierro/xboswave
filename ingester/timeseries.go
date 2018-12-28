@@ -169,6 +169,7 @@ func (bdb *btrdbClient) write(extracted types.ExtractedTimeseries) error {
 }
 
 func (bdb *btrdbClient) commitBuffer(buf *types.ExtractedTimeseries) error {
+	start := time.Now()
 	stream, err := bdb.getStream(*buf)
 	if err != nil {
 		return err
@@ -220,6 +221,8 @@ func (bdb *btrdbClient) commitBuffer(buf *types.ExtractedTimeseries) error {
 	}
 	atomic.AddInt64(&bdb.outstandingReadings, -int64(len(buf.Values)))
 	pointsCommitted.Add(float64(len(buf.Values)))
+	commitSizes.Observe(float64(len(buf.Values)))
+	commitTimes.Observe(float64(time.Since(start).Nanoseconds() / 1e6))
 	buf.Values = buf.Values[:0]
 	buf.Times = buf.Times[:0]
 	return nil
@@ -267,6 +270,7 @@ func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
 		return errors.Wrap(err, "could not create new batch")
 	}
 
+	start := time.Now()
 	for idx, t := range extracted.Times {
 		val := extracted.Values[idx]
 		tags := map[string]string{
@@ -291,6 +295,8 @@ func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
 		// increment # of points we have processed
 		pointsCommitted.Inc()
 	}
+	commitSizes.Observe(float64(len(extracted.Values)))
+	commitTimes.Observe(float64(time.Since(start).Nanoseconds() / 1e6))
 
 	return inf.conn.Write(bp)
 }
