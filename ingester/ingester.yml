@@ -9,4 +9,4 @@ wavemq:
     entityfile: "wavemqingester.ent"
     siterouter: "127.0.0.1:4516"
     subscriptionexpiry: 10
-    #clientid: ""
+    clientid: "testme123"

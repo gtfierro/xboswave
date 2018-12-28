@@ -17,6 +17,11 @@ type ArchiveRequest struct {
 	Schema string
 	Plugin string
 	URI    types.SubscriptionURI
+
+	// reported
+	Inserted       time.Time
+	LastError      string
+	ErrorTimestamp time.Time
 }
 
 type subscription struct {
@@ -45,7 +50,7 @@ func NewCfgManager(cfg *Config) (*ConfigManager, error) {
         resource TEXT NOT NULL,
         inserted DATETIME DEFAULT CURRENT_TIMESTAMP,
         lastError TEXT,
-        errorTimestamp DATETIME
+        errorTimestamp DATETIME DEFAULT NULL
     );`)
 
 	return cfgmgr, err
@@ -127,6 +132,23 @@ func (cfgmgr *ConfigManager) Add(req ArchiveRequest) error {
 	return nil
 }
 
+// deletes the request from the config manager; returns true if anyone else uses the same subscription URI
+func (cfgmgr *ConfigManager) Delete(req ArchiveRequest) (bool, error) {
+
+	stmt := "DELETE FROM requests WHERE schema=? AND plugin=? AND namespace=? AND resource=?;"
+	_, err := cfgmgr.db.Exec(stmt, req.Schema, req.Plugin, req.URI.Namespace, req.URI.Resource)
+	if err != nil {
+		return true, err
+	}
+
+	filter := &RequestFilter{
+		Namespace: &req.URI.Namespace,
+		Resource:  &req.URI.Resource,
+	}
+	existingSubs, err := cfgmgr.List(filter)
+	return len(existingSubs) > 0, err
+}
+
 func (cfgmgr *ConfigManager) MarkErrorURI(uri types.SubscriptionURI, subErr string) error {
 	stmt := "UPDATE requests SET lastError = ?, errorTimestamp = ? WHERE namespace = ? AND resource = ?"
 	_, err := cfgmgr.db.Exec(stmt, subErr, time.Now(), uri.Namespace, uri.Resource)
@@ -137,4 +159,31 @@ func (cfgmgr *ConfigManager) ClearErrorURI(uri types.SubscriptionURI) error {
 	stmt := "UPDATE requests SET lastError = '', errorTimestamp = '' WHERE namespace = ? AND resource = ?"
 	_, err := cfgmgr.db.Exec(stmt, uri.Namespace, uri.Resource)
 	return err
+}
+
+func (cfgmgr *ConfigManager) Status() ([]ArchiveRequest, error) {
+	stmt := "SELECT schema, plugin, namespace, resource, inserted, coalesce(lastError, ''), errorTimestamp FROM requests;"
+	var results []ArchiveRequest
+	rows, err := cfgmgr.db.Query(stmt)
+	if err != nil {
+		return results, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		row := &ArchiveRequest{
+			URI: types.SubscriptionURI{},
+		}
+		var et interface{}
+		if err := rows.Scan(&row.Schema, &row.Plugin, &row.URI.Namespace, &row.URI.Resource, &row.Inserted, &row.LastError, &et); err != nil {
+			return results, err
+		}
+		if et != nil {
+			row.ErrorTimestamp = et.(time.Time)
+		} else {
+			row.ErrorTimestamp = time.Unix(0, 0)
+		}
+
+		results = append(results, *row)
+	}
+	return results, nil
 }

@@ -158,6 +158,24 @@ func (ingest *Ingester) runPlugins(uri types.SubscriptionURI, msg *mqpb.Message)
 	return nil
 }
 
+func (ingest *Ingester) delArchiveRequest(req *ArchiveRequest) error {
+	// remove the request from the config manager
+	remainingSubs, err := ingest.cfgmgr.Delete(*req)
+	if err != nil {
+		return err
+	}
+
+	// request an unsubscription, but don't unsub if someone else is using it
+	if !remainingSubs {
+		ingest.pendingSubs <- subscriptionChange{
+			add: false,
+			uri: req.URI,
+		}
+	}
+
+	return nil
+}
+
 func (ingest *Ingester) addArchiveRequest(req *ArchiveRequest) error {
 	// register plugin
 	err := ingest.addPlugin(req.Schema, req.Plugin)
