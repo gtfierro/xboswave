@@ -76,6 +76,8 @@ func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, dbcfg Databa
 		}
 	}
 
+	go ingest.shell()
+
 	return ingest
 }
 
