@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/abiosoft/readline"
 	"github.com/fatih/color"
 	"github.com/gliderlabs/ssh"
+	logrus "github.com/sirupsen/logrus"
 )
 
 func (ingest *Ingester) shell() {
@@ -230,17 +230,12 @@ This is an example of a long help.`,
 			},
 		})
 
-		// when started with "exit" as first argument, assume non-interactive execution
-		if len(os.Args) > 1 && os.Args[1] == "exit" {
-			shell.Process(os.Args[2:]...)
-		} else {
-			// start shell
-			shell.Run()
-			// teardown
-			shell.Close()
-		}
-
+		// start shell
+		shell.Run()
+		// teardown
+		shell.Close()
 	})
-	go ssh.ListenAndServe(":2222", nil)
-
+	if err := ssh.ListenAndServe(":2222", nil, ssh.HostKeyFile("sshkey")); err != nil {
+		logrus.Error(err)
+	}
 }

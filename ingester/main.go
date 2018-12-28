@@ -28,7 +28,7 @@ const EntityFile = "wavemqingester.ent"
 const Namespace = "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w=="
 const SiteRouter = "127.0.0.1:4516"
 
-var IngesterName = "testingester2"
+var IngesterName = "testingester3"
 var IngestSubscriptionExpiry = int64(48 * 60 * 60) // 48 hours
 var MaxInMemoryTimeseriesBuffer = 1000             // # of time/reading pairs
 var TimeseriesOperationTimeout = 1 * time.Minute
