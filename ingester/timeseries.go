@@ -219,6 +219,7 @@ func (bdb *btrdbClient) commitBuffer(buf *types.ExtractedTimeseries) error {
 		return errors.Wrapf(err, "Could not insert into %s", buf.Collection)
 	}
 	atomic.AddInt64(&bdb.outstandingReadings, -int64(len(buf.Values)))
+	pointsCommitted.Add(float64(len(buf.Values)))
 	buf.Values = buf.Values[:0]
 	buf.Times = buf.Times[:0]
 	return nil
@@ -287,6 +288,8 @@ func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
 			return errors.Wrap(err, "could not create new point")
 		}
 		bp.AddPoint(pt)
+		// increment # of points we have processed
+		pointsCommitted.Inc()
 	}
 
 	return inf.conn.Write(bp)

@@ -9,7 +9,9 @@ import (
 	xbospb "github.com/gtfierro/xboswave/proto"
 	"github.com/immesys/wavemq/mqpb"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	logrus "github.com/sirupsen/logrus"
+	"net/http"
 	"plugin"
 	"sync"
 )
@@ -22,25 +24,48 @@ type Ingester struct {
 	perspective    *mqpb.Perspective
 	//btrdbClient    *btrdbClient
 	tsdbClient timeseriesInterface
+	cfgmgr     *ConfigManager
 	ctx        context.Context
+
+	// pending subscription changes
+	pendingSubs chan subscriptionChange
 
 	subs     map[types.SubscriptionURI]*subscription
 	subsLock sync.RWMutex
 }
 
-func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, dbcfg Database, ctx context.Context) *Ingester {
+func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, dbcfg Database, cfgmgr *ConfigManager, ctx context.Context) *Ingester {
 	ingest := &Ingester{
 		plugin_mapping: make(map[string]pluginlist),
 		perspective:    persp,
 		client:         client,
 		subs:           make(map[types.SubscriptionURI]*subscription),
+		pendingSubs:    make(chan subscriptionChange),
+		cfgmgr:         cfgmgr,
 		ctx:            ctx,
 	}
+
+	// setup prometheus endpoint
+	// TODO: configurable
+	http.Handle("/metrics", promhttp.Handler())
+	go func() {
+		logrus.Info("Prometheus endpoint at :2112")
+		if err := http.ListenAndServe(":2112", nil); err != nil {
+			logrus.Fatal(err)
+		}
+	}()
+
+	// instantiate the timeseries database
 	if dbcfg.BTrDB != nil {
 		ingest.tsdbClient = newBTrDBv4(dbcfg.BTrDB)
 	} else if dbcfg.InfluxDB != nil {
 		ingest.tsdbClient = newInfluxDB(dbcfg.InfluxDB)
 	}
+
+	//TODO: add subscriptions from the store
+
+	// monitor pendingSubs channel for changes to the subscriptions
+	ingest.handleSubscriptionChanges()
 
 	return ingest
 }
@@ -128,18 +153,16 @@ func (ingest *Ingester) addArchiveRequest(req *ArchiveRequest) error {
 	if err != nil {
 		return err
 	}
-	ingest.subsLock.Lock()
-	defer ingest.subsLock.Unlock()
 
-	sub, found := ingest.subs[req.URI]
-	if found {
-		return nil
+	// request a subscription
+	ingest.pendingSubs <- subscriptionChange{
+		add: true,
+		uri: req.URI,
 	}
-	sub, err = ingest.newSubscription(req.URI)
-	if err != nil {
+
+	if err := ingest.cfgmgr.Add(*req); err != nil {
 		return err
 	}
-	ingest.subs[req.URI] = sub
 
 	return nil
 }
@@ -163,18 +186,22 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not subscribe to namespace %s", uri.Namespace)
 	}
+	// increase # of active subs
+	activeSubscriptions.Inc()
 
 	go func() {
 		for {
 			select {
 			case <-sub.stop:
 				logrus.Warning("Stopping subscription to ", sub.uri)
+				activeSubscriptions.Dec()
 				return
 			default:
 			}
 			m, err := sub.S.Recv()
 			if err != nil {
 				logrus.Error("subscribe err1:", err)
+				activeSubscriptions.Dec()
 				sub.S, err = ingest.client.Subscribe(context.Background(), &mqpb.SubscribeParams{
 					Perspective: ingest.perspective,
 					Namespace:   nsbytes,
@@ -187,6 +214,7 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 					continue
 				} else {
 					logrus.Info("Restablished subscription to", uri.Resource)
+					activeSubscriptions.Inc()
 				}
 				continue
 			}
@@ -195,6 +223,7 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 				continue
 			}
 			// get uri
+			msgsProcessed.Inc()
 			err = ingest.runPlugins(uri, m.Message)
 			if err != nil {
 				logrus.Error("plugins err:", err)

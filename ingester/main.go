@@ -77,6 +77,12 @@ func main() {
 		close(done)
 	}()
 
+	// config manager
+	cfgmgr, err := NewCfgManager(cfg)
+	if err != nil {
+		logrus.Fatalf("Could not open config manager (%v)", err)
+	}
+
 	// Load the WAVE3 entity that will be used
 	perspective, err := ioutil.ReadFile(cfg.WAVEMQ.EntityFile)
 	if err != nil {
@@ -93,32 +99,32 @@ func main() {
 	//influxCfg := &influxdbConfig{
 	//	address: "http://127.0.0.1:8086",
 	//}
-	ingest := NewIngester(client, persp, cfg.Database, ctx)
+	ingest := NewIngester(client, persp, cfg.Database, cfgmgr, ctx)
 
 	//store := NewArchiveRequestStore(client, persp, extract)
-	//req := &ArchiveRequest{
-	//	Schema: "xbosproto/XBOS",
-	//	Plugin: "plugins/hamilton1.so",
-	//	URI: types.SubscriptionURI{
-	//		Namespace: "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==", // XBOS
-	//		Resource:  "*",
-	//	},
-	//}
-	//if err := ingest.addArchiveRequest(req); err != nil {
-	//	logrus.Fatal(err)
-	//}
+	req := &ArchiveRequest{
+		Schema: "xbosproto/XBOS",
+		Plugin: "plugins/hamilton1.so",
+		URI: types.SubscriptionURI{
+			Namespace: "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==", // XBOS
+			Resource:  "*",
+		},
+	}
+	if err := ingest.addArchiveRequest(req); err != nil {
+		logrus.Fatal(err)
+	}
 
-	//req2 := &ArchiveRequest{
-	//	Schema: "xbosproto/XBOS",
-	//	Plugin: "plugins/iot_plugin.so",
-	//	URI: types.SubscriptionURI{
-	//		Namespace: "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==", // XBOS
-	//		Resource:  "*",
-	//	},
-	//}
-	//if err := ingest.addArchiveRequest(req2); err != nil {
-	//	logrus.Fatal(err)
-	//}
+	req2 := &ArchiveRequest{
+		Schema: "xbosproto/XBOS",
+		Plugin: "plugins/iot_plugin.so",
+		URI: types.SubscriptionURI{
+			Namespace: "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==", // XBOS
+			Resource:  "*",
+		},
+	}
+	if err := ingest.addArchiveRequest(req2); err != nil {
+		logrus.Fatal(err)
+	}
 
 	req3 := &ArchiveRequest{
 		Schema: "xbosproto/XBOS",
@@ -130,6 +136,18 @@ func main() {
 	}
 	if err := ingest.addArchiveRequest(req3); err != nil {
 		logrus.Fatal(err)
+	}
+	if err := cfgmgr.Add(*req3); err != nil {
+		logrus.Fatal(err)
+	}
+	x, e := cfgmgr.List(&RequestFilter{
+		Schema: &req3.Schema,
+	})
+	if e != nil {
+		logrus.Fatal(e)
+	}
+	for _, xx := range x {
+		logrus.Printf("%+v", xx)
 	}
 
 	<-done
