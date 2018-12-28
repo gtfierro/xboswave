@@ -184,5 +184,3 @@ func DrawConfig(cfg *Config) {
 	fmt.Printf("│ Path: %s\n", cfg.Store.Path)
 	fmt.Printf("╰──────────────────────\n")
 }
-
-// TODO: pretty print the config for fun

@@ -46,7 +46,6 @@ func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, cfg Config, 
 	}
 
 	// setup prometheus endpoint
-	// TODO: configurable
 	http.Handle("/metrics", promhttp.Handler())
 	go func() {
 		port := fmt.Sprintf(":%d", cfg.Monitoring.PrometheusPort)

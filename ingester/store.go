@@ -12,7 +12,6 @@ import (
 	logrus "github.com/sirupsen/logrus"
 )
 
-// TODO: these go into sqlite table
 type ArchiveRequest struct {
 	Schema string
 	Plugin string
@@ -62,7 +61,6 @@ type RequestFilter struct {
 	Namespace *string
 	Resource  *string
 	HasError  *bool
-	//TODO: inserted time
 }
 
 func (cfgmgr *ConfigManager) List(filter *RequestFilter) ([]ArchiveRequest, error) {

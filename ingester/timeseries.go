@@ -189,7 +189,7 @@ func (bdb *btrdbClient) commitBuffer(buf *types.ExtractedTimeseries) error {
 		return nil
 	}
 
-	// TODO: delete the range before inserting
+	// delete the range before inserting
 	var minTime int64 = 1 << 62
 	var maxTime int64 = -1
 	for _, ts := range buf.Times {
@@ -200,7 +200,7 @@ func (bdb *btrdbClient) commitBuffer(buf *types.ExtractedTimeseries) error {
 			maxTime = ts
 		}
 	}
-	// TODO: use nearest on the start time of the range.
+	// use nearest on the start time of the range.
 	if minTime != maxTime {
 		rv, _, err := stream.Nearest(ctx, minTime, 0, true)
 		if err != nil {
