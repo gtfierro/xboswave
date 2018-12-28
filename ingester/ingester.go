@@ -62,10 +62,19 @@ func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, dbcfg Databa
 		ingest.tsdbClient = newInfluxDB(dbcfg.InfluxDB)
 	}
 
-	//TODO: add subscriptions from the store
-
 	// monitor pendingSubs channel for changes to the subscriptions
 	ingest.handleSubscriptionChanges()
+
+	// add existing archive requests
+	existingRequests, err := ingest.cfgmgr.List(nil)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	for _, req := range existingRequests {
+		if err := ingest.addArchiveRequest(&req); err != nil {
+			logrus.Fatal(err)
+		}
+	}
 
 	return ingest
 }
