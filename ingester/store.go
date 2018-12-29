@@ -13,13 +13,23 @@ import (
 )
 
 type ArchiveRequest struct {
+	// message schema this request applies to
+	// (this is a field in the WAVEMQ wrapper)
 	Schema string
+	// path to the plugin to use to extract
+	// timeseries data (e.g. plugins/dent.so)
+	// Path should end in .so
 	Plugin string
-	URI    types.SubscriptionURI
+	// the URI we subscribe to
+	URI types.SubscriptionURI
 
-	// reported
-	Inserted       time.Time
-	LastError      string
+	// reported values
+
+	// time this archive request was created
+	Inserted time.Time
+	// the text of the last error this archive request experienced
+	LastError string
+	// what time that error occured
 	ErrorTimestamp time.Time
 }
 

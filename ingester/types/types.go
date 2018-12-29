@@ -9,8 +9,10 @@ import (
 type Extract func(uri SubscriptionURI, msg xbospb.XBOS, add func(ExtractedTimeseries) error) error
 
 type SubscriptionURI struct {
+	// WAVE namespace (base64-encoded)
 	Namespace string
-	Resource  string
+	// '/'-delimited resource path to subscribe to
+	Resource string
 }
 
 var NoMatch = errors.New("No Match")
