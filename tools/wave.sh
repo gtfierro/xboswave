@@ -29,14 +29,21 @@ sub_mk_namespace(){
         exit 1;
     fi
 	name=$1
-	wv mke -e 50y --nopassphrase -o $name.ent
-    echo '...skipping passphrase...'
-    echo '\n' | wv name --public --attester $WAVE_DEFAULT_ENTITY $name.ent $name
-    echo '\n' | wv name --public --attester $name.ent $name.ent $name
-    echo '\n' | wv rtprove --subject $WAVE_DEFAULT_ENTITY wavemq:publish,subscribe@$name/*
-    if [ $? -ne 0 ]; then
+    if [ ! -f $name.ent ]; then
+        printf "${YELLOW}Creating namespace${NC}\n"
+        wv mke -e 50y --nopassphrase -o $name.ent
+        echo '...skipping passphrase...'
+        echo '\n' | wv name --public --attester $WAVE_DEFAULT_ENTITY $name.ent $name
+        echo '\n' | wv name --public --attester $name.ent $name.ent $name
+    else
+        printf "${YELLOW}Already exists${NC}\n"
+    fi
+    #echo '\n' | wv rtprove -o proof.pem --subject $WAVE_DEFAULT_ENTITY wavemq:publish,subscribe@$name/*
+    sub_check_ns_access $name
+    if [ $success -ne 0 ]; then
         printf "${YELLOW}No existing access; granting to ${WAVE_DEFAULT_ENTITY} ${NC}\n"
         echo '\n' | wv rtgrant --subject $WAVE_DEFAULT_ENTITY -e 3y --attester $name.ent --indirections 5 wavemq:publish,subscribe@$name/*
+        sub_check_ns_access $name
     fi
 }
 
