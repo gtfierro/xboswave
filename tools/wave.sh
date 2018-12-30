@@ -15,6 +15,7 @@ sub_help(){
     echo "    mk_namespace  <namespace name>"
     echo "    check_ns_access <namespace name> <entity path?>"
     echo "    mk_driver_ent <driver name> <namespace name>"
+    echo "    grant_dr <namespace name> <router entity>"
     echo ""
     echo "For help with each subcommand run:"
     echo "$ProgName <subcommand> -h|--help"
@@ -120,6 +121,46 @@ sub_mk_driver_ent(){
     else
         printf "${GREEN}Already has access${NC}\n"
     fi
+}
+
+sub_grant_dr(){
+    # input:
+    # - namespace name
+    # - PK of router
+    # checks if the name argument is there
+    if [ -z "$1" ]; then
+        echo "Need to provide a namespace entity to grant routing permissions"
+        exit 1;
+    fi
+    if [ -z "$2" ]; then
+        echo "Need to provide a path to the designated router entity"
+        exit 1;
+    fi
+
+	ns=$1
+	routerent=$2
+    echo '\n' | wv rtprove -o routerproof.pem --subject $routerent wavemq:route@$ns.ent/*
+    if [ $? -eq 0 ]; then
+        wv verify routerproof.pem
+        if [ $? -eq 0 ]; then
+            cp routerproof.pem $ns-routerproof.pem
+            printf "${GREEN}-- ok --${NC}\n"
+            success=0
+            return
+        fi
+    fi
+    printf "${YELLOW}-- no access. granting... --${NC}\n"
+    echo '\n' | wv rtgrant --subject $routerent -e 3y --attester $ns.ent --indirections 0 wavemq:route@$ns.ent/*
+    echo '\n' | wv rtprove -o routerproof.pem --subject $routerent wavemq:route@$ns.ent/*
+    wv verify routerproof.pem
+    if [ $? -eq 0 ]; then
+        printf "${GREEN}-- ok --${NC}\n"
+        success=0
+    else
+        printf "${RED}-- no access --${NC}\n"
+        success=1
+    fi
+    cp routerproof.pem $ns-routerproof.pem
 }
 
 subcommand=$1
