@@ -33,11 +33,11 @@ sub_mk_namespace(){
         printf "${YELLOW}Creating namespace${NC}\n"
         wv mke -e 50y --nopassphrase -o $name.ent
         echo '...skipping passphrase...'
-        echo '\n' | wv name --public --attester $WAVE_DEFAULT_ENTITY $name.ent $name
-        echo '\n' | wv name --public --attester $name.ent $name.ent $name
     else
         printf "${YELLOW}Already exists${NC}\n"
     fi
+    echo '\n' | wv name --public --attester $WAVE_DEFAULT_ENTITY $name.ent $name
+    echo '\n' | wv name --public --attester $name.ent $name.ent $name
     #echo '\n' | wv rtprove -o proof.pem --subject $WAVE_DEFAULT_ENTITY wavemq:publish,subscribe@$name/*
     sub_check_ns_access $name
     if [ $success -ne 0 ]; then
@@ -106,11 +106,11 @@ sub_mk_driver_ent(){
         printf "${YELLOW}Entity does not exist; creating${NC}\n"
 	    wv mke -e 10y --nopassphrase -o $name.ent
         echo '...skipping passphrase...'
-        echo '\n' | wv name --public --attester $WAVE_DEFAULT_ENTITY $name.ent $name
-        echo '\n' | wv name --public --attester $name.ent $ns.ent $ns
     else
         printf "${YELLOW}Already exists${NC}\n"
     fi
+    echo '\n' | wv name --public --attester $WAVE_DEFAULT_ENTITY $name.ent $name
+    echo '\n' | wv name --public --attester $name.ent $ns.ent $ns
 
     sub_check_ns_access $ns $name.ent $name/*
     if [ $success -ne 0 ]; then
