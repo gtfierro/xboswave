@@ -84,7 +84,7 @@ class Driver:
 
         # call self.setup
         self._log.info("Run driver setup")
-        self.setup()
+        self.setup(self._cfg)
 
         self._log.info("Subscribe to write URI {0}".format(self._cfg['base_resource_write']))
         # subscribe to the write uri
