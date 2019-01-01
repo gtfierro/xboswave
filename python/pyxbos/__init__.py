@@ -1,3 +1,7 @@
+import os
+import logging
+import time
+import threading
 import grpc
 import pickle
 import base64
@@ -15,96 +19,140 @@ WaveGlobalNamespace = b"\x1b\x20\xcf\x8d\x19\xd7\x9d\x23\x01\x38\x65\xbe\xf7\x57
 
 WaveBuiltinE2EE = "decrypt"
 
-# TODO:
-# - need to load regular entity from disk using Python
+
+class PyXBOSError(Exception):
+    """Base class for exceptions in pyxbos"""
+    pass
+
+class ConfigMissingError(PyXBOSError):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        expected -- expected key
+    """
+
+    def __init__(self, expected, extra=""):
+        self.expected = expected
+        self.message = "Expected key \"{0}\" in config ({1})".format(expected, extra)
 
 class Driver:
-    def __init__(self):
+    """Base class encapsulating driver report functionality"""
+    def __init__(self, cfg):
+        self._log = logging.getLogger(__name__)
 
-        self.cfg = {
-            "wavemq": "localhost:4516",
-            "waved": "localhost:410",
-            "entity": "driver",
-            "rate": 2,
-            "namespace": "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==",
-            "publish_uri": "driver/test/gabe/light1",
-        }
+        self._log.info("Reading config {0}".format(str(cfg)))
 
+        # check defaults
+        if 'wavemq' not in cfg:
+            cfg['wavemq'] = 'localhost:4516'
+        if 'waved' not in cfg:
+            cfg['waved'] = 'localhost:410'
+        if 'entity' not in cfg:
+            if 'WAVE_DEFAULT_ENTITY' in os.environ:
+                cfg['entity'] = os.environ['WAVE_DEFAULT_ENTITY']
+            else:
+                raise ConfigMissingError('entity', extra="And no WAVE_DEFAULT_ENTITY in environment")
+        if 'id' not in cfg:
+            raise ConfigMissingError('namespace')
+        if 'namespace' not in cfg:
+            raise ConfigMissingError('namespace')
+        if 'base_resource' not in cfg:
+            raise ConfigMissingError('base_resource')
 
-        # connect to the waved agent
+        self._cfg = cfg
+
+        # connect to the wavemq agent
+        self._log.info("Connecting to wavemq agent at {0}".format(cfg['wavemq']))
         self.connect()
+        self._log.info("Connected to wavemq")
 
         # load the wave entity
-        self.ent, _ = self.createOrLoadEntity(self.cfg['entity'])
-        self.perspective = Perspective(
-            entitySecret=EntitySecret(DER=self.ent.SecretDER)
+        self._log.info("Loading wave entity {0}".format(cfg['entity']))
+        self._ent = open(self._cfg['entity'],'rb').read()
+        self._perspective = Perspective(
+            entitySecret=EntitySecret(DER=self._ent),
         )
-        self.namespace = b64decode(self.cfg['namespace'])
-        self.uri = self.cfg['publish_uri']
+        self._namespace = b64decode(self._cfg['namespace'])
+        self._uri = self._cfg['base_resource']
 
     def connect(self):
         # connect to wavemq agent
-        #from .wavemq_pb2 import *
-        #from .wavemq_pb2_grpc import WAVEMQStub
-        wavemq_channel = grpc.insecure_channel(self.cfg['wavemq'])
+        wavemq_channel = grpc.insecure_channel(self._cfg['wavemq'])
         self.cl = WAVEMQStub(wavemq_channel)
 
     def begin(self):
 
-        print("DRIVER entity is: ", b64encode(self.ent.hash))
-
         # call self.setup
+        self._log.info("Run driver setup")
         self.setup()
 
+        self._log.info("Subscribe to write URI {0}".format(self._cfg['base_resource_write']))
+        # subscribe to the write uri
+        sub = self.cl.Subscribe(SubscribeParams(
+            perspective=self._perspective,
+            namespace=self._namespace,
+            uri=self._cfg['base_resource_write'],
+            identifier=self._cfg['id'],
+            expiry=120,
+        ))
+
+        # this runs in a thread
+        def writeloop():
+            for msg in sub:
+                if len(msg.error.message) > 0:
+                    self._log.error("Get actuation message. Error {0}".format(msg.error.message))
+                    continue
+                m = msg.message
+                now = int(time.time()*1e9)
+                # seconds
+                since = (now - m.timestamps[-1]) / 1.e9
+                print('timestamps', m.timestamps, 'since', since)
+                print('drops', m.drops)
+                print('resource', m.tbs.uri)
+                print('pos', len(m.tbs.payload))
+                for po in m.tbs.payload:
+                    print('po', po.schema, len(po.content))
+                    x = self._cfg['write_expect'].FromString(po.content)
+                    self.write(m.tbs.uri, since, x)
+
+
         # start read loop
-        @asyncio.coroutine
-        async def periodic():
+        async def readloop():
             while True:
                 for (data, name) in self.read():
+                    self._log.info("Read device state for {0}".format(name))
                     po = PayloadObject(
                         schema = "xbosproto/XBOS",
                         content = data.SerializeToString(),
                     )
-                    x = self.cl.Publish(PublishParams(
-                        perspective=self.perspective,
-                        namespace=self.namespace,
-                        uri = self.uri+"/"+name,
-                        content = [po],
-                    ))
-                await asyncio.sleep(self.cfg['rate'])
-        loop = asyncio.get_event_loop()
-        task = loop.create_task(periodic())
-        loop.run_until_complete(task)
+                    try:
+                        x = self.cl.Publish(PublishParams(
+                            perspective=self._perspective,
+                            namespace=self._namespace,
+                            uri = self._uri+"/"+name,
+                            content = [po],
+                        ))
+                        if not x:
+                            self._log.error("Error reading: {0}".format(x))
+                            print('x>',x)
+                    except Exception as e:
+                        self._log.error("Error reading: {0}".format(e))
+                await asyncio.sleep(self._cfg['rate'])
 
-    def createOrLoadEntity(self, name):
-        """
-        Check if we have already created an entity (maybe we reset the notebook kernel)
-        and load it. Otherwise create a new entity and persist it to disk
-        """
+
+
+        # start thread
+        t = threading.Thread(target=writeloop)
+        t.start()
+
+        # start async loop
+        loop = asyncio.get_event_loop()
+        asyncio.ensure_future(readloop())
         try:
-            #from .eapi_pb2 import CreateEntityResponse, Perspective, EntitySecret
-            f = open("entity-"+name, "rb")
-            entf = pickle.load(f)
-            f.close()
-            ent = CreateEntityResponse(PublicDER=entf["pub"], SecretDER=entf["sec"], hash=entf["hash"])
-            return ent, False
-        except (IOError, FileNotFoundError) as e:
-            from .wave.eapi_pb2 import CreateEntityParams, PublishEntityParams
-            from .wave.eapi_pb2_grpc import WAVEStub
-            wave_channel = grpc.insecure_channel(self.cfg['waved'])
-            wv = WAVEStub(wave_channel)
-            # TODO: what are default params
-            ent = wv.CreateEntity(CreateEntityParams())
-            if ent.error.code != 0:
-                raise Exception(repr(ent.error))
-            entf = {"pub":ent.PublicDER, "sec":ent.SecretDER, "hash":ent.hash}
-            f = open("entity-"+name, "wb")
-            pickle.dump(entf, f)
-            f.close()
-            resp = wv.PublishEntity(PublishEntityParams(DER=ent.PublicDER))
-            if resp.error.code != 0:
-                raise Exception(resp.error.message)
-            return ent, True
+            loop.run_forever()
+        finally:
+            loop.close()
+
 def b64decode(e):
     return base64.b64decode(e, altchars=bytes('-_', 'utf8'))
 def b64encode(e):
