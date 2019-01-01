@@ -36,8 +36,21 @@ class Example(Driver):
                     )
                 )
             )
-
             yield (msg, light.name.replace(" ","_"))
 
-e = Example()
+logging.basicConfig(level="INFO", format='%(asctime)s - %(name)s - %(message)s')
+
+cfg = {
+    'hue_bridge': '<address>',
+    'wavemq': 'localhost:4516',
+    'waved': 'localhost:410',
+    'namespace': '<namespace>',
+    'base_resource': 'hue/bridge1',
+    'base_resource_write': 'hue/bridge1/cmd/*',
+    'entity': '<entity path>',
+    'id': 'abctest123098745879',
+    'rate': 10,
+    'write_expect': xbos_pb2.XBOS,
+}
+e = Example(cfg)
 e.begin()
