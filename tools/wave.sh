@@ -29,7 +29,7 @@ sub_mk_namespace(){
         echo "Need to provide a name for the entity"
         exit 1;
     fi
-	name=$1
+    name=$1
     if [ ! -f $name.ent ]; then
         printf "${YELLOW}Creating namespace${NC}\n"
         wv mke -e 50y --nopassphrase -o $name.ent
@@ -54,7 +54,7 @@ sub_check_ns_access(){
         exit 1;
     fi
 
-	ns=$1
+    ns=$1
 
     if [ -z "$2" ]; then
         printf "Check access for default ent\n"
@@ -99,13 +99,18 @@ sub_mk_driver_ent(){
         echo "Need to provide a name for the namespace"
         exit 1;
     fi
+    if [ -z "$3" ];then
+        resource="$name/*"
+    else
+        resource=$3
+    fi
 
-	name=$1
-	ns=$2
+    name=$1
+    ns=$2
 
     if [ ! -f $name.ent ]; then
         printf "${YELLOW}Entity does not exist; creating${NC}\n"
-	    wv mke -e 10y --nopassphrase -o $name.ent
+        wv mke -e 10y --nopassphrase -o $name.ent
         echo '...skipping passphrase...'
     else
         printf "${YELLOW}Already exists${NC}\n"
@@ -113,11 +118,11 @@ sub_mk_driver_ent(){
     echo '\n' | wv name --public --attester $WAVE_DEFAULT_ENTITY $name.ent $name
     echo '\n' | wv name --public --attester $name.ent $ns.ent $ns
 
-    sub_check_ns_access $ns $name.ent $name/*
+    sub_check_ns_access $ns $name.ent $resource
     if [ $success -ne 0 ]; then
         printf "${YELLOW}No existing access; granting to ${name} ${NC}\n"
-        echo '\n' | wv rtgrant --subject $name -e 3y --attester $WAVE_DEFAULT_ENTITY --indirections 0 wavemq:publish,subscribe@$ns/$name/*
-        sub_check_ns_access $ns $name.ent $name/*
+        echo '\n' | wv rtgrant --subject $name -e 3y --attester $WAVE_DEFAULT_ENTITY --indirections 0 wavemq:publish,subscribe@$ns/$resource
+        sub_check_ns_access $ns $name.ent $resource
     else
         printf "${GREEN}Already has access${NC}\n"
     fi
@@ -137,9 +142,10 @@ sub_grant_dr(){
         exit 1;
     fi
 
-	ns=$1
-	routerent=$2
-    echo '\n' | wv rtprove -o routerproof.pem --subject $routerent wavemq:route@$ns.ent/*
+    nsent=$1
+    ns="${nsent%.*}"
+    routerent=$2
+    echo '\n' | wv rtprove -o routerproof.pem --subject $routerent wavemq:route@$nsent/*
     if [ $? -eq 0 ]; then
         wv verify routerproof.pem
         if [ $? -eq 0 ]; then
@@ -150,8 +156,8 @@ sub_grant_dr(){
         fi
     fi
     printf "${YELLOW}-- no access. granting... --${NC}\n"
-    echo '\n' | wv rtgrant --subject $routerent -e 3y --attester $ns.ent --indirections 0 wavemq:route@$ns.ent/*
-    echo '\n' | wv rtprove -o routerproof.pem --subject $routerent wavemq:route@$ns.ent/*
+    echo '\n' | wv rtgrant --subject $routerent -e 3y --attester $nsent --indirections 0 wavemq:route@$nsent/*
+    echo '\n' | wv rtprove -o routerproof.pem --subject $routerent wavemq:route@$nsent/*
     wv verify routerproof.pem
     if [ $? -eq 0 ]; then
         printf "${GREEN}-- ok --${NC}\n"
