@@ -176,6 +176,30 @@ func (ingest *Ingester) delArchiveRequest(req *ArchiveRequest) error {
 	return nil
 }
 
+func (ingest *Ingester) enableArchiveRequest(req *ArchiveRequest) error {
+	ingest.pendingSubs <- subscriptionChange{
+		add: true,
+		uri: req.URI,
+	}
+
+	return ingest.cfgmgr.Enable(*req)
+}
+
+func (ingest *Ingester) disableArchiveRequest(req *ArchiveRequest) error {
+	remainingSubs, err := ingest.cfgmgr.Disable(*req)
+	if err != nil {
+		return err
+	}
+	// request an unsubscription, but don't unsub if someone else is using it
+	if !remainingSubs {
+		ingest.pendingSubs <- subscriptionChange{
+			add: false,
+			uri: req.URI,
+		}
+	}
+	return nil
+}
+
 func (ingest *Ingester) addArchiveRequest(req *ArchiveRequest) error {
 	// register plugin
 	err := ingest.addPlugin(req.Schema, req.Plugin)
