@@ -11,15 +11,35 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	logrus "github.com/sirupsen/logrus"
+	"io"
 	"net/http"
 	"plugin"
 	"sync"
 	"time"
 )
 
-//TODO: need to stagger commits when there are really full buffers (such as when ingester restarts)
+type ExponentialBackoff struct {
+	delay int
+}
 
-var BACKOFF = 1 * time.Minute
+func NewExponentialBackoff() *ExponentialBackoff {
+	return &ExponentialBackoff{
+		delay: 2,
+	}
+}
+
+func (exp *ExponentialBackoff) Wait() {
+	time.Sleep(time.Duration(exp.delay) * time.Second)
+	exp.delay *= 4
+	if time.Duration(exp.delay)*time.Second > 10*time.Minute {
+		exp.delay = 600
+	}
+}
+func (exp *ExponentialBackoff) Reset() {
+	exp.delay = 2
+}
+
+//TODO: need to stagger commits when there are really full buffers (such as when ingester restarts)
 
 type Ingester struct {
 	plugin_mapping map[string]pluginlist
@@ -237,6 +257,7 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 		Identifier:  IngesterName,
 		Expiry:      IngestSubscriptionExpiry,
 	})
+	sub.timer = NewExponentialBackoff()
 	sub.stop = make(chan struct{}, 1)
 	sub.uri = uri
 	if err != nil {
@@ -247,7 +268,21 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 	if serr := ingest.cfgmgr.ClearErrorURI(uri); serr != nil {
 		logrus.Warning(serr)
 	}
+	sub.timer.Reset()
 
+	resub := func() error {
+		sub.S, err = ingest.client.Subscribe(context.Background(), &mqpb.SubscribeParams{
+			Perspective: ingest.perspective,
+			Namespace:   nsbytes,
+			Uri:         uri.Resource,
+			Identifier:  IngesterName,
+			Expiry:      IngestSubscriptionExpiry,
+		})
+		return err
+	}
+
+	// this handles the state machine for the subscriptions
+	resubtrigger := false
 	go func() {
 		for {
 			select {
@@ -257,48 +292,59 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 				return
 			default:
 			}
-			m, err := sub.S.Recv()
-			if err != nil {
-				logrus.Error("subscribe err1:", err)
-				activeSubscriptions.Dec()
-				sub.S, err = ingest.client.Subscribe(context.Background(), &mqpb.SubscribeParams{
-					Perspective: ingest.perspective,
-					Namespace:   nsbytes,
-					Uri:         uri.Resource,
-					Identifier:  IngesterName,
-					Expiry:      IngestSubscriptionExpiry,
-				})
+
+			// if subscription is currently errored, then make sure we reconnect later
+			if sub.S == nil {
+				resubtrigger = true
+			} else {
+				// otherwise, process the message
+				m, err := sub.S.Recv()
 				if err != nil {
-					logrus.Errorf("Error resubscribing to %s (%s). Retrying in 1 minute", uri, err)
+					logrus.Error("subscribe err1:", err)
+					activeSubscriptions.Dec()
+					sub.timer.Wait()
+					if err != io.EOF {
+						resubtrigger = true
+					}
+				} else {
+					// check for broker-reported error
+					if m.Error != nil {
+						err := errors.New(m.Error.Message)
+						logrus.Errorf("Error resubscribing to %s from broker: %s. Retrying...", uri, err)
+						if serr := ingest.cfgmgr.MarkErrorURI(uri, err.Error()); serr != nil {
+							logrus.Warning(serr)
+						}
+						resubtrigger = true
+						continue
+					}
+					// get uri
+					msgsProcessed.Inc()
+					err = ingest.runPlugins(uri, m.Message)
+					if err != nil {
+						logrus.Error("plugins err:", err)
+						continue
+					}
+				}
+			}
+
+			// process resub
+			if resubtrigger {
+				if err := resub(); err != nil {
+					logrus.Errorf("Error resubscribing to %s (%s). Retrying...", uri, err)
 					if serr := ingest.cfgmgr.MarkErrorURI(uri, err.Error()); serr != nil {
 						logrus.Warning(serr)
 					}
-					time.Sleep(BACKOFF)
+					sub.timer.Wait()
 					continue
 				} else {
 					logrus.Info("Restablished subscription to", uri.Resource)
 					if serr := ingest.cfgmgr.ClearErrorURI(uri); serr != nil {
 						logrus.Warning(serr)
 					}
+					sub.timer.Reset()
 					activeSubscriptions.Inc()
+					resubtrigger = false
 				}
-				continue
-			}
-			if m.Error != nil {
-				err := errors.New(m.Error.Message)
-				logrus.Errorf("Error resubscribing to %s from broker: %s. Retrying in 1 minute", uri, err)
-				if serr := ingest.cfgmgr.MarkErrorURI(uri, err.Error()); serr != nil {
-					logrus.Warning(serr)
-				}
-				time.Sleep(BACKOFF)
-				continue
-			}
-			// get uri
-			msgsProcessed.Inc()
-			err = ingest.runPlugins(uri, m.Message)
-			if err != nil {
-				logrus.Error("plugins err:", err)
-				continue
 			}
 		}
 	}()

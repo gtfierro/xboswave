@@ -242,7 +242,7 @@ func (ingest *Ingester) shell() {
 						enabledStr = "0"
 					}
 					row := []string{fmt.Sprintf("%d", req.Id), enabledStr, req.URI.Namespace, req.URI.Resource, req.Schema, req.Plugin, req.Inserted.Format(time.RFC3339), req.LastError}
-					if req.ErrorTimestamp.UnixNano() == 0 {
+					if req.ErrorTimestamp.UnixNano() <= 0 {
 						row = append(row, "")
 					} else {
 						row = append(row, req.ErrorTimestamp.Format(time.RFC3339))

@@ -30,6 +30,7 @@ func (ingest *Ingester) handleSubscriptionChanges() {
 						logrus.Warning(serr)
 					}
 					ingest.subs[subChg.uri] = sub
+					sub.timer.Reset()
 				}
 				// handle add subscription
 			} else if !subChg.add && found {

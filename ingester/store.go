@@ -41,9 +41,10 @@ type ArchiveRequest struct {
 }
 
 type subscription struct {
-	S    mqpb.WAVEMQ_SubscribeClient
-	stop chan struct{}
-	uri  types.SubscriptionURI
+	S     mqpb.WAVEMQ_SubscribeClient
+	stop  chan struct{}
+	uri   types.SubscriptionURI
+	timer *ExponentialBackoff
 }
 
 type ConfigManager struct {
@@ -145,6 +146,9 @@ func (cfgmgr *ConfigManager) Enable(req ArchiveRequest) error {
 }
 
 func (cfgmgr *ConfigManager) MarkErrorURI(uri types.SubscriptionURI, subErr string) error {
+	if subErr == "" {
+		return nil
+	}
 	stmt := "UPDATE requests SET lastError = ?, errorTimestamp = ? WHERE namespace = ? AND resource = ?"
 	_, err := cfgmgr.db.Exec(stmt, subErr, time.Now(), uri.Namespace, uri.Resource)
 	return err
@@ -157,7 +161,7 @@ func (cfgmgr *ConfigManager) ClearErrorURI(uri types.SubscriptionURI) error {
 }
 
 func (cfgmgr *ConfigManager) List(filter *RequestFilter) ([]ArchiveRequest, error) {
-	stmt := "SELECT schema, plugin, namespace, resource, inserted, coalesce(lastError, ''), errorTimestamp, enabled, id FROM requests"
+	stmt := "SELECT schema, plugin, namespace, resource, inserted, ifnull(lastError, ''), errorTimestamp, enabled, id FROM requests"
 
 	if filter == nil {
 		stmt += ";"
