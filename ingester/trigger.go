@@ -21,9 +21,14 @@ func (ingest *Ingester) handleSubscriptionChanges() {
 				if err != nil {
 					logrus.Error("Error processing subscription: %v", err)
 					//register this error with the subscription so we can go find it later
-					ingest.cfgmgr.MarkErrorURI(subChg.uri, err.Error())
+					if serr := ingest.cfgmgr.MarkErrorURI(subChg.uri, err.Error()); serr != nil {
+						logrus.Warning(serr)
+					}
 					// through the CLI
 				} else {
+					if serr := ingest.cfgmgr.ClearErrorURI(subChg.uri); serr != nil {
+						logrus.Warning(serr)
+					}
 					ingest.subs[subChg.uri] = sub
 				}
 				// handle add subscription

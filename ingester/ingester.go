@@ -14,9 +14,12 @@ import (
 	"net/http"
 	"plugin"
 	"sync"
+	"time"
 )
 
 //TODO: need to stagger commits when there are really full buffers (such as when ingester restarts)
+
+var BACKOFF = 1 * time.Minute
 
 type Ingester struct {
 	plugin_mapping map[string]pluginlist
@@ -241,6 +244,9 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 	}
 	// increase # of active subs
 	activeSubscriptions.Inc()
+	if serr := ingest.cfgmgr.ClearErrorURI(uri); serr != nil {
+		logrus.Warning(serr)
+	}
 
 	go func() {
 		for {
@@ -263,16 +269,28 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 					Expiry:      IngestSubscriptionExpiry,
 				})
 				if err != nil {
-					logrus.Error("err resubscribe", err)
+					logrus.Errorf("Error resubscribing to %s (%s). Retrying in 1 minute", uri, err)
+					if serr := ingest.cfgmgr.MarkErrorURI(uri, err.Error()); serr != nil {
+						logrus.Warning(serr)
+					}
+					time.Sleep(BACKOFF)
 					continue
 				} else {
 					logrus.Info("Restablished subscription to", uri.Resource)
+					if serr := ingest.cfgmgr.ClearErrorURI(uri); serr != nil {
+						logrus.Warning(serr)
+					}
 					activeSubscriptions.Inc()
 				}
 				continue
 			}
 			if m.Error != nil {
-				logrus.Error("subscribe err2:", err)
+				err := errors.New(m.Error.Message)
+				logrus.Errorf("Error resubscribing to %s from broker: %s. Retrying in 1 minute", uri, err)
+				if serr := ingest.cfgmgr.MarkErrorURI(uri, err.Error()); serr != nil {
+					logrus.Warning(serr)
+				}
+				time.Sleep(BACKOFF)
 				continue
 			}
 			// get uri
