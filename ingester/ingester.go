@@ -65,8 +65,8 @@ func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, cfg Config, 
 	// monitor pendingSubs channel for changes to the subscriptions
 	ingest.handleSubscriptionChanges()
 
-	// add existing archive requests
-	existingRequests, err := ingest.cfgmgr.List(nil)
+	// add existing archive requests that are enabled
+	existingRequests, err := ingest.cfgmgr.List(&RequestFilter{Enabled: &_TRUE})
 	if err != nil {
 		logrus.Fatal(err)
 	}

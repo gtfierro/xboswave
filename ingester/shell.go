@@ -75,52 +75,6 @@ func (ingest *Ingester) shell() {
 			c.Println("Use 'exit' or ctl-d to disconnect")
 		})
 
-		// list archive requests
-		//		shell.AddCmd(&ishell.Cmd{
-		//			Name: "list",
-		//			Func: func(c *ishell.Context) {
-		//				c.ShowPrompt(false)
-		//				defer c.ShowPrompt(true)
-		//
-		//				var filter *RequestFilter
-		//				c.Println("list schema=<schema> plugin=<plugin> namespace=<namespace> resource=<resource>")
-		//				if len(c.Args) > 0 {
-		//					filter = &RequestFilter{}
-		//				}
-		//				for _, arg := range c.Args {
-		//					parts := strings.SplitN(arg, "=", 2)
-		//					if len(parts) == 1 {
-		//						c.Println("filters need to be of form param=value")
-		//						return
-		//					}
-		//					switch parts[0] {
-		//					case "schema":
-		//						filter.Schema = &parts[1]
-		//					case "plugin":
-		//						filter.Plugin = &parts[1]
-		//					case "namespace":
-		//						filter.Namespace = &parts[1]
-		//					case "resource":
-		//						filter.Resource = &parts[1]
-		//					}
-		//				}
-		//
-		//				reqs, err := ingest.cfgmgr.List(filter)
-		//				if err != nil {
-		//					c.Err(err)
-		//					return
-		//				}
-		//
-		//				table := tablewriter.NewWriter(s)
-		//				table.SetHeader([]string{"namespace", "resource", "plugin", "schema"})
-		//
-		//				for _, req := range reqs {
-		//					table.Append([]string{req.URI.Namespace, req.URI.Resource, req.Plugin, req.Schema})
-		//				}
-		//				table.Render()
-		//			},
-		//		})
-
 		shell.AddCmd(&ishell.Cmd{
 			Name: "add",
 			Func: func(c *ishell.Context) {
@@ -201,7 +155,7 @@ func (ingest *Ingester) shell() {
 					return
 				}
 
-				reqs, err := ingest.cfgmgr.Status(filter)
+				reqs, err := ingest.cfgmgr.List(filter)
 				if err != nil {
 					c.Err(err)
 					return
@@ -231,7 +185,7 @@ func (ingest *Ingester) shell() {
 					return
 				}
 
-				reqs, err := ingest.cfgmgr.Status(filter)
+				reqs, err := ingest.cfgmgr.List(filter)
 				if err != nil {
 					c.Err(err)
 					return
@@ -249,42 +203,19 @@ func (ingest *Ingester) shell() {
 		})
 
 		shell.AddCmd(&ishell.Cmd{
-			Name: "status",
+			Name: "list",
 			Func: func(c *ishell.Context) {
 				c.ShowPrompt(false)
 				defer c.ShowPrompt(true)
 
 				// build filter
-				var filter *RequestFilter
-				if len(c.Args) > 0 {
-					filter = &RequestFilter{}
-				}
-				for _, arg := range c.Args {
-					parts := strings.SplitN(arg, "=", 2)
-					if len(parts) == 1 {
-						c.Println("filters need to be of form param=value")
-						return
-					}
-					switch parts[0] {
-					case "id":
-						_id, err := strconv.Atoi(parts[1])
-						filter.Id = &_id
-						if err != nil {
-							c.Printf("Error: %s\n", err)
-							return
-						}
-					case "schema":
-						filter.Schema = &parts[1]
-					case "plugin":
-						filter.Plugin = &parts[1]
-					case "namespace":
-						filter.Namespace = &parts[1]
-					case "resource":
-						filter.Resource = &parts[1]
-					}
+				filter, err := parseFilterFromArgs(c.Args)
+				if err != nil {
+					c.Err(err)
+					return
 				}
 
-				reqs, err := ingest.cfgmgr.Status(filter)
+				reqs, err := ingest.cfgmgr.List(filter)
 				if err != nil {
 					c.Err(err)
 					return

@@ -9,9 +9,9 @@ import (
 	"github.com/gtfierro/xboswave/ingester/types"
 	"github.com/immesys/wavemq/mqpb"
 	_ "github.com/mattn/go-sqlite3"
-	logrus "github.com/sirupsen/logrus"
 )
 
+// these are addressable true/false values used internally for the RequestFilter
 var _FALSE = false
 var _TRUE = true
 
@@ -84,64 +84,6 @@ type RequestFilter struct {
 	Id        *int
 }
 
-func (cfgmgr *ConfigManager) List(filter *RequestFilter) ([]ArchiveRequest, error) {
-	stmt := "SELECT DISTINCT schema, plugin, namespace, resource FROM requests"
-	var results []ArchiveRequest
-
-	if filter == nil {
-		stmt += ";"
-	} else {
-		var filters []string
-		if filter.Schema != nil {
-			filters = append(filters, fmt.Sprintf("schema='%s' ", *filter.Schema))
-		}
-		if filter.Plugin != nil {
-			filters = append(filters, fmt.Sprintf("plugin='%s' ", *filter.Plugin))
-		}
-		if filter.Namespace != nil {
-			filters = append(filters, fmt.Sprintf("namespace='%s' ", *filter.Namespace))
-		}
-		if filter.Resource != nil {
-			filters = append(filters, fmt.Sprintf("resource='%s' ", *filter.Resource))
-		}
-		if filter.Id != nil {
-			filters = append(filters, fmt.Sprintf("id='%d' ", *filter.Id))
-		}
-		if filter.HasError != nil {
-			if *filter.HasError {
-				filters = append(filters, fmt.Sprint("lastError != '' "))
-			} else {
-				filters = append(filters, fmt.Sprint("lastError = '' "))
-			}
-		}
-		if filter.Enabled != nil {
-			if *filter.Enabled {
-				filters = append(filters, fmt.Sprint("enabled = 1 "))
-			} else {
-				filters = append(filters, fmt.Sprint("enabled = 0 "))
-			}
-		}
-		stmt = fmt.Sprintf("%s WHERE %s;", stmt, strings.Join(filters, " AND "))
-	}
-
-	rows, err := cfgmgr.db.Query(stmt)
-	if err != nil {
-		return results, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		req := &ArchiveRequest{
-			URI: types.SubscriptionURI{},
-		}
-		if err := rows.Scan(&req.Schema, &req.Plugin, &req.URI.Namespace, &req.URI.Resource); err != nil {
-			logrus.Fatal(err)
-		}
-		results = append(results, *req)
-	}
-
-	return results, nil
-}
-
 func (cfgmgr *ConfigManager) Add(req ArchiveRequest) error {
 	filter := &RequestFilter{
 		Schema:    &req.Schema,
@@ -153,7 +95,7 @@ func (cfgmgr *ConfigManager) Add(req ArchiveRequest) error {
 	if err != nil {
 		return err
 	} else if len(results) == 0 {
-		stmt := "INSERT INTO requests(schema, plugin, namespace, resource, enabled) VALUES (?, ?, ?, ?, true);"
+		stmt := "INSERT INTO requests(schema, plugin, namespace, resource, enabled) VALUES (?, ?, ?, ?, 1);"
 		_, err := cfgmgr.db.Exec(stmt, req.Schema, req.Plugin, req.URI.Namespace, req.URI.Resource)
 		return err
 	}
@@ -214,7 +156,7 @@ func (cfgmgr *ConfigManager) ClearErrorURI(uri types.SubscriptionURI) error {
 	return err
 }
 
-func (cfgmgr *ConfigManager) Status(filter *RequestFilter) ([]ArchiveRequest, error) {
+func (cfgmgr *ConfigManager) List(filter *RequestFilter) ([]ArchiveRequest, error) {
 	stmt := "SELECT schema, plugin, namespace, resource, inserted, coalesce(lastError, ''), errorTimestamp, enabled, id FROM requests"
 
 	if filter == nil {
