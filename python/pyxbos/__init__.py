@@ -96,6 +96,36 @@ class Driver:
             expiry=120,
         ))
 
+
+        async def _doread():
+            for (data, name) in self.read():
+                self._log.info("Read device state for {0}".format(name))
+                po = PayloadObject(
+                    schema = "xbosproto/XBOS",
+                    content = data.SerializeToString(),
+                )
+                try:
+                    x = self.cl.Publish(PublishParams(
+                        perspective=self._perspective,
+                        namespace=self._namespace,
+                        uri = self._uri+"/"+name,
+                        content = [po],
+                    ))
+                    if not x:
+                        self._log.error("Error reading: {0}".format(x))
+                        print('x>',x)
+                except Exception as e:
+                    self._log.error("Error reading: {0}".format(e))
+
+        loop = asyncio.get_event_loop()
+
+        # start read loop
+        async def readloop():
+            while True:
+                await _doread()
+                await asyncio.sleep(self._cfg['rate'])
+
+
         # this runs in a thread
         def writeloop():
             for msg in sub:
@@ -112,41 +142,17 @@ class Driver:
                 print('pos', len(m.tbs.payload))
                 for po in m.tbs.payload:
                     print('po', po.schema, len(po.content))
-                    x = self._cfg['write_expect'].FromString(po.content)
+                    x = xbos_pb2.XBOS.FromString(po.content)
                     self.write(m.tbs.uri, since, x)
-
-
-        # start read loop
-        async def readloop():
-            while True:
-                for (data, name) in self.read():
-                    self._log.info("Read device state for {0}".format(name))
-                    po = PayloadObject(
-                        schema = "xbosproto/XBOS",
-                        content = data.SerializeToString(),
-                    )
-                    try:
-                        x = self.cl.Publish(PublishParams(
-                            perspective=self._perspective,
-                            namespace=self._namespace,
-                            uri = self._uri+"/"+name,
-                            content = [po],
-                        ))
-                        if not x:
-                            self._log.error("Error reading: {0}".format(x))
-                            print('x>',x)
-                    except Exception as e:
-                        self._log.error("Error reading: {0}".format(e))
-                await asyncio.sleep(self._cfg['rate'])
-
-
+                    t = loop.create_task(_doread())
+                    asyncio.ensure_future(t)
+                    #await _doread()
 
         # start thread
         t = threading.Thread(target=writeloop)
         t.start()
 
         # start async loop
-        loop = asyncio.get_event_loop()
         asyncio.ensure_future(readloop())
         try:
             loop.run_forever()

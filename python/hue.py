@@ -21,9 +21,10 @@ class Example(Driver):
         if msg.XBOSIoTDeviceActuation is not None:
             l = msg.XBOSIoTDeviceActuation.light
             name = uri.split('/')[-1]
+            print(self.lights[name])
             self.lights[name].on = l.state
-            self.lights[name].brightness = l.brightness
-
+            #print(l.brightness / 100.)
+            self.lights[name].brightness = int(254 * (l.brightness / 100.))
 
     def read(self):
         for light in self.b.lights:
