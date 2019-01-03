@@ -97,9 +97,14 @@ class Driver:
         ))
 
 
-        async def _doread():
+        async def _doread(requestid=None, error=None):
             for (data, name) in self.read():
                 self._log.info("Read device state for {0}".format(name))
+                if requestid:
+                    data.XBOSIoTDeviceState.requestid = requestid
+                if error:
+                    data.XBOSIoTDeviceState.error = error
+
                 po = PayloadObject(
                     schema = "xbosproto/XBOS",
                     content = data.SerializeToString(),
@@ -128,6 +133,8 @@ class Driver:
 
         # this runs in a thread
         def writeloop():
+            # create an event loop because we're in a new thread
+            loop = asyncio.new_event_loop()
             for msg in sub:
                 if len(msg.error.message) > 0:
                     self._log.error("Get actuation message. Error {0}".format(msg.error.message))
@@ -143,10 +150,12 @@ class Driver:
                 for po in m.tbs.payload:
                     print('po', po.schema, len(po.content))
                     x = xbos_pb2.XBOS.FromString(po.content)
-                    self.write(m.tbs.uri, since, x)
-                    t = loop.create_task(_doread())
-                    asyncio.ensure_future(t)
-                    #await _doread()
+                    try:
+                        self.write(m.tbs.uri, since, x)
+                    except Exception as e:
+                        print('error write', e)
+                    # run "read" to completion
+                    loop.run_until_complete(_doread(x.XBOSIoTDeviceActuation.requestid))
 
         # start thread
         t = threading.Thread(target=writeloop)

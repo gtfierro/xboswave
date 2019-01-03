@@ -17,13 +17,10 @@ class Example(Driver):
         print(self.b.lights)
 
     def write(self, uri, age, msg):
-        print('write',uri, age)
         if msg.XBOSIoTDeviceActuation is not None:
             l = msg.XBOSIoTDeviceActuation.light
             name = uri.split('/')[-1]
-            print(self.lights[name])
             self.lights[name].on = l.state
-            #print(l.brightness / 100.)
             self.lights[name].brightness = int(254 * (l.brightness / 100.))
 
     def read(self):
