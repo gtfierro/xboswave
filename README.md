@@ -6,13 +6,7 @@
 ## Ingester
 
 Requirements:
-1. go
-    ```
-    wget https://dl.google.com/go/go1.11.5.linux-amd64.tar.gz
-    sudo tar -C /usr/local/ -xzf go1.11.5.linux-amd64.tar.gz
-    export PATH=$PATH:/usr/local/go/bin
-    source $HOME/.profile
-    ```
+1. go: https://golang.org/doc/install
 2. bzr
     ```
     sudo apt-get install bzr
@@ -38,6 +32,5 @@ How do get started:
 5. Build and run ingester:
     ```
     cd ingester
-    make build
     make run
     ```

@@ -52,8 +52,9 @@ type Config struct {
 	}
 
 	IngesterShell struct {
-		PasswordLogin	bool
-		Password 		string
+		PasswordLogin bool
+		Password      string
+		SshHostKey    string
 	}
 }
 
@@ -86,7 +87,7 @@ func init() {
 	viper.SetDefault("Store.Path", "store.sqlite3")
 
 	viper.SetDefault("IngesterShell.PasswordLogin", false)
-	viper.SetDefault("IngesterShell.Password", "XBOSWAVEthefuture!")
+	viper.SetDefault("IngesterShell.SshHostKey", "sshkey")
 
 }
 
@@ -138,11 +139,15 @@ func getCfg() *Config {
 	cfg.Store.Path = viper.GetString("Store.Path")
 
 	cfg.IngesterShell.PasswordLogin = viper.GetBool("IngesterShell.PasswordLogin")
-	if cfg.IngesterShell.PasswordLogin {
+
+	if viper.IsSet("IngesterShell.Password") {
+		cfg.IngesterShell.PasswordLogin = true
 		cfg.IngesterShell.Password = viper.GetString("IngesterShell.Password")
+	} else if cfg.IngesterShell.PasswordLogin {
+		logrus.Fatal("missing configuration: IngesterShell.Password")
+		return nil
 	}
-
-
+	cfg.IngesterShell.SshHostKey = viper.GetString("IngesterShell.SshHostKey")
 	return cfg
 }
 
