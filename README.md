@@ -5,6 +5,19 @@
 
 ## Ingester
 
+Requirements:
+1. go
+    ```
+    wget https://dl.google.com/go/go1.11.5.linux-amd64.tar.gz
+    sudo tar -C /usr/local/ -xzf go1.11.5.linux-amd64.tar.gz
+    export PATH=$PATH:/usr/local/go/bin
+    source $HOME/.profile
+    ```
+2. bzr
+    ```
+    sudo apt-get install bzr
+    ```
+
 How do get started:
 
 
@@ -24,11 +37,6 @@ How do get started:
     - read [wave docs](https://github.com/immesys/wave) for now
 5. Build and run ingester:
     ```
-    wget https://dl.google.com/go/go1.11.5.linux-amd64.tar.gz
-    sudo tar -C /usr/local/ -xzf go1.11.5.linux-amd64.tar.gz
-    export PATH=$PATH:/usr/local/go/bin
-    source $HOME/.profile
-    sudo apt-get install bzr
     cd ingester
     make build
     make run
