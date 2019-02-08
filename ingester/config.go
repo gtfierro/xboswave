@@ -140,13 +140,15 @@ func getCfg() *Config {
 
 	cfg.IngesterShell.PasswordLogin = viper.GetBool("IngesterShell.PasswordLogin")
 
-	if viper.IsSet("IngesterShell.Password") {
-		cfg.IngesterShell.PasswordLogin = true
-		cfg.IngesterShell.Password = viper.GetString("IngesterShell.Password")
-	} else if cfg.IngesterShell.PasswordLogin {
-		logrus.Fatal("missing configuration: IngesterShell.Password")
-		return nil
+	if cfg.IngesterShell.PasswordLogin {
+		if viper.IsSet("IngesterShell.Password") {
+			cfg.IngesterShell.Password = viper.GetString("IngesterShell.Password")
+		} else {
+			logrus.Fatal("missing configuration: ingestershell.password")
+			return nil
+		}
 	}
+
 	cfg.IngesterShell.SshHostKey = viper.GetString("IngesterShell.SshHostKey")
 	return cfg
 }
