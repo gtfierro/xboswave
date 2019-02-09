@@ -10,3 +10,8 @@ wavemq:
     siterouter: "127.0.0.1:4516"
     subscriptionexpiry: 10
     clientid: "testme123"
+
+ingestershell:
+    passwordlogin: true
+    password: "<Enter Password Here>"
+    sshhostkey: "sshkey"

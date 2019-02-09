@@ -5,6 +5,13 @@
 
 ## Ingester
 
+Requirements:
+1. go: https://golang.org/doc/install
+2. bzr
+    ```
+    sudo apt-get install bzr
+    ```
+
 How do get started:
 
 

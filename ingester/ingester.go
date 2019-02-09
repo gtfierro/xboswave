@@ -99,7 +99,7 @@ func NewIngester(client mqpb.WAVEMQClient, persp *mqpb.Perspective, cfg Config, 
 		}
 	}
 
-	go ingest.shell()
+	go ingest.shell(cfg)
 
 	return ingest
 }

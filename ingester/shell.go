@@ -53,7 +53,7 @@ func parseFilterFromArgs(args []string) (*RequestFilter, error) {
 	return filter, nil
 }
 
-func (ingest *Ingester) shell() {
+func (ingest *Ingester) shell(cfg Config) {
 
 	ssh.Handle(func(s ssh.Session) {
 		//io.WriteString(s, fmt.Sprintf("Hello %s\n", s.User()))
@@ -258,7 +258,11 @@ func (ingest *Ingester) shell() {
 		// teardown
 		shell.Close()
 	})
-	if err := ssh.ListenAndServe(":2222", nil, ssh.HostKeyFile("sshkey")); err != nil {
-		logrus.Error(err)
+	if cfg.IngesterShell.PasswordLogin {
+		if err := ssh.ListenAndServe("localhost:2222", nil, ssh.HostKeyFile(cfg.IngesterShell.SshHostKey), ssh.PasswordAuth(func(ctx ssh.Context, pass string) bool { return pass == cfg.IngesterShell.Password })); err != nil {
+			logrus.Fatal(err)
+		}
+	} else if err := ssh.ListenAndServe("localhost:2222", nil, ssh.HostKeyFile(cfg.IngesterShell.SshHostKey)); err != nil {
+		logrus.Fatal(err)
 	}
 }
