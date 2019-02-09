@@ -270,8 +270,10 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 	}
 	sub.timer.Reset()
 
+	subctx, cancel := context.WithCancel(context.Background())
+
 	resub := func() error {
-		sub.S, err = ingest.client.Subscribe(context.Background(), &mqpb.SubscribeParams{
+		sub.S, err = ingest.client.Subscribe(subctx, &mqpb.SubscribeParams{
 			Perspective: ingest.perspective,
 			Namespace:   nsbytes,
 			Uri:         uri.Resource,
@@ -289,6 +291,7 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 			case <-sub.stop:
 				logrus.Warning("Stopping subscription to ", sub.uri)
 				activeSubscriptions.Dec()
+				cancel()
 				return
 			default:
 			}
