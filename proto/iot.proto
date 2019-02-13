@@ -56,6 +56,7 @@ message XBOSIoTDeviceState {
     Meter meter = 5;
     Light light = 6;
     EVSE evse = 7;
+    WeatherStation weather_station = 8;
 }
 
 
@@ -152,3 +153,17 @@ message EVSE {
     Bool state = 5;
 }
 
+message WeatherStation {
+    // unit: celsius
+    Double temperature = 1;
+    // unit: unknown
+    Double humidity = 2;
+    // unit: km
+    Double nearest_storm_distance = 3;
+    // unit: degrees
+    Int32 nearest_storm_bearing = 4;
+    // precip intensity
+    // unit: unknown
+    Double precip_intensity = 5;
+
+}
