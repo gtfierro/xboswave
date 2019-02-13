@@ -109,6 +109,12 @@ message Thermostat {
     Int32 enabled_heat_stages = 8;
     //number of cool stages enabled
     Int32 enabled_cool_stages = 9;
+    //heating setpoint
+    //unit: celsius
+    Double heating_setpoint = 10;
+    //cooling setpoint
+    //unit: celsius
+    Double cooling_setpoint = 11;
 }
 
 message Meter {
