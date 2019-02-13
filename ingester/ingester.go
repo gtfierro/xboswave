@@ -261,8 +261,10 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 	sub.stop = make(chan struct{}, 1)
 	sub.uri = uri
 	if err != nil {
+		logrus.Error(err)
 		return nil, errors.Wrapf(err, "could not subscribe to namespace %s", uri.Namespace)
 	}
+	logrus.Info("Successful Subscription ns=", uri.Namespace, "uri=", uri.Resource)
 	// increase # of active subs
 	activeSubscriptions.Inc()
 	if serr := ingest.cfgmgr.ClearErrorURI(uri); serr != nil {
