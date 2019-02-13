@@ -13,6 +13,7 @@ grpcio-tools = "^1.18"
 
 [tool.poetry.dev-dependencies]
 phue = "^1.1"
+psutil = "^5.5"
 
 [build-system]
 requires = ["poetry>=0.12"]
