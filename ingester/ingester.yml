@@ -1,9 +1,11 @@
 database:
-    influxdb:
-        address: "http://127.0.0.1:8086"
-        database: "xbos"
-        username: ""
-        password: ""
+   #btrdb:
+   # address: "127.0.0.1:4410"
+   influxdb:
+       address: "http://127.0.0.1:8086"
+       database: "xbos"
+       username: ""
+       password: ""
 
 wavemq:
     entityfile: "wavemqingester.ent"
