@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package xbospb;
+
+message Int32 {
+    int32 value = 1;
+}
+
+message Int64 {
+    int64 value = 1;
+}
+
+message Double {
+    double value = 1;
+}
+
+message Bool {
+    bool value = 1;
+}
