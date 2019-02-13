@@ -12,6 +12,7 @@ from .wavemq_pb2 import *
 from .wavemq_pb2_grpc import *
 from . import xbos_pb2
 from . import iot_pb2
+from . import system_monitor_pb2
 
 import asyncio
 
