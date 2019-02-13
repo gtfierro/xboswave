@@ -50,7 +50,7 @@ class DarkSkyDriver(Driver):
                 )
             )
         )
-        self.report('blr1', msg)
+        self.report(self.coords, msg)
 
 
 cfg = {
