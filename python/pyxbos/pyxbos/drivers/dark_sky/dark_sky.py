@@ -16,8 +16,37 @@ class DarkSkyPredictionDriver(Driver):
     def read(self, requestid=None):
         response = requests.get(self.url)
         json_data = json.loads(response.text)
-        logging.info("json {0}".format(json_data))
-        #TODO: finish this
+        if 'hourly' not in json_data: return
+
+        hourly = json_data['hourly']
+
+        predictions = []
+
+        for hour in hourly.get('data',[]):
+            timestamp = int(hour.get('time') * 1e9) # nanoseconds
+            temperature = hour.get('apparentTemperature', None)
+            precipIntensity = hour.get('precipIntensity', None)
+            precipProbability = hour.get('precipProbability', None)
+            humidity = hour.get('humidity', None)
+
+            predictions.append(iot_pb2.WeatherStationPrediction.Prediction(
+                prediction_time=timestamp,
+                prediction=iot_pb2.WeatherStation(
+                    temperature=types.Double(value=temperature),
+                    precip_intensity=types.Double(value=precipIntensity),
+                    humidity=types.Double(value=humidity),
+                )
+            ))
+
+        msg = xbos_pb2.XBOS(
+            XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
+                time = int(time.time()*1e9),
+                weather_station_prediction = iot_pb2.WeatherStationPrediction(
+                    predictions=predictions
+                )
+            )
+        )
+        self.report(self.coords+'/prediction', msg)
         
 class DarkSkyDriver(Driver):
     def setup(self, cfg):
