@@ -261,8 +261,10 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 	sub.stop = make(chan struct{}, 1)
 	sub.uri = uri
 	if err != nil {
+		logrus.Error(err)
 		return nil, errors.Wrapf(err, "could not subscribe to namespace %s", uri.Namespace)
 	}
+	logrus.Info("Successful Subscription ns=", uri.Namespace, "uri=", uri.Resource)
 	// increase # of active subs
 	activeSubscriptions.Inc()
 	if serr := ingest.cfgmgr.ClearErrorURI(uri); serr != nil {
@@ -270,8 +272,10 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 	}
 	sub.timer.Reset()
 
+	subctx, cancel := context.WithCancel(context.Background())
+
 	resub := func() error {
-		sub.S, err = ingest.client.Subscribe(context.Background(), &mqpb.SubscribeParams{
+		sub.S, err = ingest.client.Subscribe(subctx, &mqpb.SubscribeParams{
 			Perspective: ingest.perspective,
 			Namespace:   nsbytes,
 			Uri:         uri.Resource,
@@ -289,6 +293,7 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 			case <-sub.stop:
 				logrus.Warning("Stopping subscription to ", sub.uri)
 				activeSubscriptions.Dec()
+				cancel()
 				return
 			default:
 			}

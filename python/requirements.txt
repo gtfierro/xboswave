@@ -1,3 +1,0 @@
-grpcio
-googleapis-common-protos
-grpcio-tools

@@ -94,6 +94,9 @@ func (bdb *btrdbClient) Flush() error {
 // Fetch the stream object so we can read/write. This will first check the internal in-memory
 // cache of stream objects, then it will check the BtrDB client cache. If the stream
 // is not found there, then this method will return errStreamNotExist and a nil stream
+//
+// there is a "feature" in BTrDB where if you ask if a stream exists that hasn't been created, then you can get
+// a permissions error. We want to create a stream no matter what, so we ignore both 404 (not found) and 501 (no permission) errors here
 func (bdb *btrdbClient) getStream(extracted types.ExtractedTimeseries) (stream *btrdb.Stream, err error) {
 	// first check cache
 	streamuuid := extracted.UUID
@@ -111,13 +114,14 @@ func (bdb *btrdbClient) getStream(extracted types.ExtractedTimeseries) (stream *
 
 	exists, existsErr := stream.Exists(ctx)
 	if existsErr != nil {
-		logrus.Error("problem checking stream exists", streamuuid.String(), stream.UUID().String(), extracted.Collection)
+		logrus.Error("problem checking stream exists", streamuuid.String(), stream.UUID().String(), extracted.Collection, existsErr, exists)
 		e := btrdb.ToCodedError(existsErr)
 		if e.Code != 404 && e.Code != 501 { // if error is NOT unfound or permission denied, then return it
 			err = errors.Wrap(existsErr, "Could not fetch stream")
 			return
 		}
-	} else if exists {
+	}
+	if exists {
 		//logrus.Info("exists already", streamuuid.String())
 		// if stream exists, add to cache
 		bdb.streamCacheLock.Lock()
@@ -129,17 +133,13 @@ func (bdb *btrdbClient) getStream(extracted types.ExtractedTimeseries) (stream *
 	logrus.Info("Initializing stream with uuid: ", extracted.UUID.String(), extracted.Collection)
 	stream, err = bdb.conn.Create(ctx, extracted.UUID, extracted.Collection, extracted.Tags, extracted.Annotations)
 	if err == nil {
-		//logrus.Info("Created stream", extracted.Collection)
+		logrus.Info("Created stream", extracted.Collection, stream)
 		bdb.streamCacheLock.Lock()
 		bdb.streamCache[streamuuid.String()] = stream
 		bdb.streamCacheLock.Unlock()
 	} else {
 		e := btrdb.ToCodedError(err)
-		if e.Code == 501 {
-			err = nil
-		} else {
-			logrus.Info("Error", e.Code)
-		}
+		logrus.Info("Error", e.Code)
 
 	}
 
@@ -264,7 +264,7 @@ func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
 
 	bp, err := influx.NewBatchPoints(influx.BatchPointsConfig{
 		Database:  inf.dbname,
-		Precision: "s",
+		Precision: "ns",
 	})
 	if err != nil {
 		return errors.Wrap(err, "could not create new batch")
@@ -285,6 +285,9 @@ func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
 		}
 		fields := map[string]interface{}{
 			"value": val,
+		}
+		for k, v := range extracted.IntTags {
+			fields[k] = v
 		}
 
 		pt, err := influx.NewPoint(extracted.Collection, tags, fields, time.Unix(0, t))

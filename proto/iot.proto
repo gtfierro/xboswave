@@ -7,6 +7,8 @@ syntax = "proto3";
 //Version 1.0
 package xbospb;
 
+import "nullabletypes.proto";
+
 message URI {
     string namespace = 1;
     string value = 2;
@@ -54,6 +56,8 @@ message XBOSIoTDeviceState {
     Meter meter = 5;
     Light light = 6;
     EVSE evse = 7;
+    WeatherStation weather_station = 8;
+    WeatherStationPrediction weather_station_prediction = 9;
 }
 
 
@@ -85,15 +89,15 @@ message XBOSIoTContext {
 message Thermostat {
     //Current temperature recorded by thermostat
     //unit:celsius
-    double temperature = 1;
+    Double temperature = 1;
     //unit:% rh
-    double relative_humidity = 2;
+    Double relative_humidity = 2;
     //If true, then the thermostat is in override mode
     //unit: t/f
-    bool override = 3;
+    Bool override = 3;
     //If true, the fan is on; else it is off
     //unit: t/f
-    bool fan_state = 4;
+    Bool fan_state = 4;
     //Current operating mode of the fan
     //unit: xbos/iot/FanMode
     FanMode fan_mode = 5;
@@ -104,43 +108,74 @@ message Thermostat {
     //unit: xbos/iot/HVACState
     HVACState state = 7;
     //number of heat stages enabled
-    int32 enabled_heat_stages = 8;
+    Int32 enabled_heat_stages = 8;
     //number of cool stages enabled
-    int32 enabled_cool_stages = 9;
+    Int32 enabled_cool_stages = 9;
+    //heating setpoint
+    //unit: celsius
+    Double heating_setpoint = 10;
+    //cooling setpoint
+    //unit: celsius
+    Double cooling_setpoint = 11;
 }
 
 message Meter {
     //unit: kW
-    double power = 1;
+    Double power = 1;
     //unit: V
-    double voltage = 2;
+    Double voltage = 2;
     //unit: kVA
-    double apparent_power = 3;
+    Double apparent_power = 3;
 }
 
 message Light {
     // True if the light is on
     //unit: on/off
-    bool state = 1;
+    Bool state = 1;
     // 100 is maximum brightness
-    int64 brightness = 2;
+    Int64 brightness = 2;
 }
 
 message EVSE {
     // maximum allowed current for charging
     //unit: A
-    double current_limit = 1;
+    Double current_limit = 1;
     // active charge current
     //unit: A
-    double current = 2;
+    Double current = 2;
     // active charge voltage
     //unit: V
-    double voltage = 3;
+    Double voltage = 3;
     // seconds left until car is charged
     //unit: seconds
-    int64 charging_time_left = 4;
+    Int32 charging_time_left = 4;
     // charge state of the EVSE
     //unit: on/off
-    bool state = 5;
+    Bool state = 5;
 }
 
+message WeatherStation {
+    // unit: celsius
+    Double temperature = 1;
+    // unit: unknown
+    Double humidity = 2;
+    // unit: km
+    Double nearest_storm_distance = 3;
+    // unit: degrees
+    Int32 nearest_storm_bearing = 4;
+    // precip intensity
+    // unit: unknown
+    Double precip_intensity = 5;
+}
+
+message WeatherStationPrediction {
+    // time of the prediction (leave empty
+    // unit: ns
+
+    message Prediction {
+        uint64 prediction_time = 1;
+        WeatherStation prediction = 2;
+    }
+
+    repeated Prediction predictions = 1;
+}

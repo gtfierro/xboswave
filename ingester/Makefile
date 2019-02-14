@@ -7,7 +7,7 @@ plugins/%.so: plugins/%.go FORCE
 # this is a bit of a hack to make sure we always recompile the plugins
 FORCE:
 
-build: plugins/hamilton1.so plugins/iot_plugin.so plugins/dent.so
+build: plugins/hamilton1.so plugins/iot_plugin.so plugins/dent.so plugins/weather_station_plugin.so
 	go build
 
 run: build 

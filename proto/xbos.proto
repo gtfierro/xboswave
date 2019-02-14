@@ -17,6 +17,8 @@ import "iot.proto";
 // Dent meters
 import "dentmeter.proto";
 
+// System monitors
+import "system_monitor.proto";
 
 // Root union type
 // We reserve 50 fields per imported file
@@ -34,4 +36,7 @@ message XBOS {
 
   //Dent Fields
   DentMeterState DentMeterState = 150;
+
+  //System Status Fields
+  BasicServerStatus BasicServerStatus = 200;
 }

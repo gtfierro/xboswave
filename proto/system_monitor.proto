@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package xbospb;
+
+import "nullabletypes.proto";
+
+message BasicServerStatus {
+    //unit:ns
+    uint64 time = 1;
+
+    string hostname = 6;
+
+    // index is the CPU number; 
+    // unit: percent
+    repeated Double cpu_load = 2;
+
+    // available physical memory
+    // unit: bytes
+    Int64 phys_mem_available = 3;
+
+    // disk usage of /
+    // unit: percent
+    Double disk_usage = 4;
+
+    // disk usage of /
+    // unit: bytes
+    Double disk_available = 5;
+}

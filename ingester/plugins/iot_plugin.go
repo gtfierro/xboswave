@@ -5,73 +5,136 @@ import "github.com/gtfierro/xboswave/ingester/types"
 import xbospb "github.com/gtfierro/xboswave/proto"
 import "fmt"
 
-var lookup = map[string]func(msg xbospb.XBOS) float64{
-	"apparent_power": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Meter.ApparentPower)
-	},
-	"brightness": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Light.Brightness)
-	},
-	"charging_time_left": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Evse.ChargingTimeLeft)
-	},
-	"current": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Evse.Current)
-	},
-	"current_limit": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Evse.CurrentLimit)
-	},
-	"enabled_cool_stages": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Thermostat.EnabledCoolStages)
-	},
-	"enabled_heat_stages": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Thermostat.EnabledHeatStages)
-	},
-	"fan_state": func(msg xbospb.XBOS) float64 {
-		if msg.XBOSIoTDeviceState.Thermostat.FanState {
-			return 1
-		} else {
-			return 0
+func has_meter(msg xbospb.XBOS) bool {
+	return msg.XBOSIoTDeviceState.Meter != nil
+}
+
+func has_light(msg xbospb.XBOS) bool {
+	return msg.XBOSIoTDeviceState.Light != nil
+}
+
+func has_tstat(msg xbospb.XBOS) bool {
+	return msg.XBOSIoTDeviceState.Thermostat != nil
+}
+
+var lookup = map[string]func(msg xbospb.XBOS) (float64, bool){
+	// XBOSIoTDeviceState.Meter
+	"apparent_power": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.ApparentPower != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.ApparentPower.Value), true
 		}
+		return 0, false
 	},
-	"override": func(msg xbospb.XBOS) float64 {
-		if msg.XBOSIoTDeviceState.Thermostat.Override {
-			return 1
-		} else {
-			return 0
+	"power": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.Power != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.Power.Value), true
 		}
+		return 0, false
 	},
-	"power": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Meter.Power)
-	},
-	"relative_humidity": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Thermostat.RelativeHumidity)
-	},
-	"requestid": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Requestid)
-	},
-	"state": func(msg xbospb.XBOS) float64 {
-		if msg.XBOSIoTDeviceState.Light.State {
-			return 1
-		} else {
-			return 0
+	"voltage": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.Voltage != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.Voltage.Value), true
 		}
+		return 0, false
 	},
-	"temperature": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Thermostat.Temperature)
+
+	// XBOSIoTDeviceState.Light
+	"brightness": func(msg xbospb.XBOS) (float64, bool) {
+		if has_light(msg) && msg.XBOSIoTDeviceState.Light.Brightness != nil {
+			return float64(msg.XBOSIoTDeviceState.Light.Brightness.Value), true
+		}
+		return 0, false
 	},
-	"voltage": func(msg xbospb.XBOS) float64 {
-		return float64(msg.XBOSIoTDeviceState.Meter.Voltage)
+	"state": func(msg xbospb.XBOS) (float64, bool) {
+		if has_light(msg) && msg.XBOSIoTDeviceState.Light.State != nil {
+			if msg.XBOSIoTDeviceState.Light.State.Value {
+				return 1, true
+			} else {
+				return 0, true
+			}
+		}
+		return 0, false
+	},
+
+	//	"charging_time_left": func(msg xbospb.XBOS) (float64, bool) {
+	//		return float64(msg.XBOSIoTDeviceState.Evse.ChargingTimeLeft.Value)
+	//	},
+	//	"current": func(msg xbospb.XBOS) (float64, bool) {
+	//		return float64(msg.XBOSIoTDeviceState.Evse.Current.Value)
+	//	},
+	//	"current_limit": func(msg xbospb.XBOS) (float64, bool) {
+	//		return float64(msg.XBOSIoTDeviceState.Evse.CurrentLimit.Value)
+	//	},
+
+	// XBOSIoTDeviceState.Thermostat
+	"fan_state": func(msg xbospb.XBOS) (float64, bool) {
+		if has_tstat(msg) && msg.XBOSIoTDeviceState.Thermostat.FanState != nil {
+			if msg.XBOSIoTDeviceState.Thermostat.FanState.Value {
+				return 1, true
+			} else {
+				return 0, true
+			}
+		}
+		return 0, false
+	},
+	"override": func(msg xbospb.XBOS) (float64, bool) {
+		if has_tstat(msg) && msg.XBOSIoTDeviceState.Thermostat.Override != nil {
+			if msg.XBOSIoTDeviceState.Thermostat.Override.Value {
+				return 1, true
+			} else {
+				return 0, true
+			}
+		}
+		return 0, false
+	},
+	"relative_humidity": func(msg xbospb.XBOS) (float64, bool) {
+		if has_tstat(msg) && msg.XBOSIoTDeviceState.Thermostat.RelativeHumidity != nil {
+			return float64(msg.XBOSIoTDeviceState.Thermostat.RelativeHumidity.Value), true
+		}
+		return 0, false
+	},
+	"temperature": func(msg xbospb.XBOS) (float64, bool) {
+		if has_tstat(msg) && msg.XBOSIoTDeviceState.Thermostat.Temperature != nil {
+			return float64(msg.XBOSIoTDeviceState.Thermostat.Temperature.Value), true
+		}
+		return 0, false
+	},
+	"enabled_cool_stages": func(msg xbospb.XBOS) (float64, bool) {
+		if has_tstat(msg) && msg.XBOSIoTDeviceState.Thermostat.EnabledCoolStages != nil {
+			return float64(msg.XBOSIoTDeviceState.Thermostat.EnabledCoolStages.Value), true
+		}
+		return 0, false
+	},
+	"enabled_heat_stages": func(msg xbospb.XBOS) (float64, bool) {
+		if has_tstat(msg) && msg.XBOSIoTDeviceState.Thermostat.EnabledHeatStages != nil {
+			return float64(msg.XBOSIoTDeviceState.Thermostat.EnabledHeatStages.Value), true
+		}
+		return 0, false
+	},
+	"heating_setpoint": func(msg xbospb.XBOS) (float64, bool) {
+		if has_tstat(msg) && msg.XBOSIoTDeviceState.Thermostat.HeatingSetpoint != nil {
+			return float64(msg.XBOSIoTDeviceState.Thermostat.HeatingSetpoint.Value), true
+		}
+		return 0, false
+	},
+	"cooling_setpoint": func(msg xbospb.XBOS) (float64, bool) {
+		if has_tstat(msg) && msg.XBOSIoTDeviceState.Thermostat.CoolingSetpoint != nil {
+			return float64(msg.XBOSIoTDeviceState.Thermostat.CoolingSetpoint.Value), true
+		}
+		return 0, false
 	},
 }
+
 var units = map[string]string{
 	"apparent_power":      "kVA",
-	"brightness":          "unknown",
+	"brightness":          "percent",
 	"charging_time_left":  "seconds",
 	"current":             "A",
 	"current_limit":       "A",
 	"enabled_cool_stages": "unknown",
 	"enabled_heat_stages": "unknown",
+	"heating_setpoint":    "celsius",
+	"cooling_setpoint":    "celsius",
 	"fan_state":           "t/f",
 	"override":            "t/f",
 	"power":               "kW",
@@ -85,18 +148,19 @@ var units = map[string]string{
 func build(uri types.SubscriptionURI, name string, msg xbospb.XBOS) types.ExtractedTimeseries {
 
 	if extractfunc, found := lookup[name]; found {
-		value := extractfunc(msg)
-		var extracted types.ExtractedTimeseries
-		time := int64(msg.XBOSIoTDeviceState.Time)
-		extracted.Values = append(extracted.Values, value)
-		extracted.Times = append(extracted.Times, time)
-		extracted.UUID = types.GenerateUUID(uri, []byte(name))
-		extracted.Collection = fmt.Sprintf("xbos/%s", uri.Resource)
-		extracted.Tags = map[string]string{
-			"unit": "seconds",
-			"name": name,
+		if value, found := extractfunc(msg); found {
+			var extracted types.ExtractedTimeseries
+			time := int64(msg.XBOSIoTDeviceState.Time)
+			extracted.Values = append(extracted.Values, value)
+			extracted.Times = append(extracted.Times, time)
+			extracted.UUID = types.GenerateUUID(uri, []byte(name))
+			extracted.Collection = fmt.Sprintf("xbos/%s", uri.Resource)
+			extracted.Tags = map[string]string{
+				"unit": units[name],
+				"name": name,
+			}
+			return extracted
 		}
-		return extracted
 	}
 
 	return types.ExtractedTimeseries{}
@@ -104,10 +168,12 @@ func build(uri types.SubscriptionURI, name string, msg xbospb.XBOS) types.Extrac
 
 func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.ExtractedTimeseries) error) error {
 	if msg.XBOSIoTDeviceState != nil {
-		for _, name := range []string{"state", "brightness"} {
-			extracted := build(uri, name, msg)
-			if err := add(extracted); err != nil {
-				return err
+		if has_meter(msg) || has_light(msg) || has_tstat(msg) {
+			for name := range lookup {
+				extracted := build(uri, name, msg)
+				if err := add(extracted); err != nil {
+					return err
+				}
 			}
 		}
 	}

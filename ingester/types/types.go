@@ -30,7 +30,8 @@ type ExtractedTimeseries struct {
 	// possibly temporary properties
 	Annotations map[string]string
 	// permanent properties
-	Tags map[string]string
+	Tags    map[string]string
+	IntTags map[string]int64
 	// collection name
 	Collection string
 }

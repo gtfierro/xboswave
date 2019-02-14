@@ -6,11 +6,13 @@ import grpc
 import pickle
 import base64
 
+from . import nullabletypes_pb2 as types
 from .eapi_pb2 import *
 from .wavemq_pb2 import *
 from .wavemq_pb2_grpc import *
 from . import xbos_pb2
 from . import iot_pb2
+from . import system_monitor_pb2
 
 import asyncio
 
@@ -35,6 +37,7 @@ class ConfigMissingError(PyXBOSError):
         self.expected = expected
         self.message = "Expected key \"{0}\" in config ({1})".format(expected, extra)
 
+
 class Driver:
     """Base class encapsulating driver report functionality"""
     def __init__(self, cfg):
@@ -53,7 +56,7 @@ class Driver:
             else:
                 raise ConfigMissingError('entity', extra="And no WAVE_DEFAULT_ENTITY in environment")
         if 'id' not in cfg:
-            raise ConfigMissingError('namespace')
+            raise ConfigMissingError('id')
         if 'namespace' not in cfg:
             raise ConfigMissingError('namespace')
         if 'base_resource' not in cfg:
@@ -81,60 +84,37 @@ class Driver:
         self.cl = WAVEMQStub(wavemq_channel)
 
     def begin(self):
-
         # call self.setup
         self._log.info("Run driver setup")
         self.setup(self._cfg)
 
-        self._log.info("Subscribe to write URI {0}".format(self._cfg['base_resource_write']))
         # subscribe to the write uri
+        writeuri = self._cfg['base_resource']+'/write/*'
+        self._log.info("Subscribe to write URI {0}".format(writeuri))
+
         sub = self.cl.Subscribe(SubscribeParams(
             perspective=self._perspective,
             namespace=self._namespace,
-            uri=self._cfg['base_resource_write'],
+            uri=writeuri,
             identifier=self._cfg['id'],
             expiry=120,
         ))
 
-
-        async def _doread(requestid=None, error=None):
-            for (data, name) in self.read():
-                self._log.info("Read device state for {0}".format(name))
-                if requestid:
-                    data.XBOSIoTDeviceState.requestid = requestid
-                if error:
-                    data.XBOSIoTDeviceState.error = error
-
-                po = PayloadObject(
-                    schema = "xbosproto/XBOS",
-                    content = data.SerializeToString(),
-                )
-                try:
-                    x = self.cl.Publish(PublishParams(
-                        perspective=self._perspective,
-                        namespace=self._namespace,
-                        uri = self._uri+"/"+name,
-                        content = [po],
-                    ))
-                    if not x:
-                        self._log.error("Error reading: {0}".format(x))
-                        print('x>',x)
-                except Exception as e:
-                    self._log.error("Error reading: {0}".format(e))
-
         loop = asyncio.get_event_loop()
+        
+        async def _doread(requestid=None):
+            self.read(requestid=requestid)
 
-        # start read loop
         async def readloop():
             while True:
                 await _doread()
                 await asyncio.sleep(self._cfg['rate'])
 
-
         # this runs in a thread
         def writeloop():
             # create an event loop because we're in a new thread
             loop = asyncio.new_event_loop()
+            self._log.info("write loop")
             for msg in sub:
                 if len(msg.error.message) > 0:
                     self._log.error("Get actuation message. Error {0}".format(msg.error.message))
@@ -143,10 +123,10 @@ class Driver:
                 now = int(time.time()*1e9)
                 # seconds
                 since = (now - m.timestamps[-1]) / 1.e9
-                print('timestamps', m.timestamps, 'since', since)
-                print('drops', m.drops)
-                print('resource', m.tbs.uri)
-                print('pos', len(m.tbs.payload))
+                #print('timestamps', m.timestamps, 'since', since)
+                #print('drops', m.drops)
+                #print('resource', m.tbs.uri)
+                #print('pos', len(m.tbs.payload))
                 for po in m.tbs.payload:
                     print('po', po.schema, len(po.content))
                     x = xbos_pb2.XBOS.FromString(po.content)
@@ -154,19 +134,36 @@ class Driver:
                         self.write(m.tbs.uri, since, x)
                     except Exception as e:
                         print('error write', e)
-                    # run "read" to completion
-                    loop.run_until_complete(_doread(x.XBOSIoTDeviceActuation.requestid))
 
         # start thread
         t = threading.Thread(target=writeloop)
         t.start()
 
-        # start async loop
+
         asyncio.ensure_future(readloop())
         try:
             loop.run_forever()
         finally:
             loop.close()
+
+    def report(self, resource, msg):
+        po = PayloadObject(
+            schema = "xbosproto/XBOS",
+            content = msg.SerializeToString(),
+        )
+        self._log.info("Publishing on %s", self._uri+"/"+resource)
+        try:
+            x = self.cl.Publish(PublishParams(
+                perspective=self._perspective,
+                namespace=self._namespace,
+                uri = self._uri+"/"+resource,
+                content = [po],
+            ))
+            if not x:
+                self._log.error("Error reading: {0}".format(x))
+                print('x>',x)
+        except Exception as e:
+            self._log.error("Error reading: {0}".format(e))
 
 def b64decode(e):
     return base64.b64decode(e, altchars=bytes('-_', 'utf8'))
