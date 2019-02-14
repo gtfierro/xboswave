@@ -10,6 +10,10 @@ message Int64 {
     int64 value = 1;
 }
 
+message Uint64 {
+    uint64 value = 1;
+}
+
 message Double {
     double value = 1;
 }

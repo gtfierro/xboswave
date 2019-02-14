@@ -57,6 +57,7 @@ message XBOSIoTDeviceState {
     Light light = 6;
     EVSE evse = 7;
     WeatherStation weather_station = 8;
+    WeatherStationPrediction weather_station_prediction = 9;
 }
 
 
@@ -165,5 +166,16 @@ message WeatherStation {
     // precip intensity
     // unit: unknown
     Double precip_intensity = 5;
+}
 
+message WeatherStationPrediction {
+    // time of the prediction (leave empty
+    // unit: ns
+
+    message Prediction {
+        uint64 prediction_time = 1;
+        WeatherStation prediction = 2;
+    }
+
+    repeated Prediction predictions = 1;
 }
