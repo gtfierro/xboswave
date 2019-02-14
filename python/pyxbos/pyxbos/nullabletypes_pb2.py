@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='xbospb',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x13nullabletypes.proto\x12\x06xbospb\"\x16\n\x05Int32\x12\r\n\x05value\x18\x01 \x01(\x05\"\x16\n\x05Int64\x12\r\n\x05value\x18\x01 \x01(\x03\"\x17\n\x06\x44ouble\x12\r\n\x05value\x18\x01 \x01(\x01\"\x15\n\x04\x42ool\x12\r\n\x05value\x18\x01 \x01(\x08\x62\x06proto3')
+  serialized_pb=_b('\n\x13nullabletypes.proto\x12\x06xbospb\"\x16\n\x05Int32\x12\r\n\x05value\x18\x01 \x01(\x05\"\x16\n\x05Int64\x12\r\n\x05value\x18\x01 \x01(\x03\"\x17\n\x06Uint64\x12\r\n\x05value\x18\x01 \x01(\x04\"\x17\n\x06\x44ouble\x12\r\n\x05value\x18\x01 \x01(\x01\"\x15\n\x04\x42ool\x12\r\n\x05value\x18\x01 \x01(\x08\x62\x06proto3')
 )
 
 
@@ -87,6 +87,37 @@ _INT64 = _descriptor.Descriptor(
 )
 
 
+_UINT64 = _descriptor.Descriptor(
+  name='Uint64',
+  full_name='xbospb.Uint64',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='value', full_name='xbospb.Uint64.value', index=0,
+      number=1, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=79,
+  serialized_end=102,
+)
+
+
 _DOUBLE = _descriptor.Descriptor(
   name='Double',
   full_name='xbospb.Double',
@@ -113,8 +144,8 @@ _DOUBLE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=79,
-  serialized_end=102,
+  serialized_start=104,
+  serialized_end=127,
 )
 
 
@@ -144,12 +175,13 @@ _BOOL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=104,
-  serialized_end=125,
+  serialized_start=129,
+  serialized_end=150,
 )
 
 DESCRIPTOR.message_types_by_name['Int32'] = _INT32
 DESCRIPTOR.message_types_by_name['Int64'] = _INT64
+DESCRIPTOR.message_types_by_name['Uint64'] = _UINT64
 DESCRIPTOR.message_types_by_name['Double'] = _DOUBLE
 DESCRIPTOR.message_types_by_name['Bool'] = _BOOL
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -167,6 +199,13 @@ Int64 = _reflection.GeneratedProtocolMessageType('Int64', (_message.Message,), d
   # @@protoc_insertion_point(class_scope:xbospb.Int64)
   ))
 _sym_db.RegisterMessage(Int64)
+
+Uint64 = _reflection.GeneratedProtocolMessageType('Uint64', (_message.Message,), dict(
+  DESCRIPTOR = _UINT64,
+  __module__ = 'nullabletypes_pb2'
+  # @@protoc_insertion_point(class_scope:xbospb.Uint64)
+  ))
+_sym_db.RegisterMessage(Uint64)
 
 Double = _reflection.GeneratedProtocolMessageType('Double', (_message.Message,), dict(
   DESCRIPTOR = _DOUBLE,
