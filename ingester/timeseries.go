@@ -264,7 +264,7 @@ func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
 
 	bp, err := influx.NewBatchPoints(influx.BatchPointsConfig{
 		Database:  inf.dbname,
-		Precision: "s",
+		Precision: "ns",
 	})
 	if err != nil {
 		return errors.Wrap(err, "could not create new batch")
@@ -285,6 +285,9 @@ func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
 		}
 		fields := map[string]interface{}{
 			"value": val,
+		}
+		for k, v := range extracted.IntTags {
+			fields[k] = v
 		}
 
 		pt, err := influx.NewPoint(extracted.Collection, tags, fields, time.Unix(0, t))
