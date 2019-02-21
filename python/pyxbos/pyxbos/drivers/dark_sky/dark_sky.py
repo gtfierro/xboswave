@@ -82,20 +82,22 @@ class DarkSkyDriver(Driver):
         self.report(self.coords, msg)
 
 
-cfg = {
-    'darksky': {
-        'apikey': '<api key here>',
-        'url': 'https://api.darksky.net/forecast/',
-        'coordinates': '40.5301,-124.0000' # Should be near BLR
-    },
-    'wavemq': 'localhost:4516',
-    'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
-    'base_resource': 'test/darksky',
-    'entity': 'gabedarksky.ent',
-    'id': 'pyxbos-driver-darksky-1',
-    #'rate': 1800, # half hour
-    'rate': 900, # 15 min
-}
-logging.basicConfig(level="INFO", format='%(asctime)s - %(name)s - %(message)s')
-e = DarkSkyDriver(cfg)
-e.begin()
+if __name__ == '__main__':
+    cfg = {
+        'darksky': {
+            'apikey': 'api key here',
+            'url': 'https://api.darksky.net/forecast/',
+            'coordinates': '40.5301,-124.0000' # Should be near BLR
+        },
+        'wavemq': 'localhost:4516',
+        'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
+        'base_resource': 'test/darksky',
+        'entity': 'gabedarksky.ent',
+        'id': 'pyxbos-driver-darksky-1',
+        #'rate': 1800, # half hour
+        'rate': 900, # 15 min
+    }
+    logging.basicConfig(level="INFO", format='%(asctime)s - %(name)s - %(message)s')
+    #e = DarkSkyDriver(cfg)
+    e = DarkSkyPredictionDriver(cfg)
+    e.begin()
