@@ -64,15 +64,16 @@ class HueDriver(Driver):
 
 logging.basicConfig(level="INFO", format='%(asctime)s - %(name)s - %(message)s')
 
-cfg = {
-    'hue_bridge': '192.168.1.84',
-    'wavemq': 'localhost:4516',
-    'waved': 'localhost:410',
-    'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
-    'base_resource': 'test/hue',
-    'entity': 'gabehue.ent',
-    'id': 'pyxbos-driver-hue-1',
-    'rate': 10,
-}
-e = HueDriver(cfg)
-e.begin()
+if __name__ == '__main__':
+    cfg = {
+        'hue_bridge': '192.168.1.84',
+        'wavemq': 'localhost:4516',
+        'waved': 'localhost:410',
+        'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
+        'base_resource': 'test/hue',
+        'entity': 'gabehue.ent',
+        'id': 'pyxbos-driver-hue-1',
+        'rate': 10,
+    }
+    e = HueDriver(cfg)
+    e.begin()
