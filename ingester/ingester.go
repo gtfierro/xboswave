@@ -254,7 +254,7 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 		Perspective: ingest.perspective,
 		Namespace:   nsbytes,
 		Uri:         uri.Resource,
-		Identifier:  IngesterName,
+		Identifier:  uri.Hash(),
 		Expiry:      IngestSubscriptionExpiry,
 	})
 	sub.timer = NewExponentialBackoff()
@@ -279,7 +279,7 @@ func (ingest *Ingester) newSubscription(uri types.SubscriptionURI) (*subscriptio
 			Perspective: ingest.perspective,
 			Namespace:   nsbytes,
 			Uri:         uri.Resource,
-			Identifier:  IngesterName,
+			Identifier:  uri.Hash(),
 			Expiry:      IngestSubscriptionExpiry,
 		})
 		return err
