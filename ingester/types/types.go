@@ -1,6 +1,8 @@
 package types
 
 import (
+	"crypto/sha1"
+	"encoding/base64"
 	xbospb "github.com/gtfierro/xboswave/proto"
 	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
@@ -13,6 +15,13 @@ type SubscriptionURI struct {
 	Namespace string
 	// '/'-delimited resource path to subscribe to
 	Resource string
+}
+
+func (uri SubscriptionURI) Hash() string {
+	h := sha1.New()
+	h.Write([]byte(uri.Namespace))
+	h.Write([]byte(uri.Resource))
+	return base64.URLEncoding.EncodeToString(h.Sum(nil))
 }
 
 var NoMatch = errors.New("No Match")
