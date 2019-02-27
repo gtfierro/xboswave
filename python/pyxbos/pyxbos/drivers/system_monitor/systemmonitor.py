@@ -24,7 +24,7 @@ class PsutilDriver(Driver):
         )
         self.report(self.hostname, msg)
 
-if __main__ == '__main__':
+if __name__ == '__main__':
     logging.basicConfig(level="INFO", format='%(asctime)s - %(name)s - %(message)s')
 
     cfg = {
