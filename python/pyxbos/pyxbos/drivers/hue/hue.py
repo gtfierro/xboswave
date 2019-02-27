@@ -18,7 +18,7 @@ class HueLight:
                 time = int(time.time()*1e9),
                 light = iot_pb2.Light(
                     state = types.Bool(value=self.light.on),
-                    brightness = types.Int64(value=int(100 * (self.light.brightness / 254.))),
+                    brightness = types.Int64(value=self.light.on*int(100 * (self.light.brightness / 254.))),
                 )
             )
         )
