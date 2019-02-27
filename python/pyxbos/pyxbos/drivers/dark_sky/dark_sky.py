@@ -28,6 +28,8 @@ class DarkSkyPredictionDriver(Driver):
             precipIntensity = hour.get('precipIntensity', None)
             precipProbability = hour.get('precipProbability', None)
             humidity = hour.get('humidity', None)
+            if humidity is not None:
+                humidity *= 100 # change from decimal to percent
 
             predictions.append(iot_pb2.WeatherStationPrediction.Prediction(
                 prediction_time=timestamp,
