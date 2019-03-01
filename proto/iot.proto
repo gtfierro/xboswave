@@ -126,6 +126,8 @@ message Meter {
     Double voltage = 2;
     //unit: kVA
     Double apparent_power = 3;
+    //unit: KWh
+    Double energy = 4;
 }
 
 message Light {
