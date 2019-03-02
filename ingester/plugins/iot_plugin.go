@@ -178,6 +178,9 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 		if has_meter(msg) || has_light(msg) || has_tstat(msg) {
 			for name := range lookup {
 				extracted := build(uri, name, msg)
+				if extracted.Empty() {
+					continue
+				}
 				if err := add(extracted); err != nil {
 					return err
 				}

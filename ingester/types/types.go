@@ -45,6 +45,10 @@ type ExtractedTimeseries struct {
 	Collection string
 }
 
+func (ts ExtractedTimeseries) Empty() bool {
+	return ts.UUID == nil
+}
+
 var _ns = uuid.Parse("d1c7c340-d0d4-11e8-a061-0cc47a0f7eea")
 
 func GenerateUUID(uri SubscriptionURI, data []byte) uuid.UUID {
