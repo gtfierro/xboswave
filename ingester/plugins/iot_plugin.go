@@ -37,6 +37,12 @@ var lookup = map[string]func(msg xbospb.XBOS) (float64, bool){
 		}
 		return 0, false
 	},
+	"energy": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.Energy != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.Energy.Value), true
+		}
+		return 0, false
+	},
 
 	// XBOSIoTDeviceState.Light
 	"brightness": func(msg xbospb.XBOS) (float64, bool) {
@@ -143,6 +149,7 @@ var units = map[string]string{
 	"state":               "on/off",
 	"temperature":         "celsius",
 	"voltage":             "V",
+	"energy":              "KWh",
 }
 
 func build(uri types.SubscriptionURI, name string, msg xbospb.XBOS) types.ExtractedTimeseries {
