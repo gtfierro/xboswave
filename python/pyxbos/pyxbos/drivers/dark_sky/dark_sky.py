@@ -68,6 +68,8 @@ class DarkSkyDriver(Driver):
         precipIntensity =       json_data['currently'].get('precipIntensity',None)
         apparentTemperature =   json_data['currently'].get('apparentTemperature',None)
         humidity =              json_data['currently'].get('humidity',None)
+        if humidity is not None:
+            humidity *= 100 # change from decimal to percent
 
         msg = xbos_pb2.XBOS(
             XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
