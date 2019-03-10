@@ -41,13 +41,6 @@ enum HVACState {
     HVACStateCoolStage2 = 4;
 }
 
-enum SystemMode {
-    SystemAuto = 0;
-    SystemHeat = 1;
-    SystemCool = 2;
-    SystemOff = 3;
-}
-
 message XBOSIoTDeviceState {
     // current time at device/service
     //unit:ns
@@ -126,29 +119,26 @@ message Thermostat {
     Double cooling_setpoint = 11;
 }
 
-//Schedule of one week
-message Schedule {
-    //Map day of week to schedule
+message ThermostatSchedule {
+    //Map day of week to daily schedule
     map<string, ScheduleDay> scheduleMap = 1;
 }
 
-// Repeated Schedule Wrapper
-message ScheduleDay {
-    //Series of Schedule Blocks
+message ThermostatScheduleDay {
+    //Daily schedule is Multiple Blocks
     repeated ScheduleBlock blocks = 1;
 }
 
-// Schedule Block
-message ScheduleBlock {
+message ThermostatScheduleBlock {
     //heating setpoint
     //unit: celsius
-    Double heat_setting = 1;
+    Double heating_setpoint = 1;
     //cooling setpoint
     //unit: celsius
-    Double cool_setting = 2;
+    Double cooling_setpoint = 2;
     //Current system mode of thermostat
-    //unit: xbos/iot/SystemMode
-    SystemMode mode = 3;
+    //unit: xbos/iot/HVACMode
+    HVACMode mode = 3;
     //Time of schedule retrieval
     //format: RFC
     string time = 4;
