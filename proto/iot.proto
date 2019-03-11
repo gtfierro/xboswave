@@ -139,7 +139,7 @@ message ThermostatScheduleBlock {
     //Current system mode of thermostat
     //unit: xbos/iot/HVACMode
     HVACMode mode = 3;
-    //Time of schedule retrieval
+    //Time when schedule block takes effect
     //format: RFC
     string time = 4;
 }
