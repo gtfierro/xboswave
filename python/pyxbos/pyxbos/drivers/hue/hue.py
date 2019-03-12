@@ -18,7 +18,7 @@ class HueLight:
                 time = int(time.time()*1e9),
                 light = iot_pb2.Light(
                     state = types.Bool(value=self.light.on),
-                    brightness = types.Int64(value=int(100 * (self.light.brightness / 254.))),
+                    brightness = types.Int64(value=self.light.on*int(100 * (self.light.brightness / 254.))),
                 )
             )
         )
@@ -64,15 +64,16 @@ class HueDriver(Driver):
 
 logging.basicConfig(level="INFO", format='%(asctime)s - %(name)s - %(message)s')
 
-cfg = {
-    'hue_bridge': '192.168.1.84',
-    'wavemq': 'localhost:4516',
-    'waved': 'localhost:410',
-    'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
-    'base_resource': 'test/hue',
-    'entity': 'gabehue.ent',
-    'id': 'pyxbos-driver-hue-1',
-    'rate': 10,
-}
-e = HueDriver(cfg)
-e.begin()
+if __name__ == '__main__':
+    cfg = {
+        'hue_bridge': '192.168.1.84',
+        'wavemq': 'localhost:4516',
+        'waved': 'localhost:410',
+        'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
+        'base_resource': 'test/hue',
+        'entity': 'gabehue.ent',
+        'id': 'pyxbos-driver-hue-1',
+        'rate': 10,
+    }
+    e = HueDriver(cfg)
+    e.begin()

@@ -24,15 +24,16 @@ class PsutilDriver(Driver):
         )
         self.report(self.hostname, msg)
 
-logging.basicConfig(level="INFO", format='%(asctime)s - %(name)s - %(message)s')
+if __name__ == '__main__':
+    logging.basicConfig(level="INFO", format='%(asctime)s - %(name)s - %(message)s')
 
-cfg = {
-    'wavemq': 'localhost:4516',
-    'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
-    'base_resource': 'test/system',
-    'entity': 'system.ent',
-    'id': 'system',
-    'rate': 10,
-}
-e = PsutilDriver(cfg)
-e.begin()
+    cfg = {
+        'wavemq': 'localhost:4516',
+        'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
+        'base_resource': 'test/system',
+        'entity': 'system.ent',
+        'id': 'system',
+        'rate': 10,
+    }
+    e = PsutilDriver(cfg)
+    e.begin()
