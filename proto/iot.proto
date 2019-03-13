@@ -140,7 +140,7 @@ message ThermostatScheduleBlock {
     //unit: xbos/iot/HVACMode
     HVACMode mode = 3;
     //Time when schedule block takes effect
-    //format: RFC 3339
+    //format: RRule
     string time = 4;
 }
 
