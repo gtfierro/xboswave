@@ -608,7 +608,7 @@ func (m *Thermostat) GetCoolingSetpoint() *Double {
 }
 
 type ThermostatSchedule struct {
-	// Map day of week to daily schedule
+	//Map day of week to daily schedule
 	ScheduleMap          map[string]*ThermostatScheduleDay `protobuf:"bytes,1,rep,name=scheduleMap,proto3" json:"scheduleMap,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}                          `json:"-"`
 	XXX_unrecognized     []byte                            `json:"-"`
@@ -621,6 +621,7 @@ func (*ThermostatSchedule) ProtoMessage()    {}
 func (*ThermostatSchedule) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{6}
 }
+
 func (m *ThermostatSchedule) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ThermostatSchedule.Unmarshal(m, b)
 }
@@ -647,7 +648,7 @@ func (m *ThermostatSchedule) GetScheduleMap() map[string]*ThermostatScheduleDay 
 }
 
 type ThermostatScheduleDay struct {
-	// Daily schedule is Multiple Blocks
+	//Daily schedule is Multiple Blocks
 	Blocks               []*ThermostatScheduleBlock `protobuf:"bytes,1,rep,name=blocks,proto3" json:"blocks,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
 	XXX_unrecognized     []byte                     `json:"-"`
@@ -660,6 +661,7 @@ func (*ThermostatScheduleDay) ProtoMessage()    {}
 func (*ThermostatScheduleDay) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{7}
 }
+
 func (m *ThermostatScheduleDay) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ThermostatScheduleDay.Unmarshal(m, b)
 }
@@ -686,17 +688,17 @@ func (m *ThermostatScheduleDay) GetBlocks() []*ThermostatScheduleBlock {
 }
 
 type ThermostatScheduleBlock struct {
-	// heating setpoint
+	//heating setpoint
 	// unit: celsius
 	HeatingSetpoint *Double `protobuf:"bytes,1,opt,name=heating_setpoint,json=heatingSetpoint,proto3" json:"heating_setpoint,omitempty"`
-	// cooling setpoint
+	//cooling setpoint
 	// unit: celsius
 	CoolingSetpoint *Double `protobuf:"bytes,2,opt,name=cooling_setpoint,json=coolingSetpoint,proto3" json:"cooling_setpoint,omitempty"`
-	// Current system mode of thermostat
+	//Current system mode of thermostat
 	// unit: xbos/iot/HVACMode
 	Mode HVACMode `protobuf:"varint,3,opt,name=mode,proto3,enum=xbospb.HVACMode" json:"mode,omitempty"`
-	// Time when schedule block takes effect
-	// format: RRule
+	//Time when schedule block takes effect
+	//format: RRule
 	Time                 string   `protobuf:"bytes,4,opt,name=time,proto3" json:"time,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -709,6 +711,7 @@ func (*ThermostatScheduleBlock) ProtoMessage()    {}
 func (*ThermostatScheduleBlock) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{8}
 }
+
 func (m *ThermostatScheduleBlock) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ThermostatScheduleBlock.Unmarshal(m, b)
 }
