@@ -1,0 +1,5 @@
+{
+	"poll_interval": "<Status Poll Interval>",
+	"poll_interval_dr": "<DR Status Poll Interval>",
+	"poll_interval_sched": "<Schedule Poll Interval>"
+}
