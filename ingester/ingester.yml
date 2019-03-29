@@ -4,6 +4,7 @@ database:
    influxdb:
        address: "http://127.0.0.1:8086"
        database: "xbos"
+       collection: "timeseries"
        username: ""
        password: ""
 
