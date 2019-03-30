@@ -177,7 +177,6 @@ func (wmq *WaveMQServer) Serve() error {
 
 					for resp := range stream {
 						if resp == nil {
-							log.Error("NO MORE")
 							return
 						}
 						b, err := proto.Marshal(resp)
@@ -334,6 +333,19 @@ func MakeStreamingResponse(call *xbospb.StreamingCall, msg proto.Message, err er
 		Error:    errstr,
 		Payload:  packed,
 		Finished: false,
+	}, nil
+
+}
+
+func MakeStreamingResponseFinish(call *xbospb.StreamingCall, err error) (*xbospb.StreamingResponse, error) {
+	var errstr string
+	if err != nil {
+		errstr = err.Error()
+	}
+	return &xbospb.StreamingResponse{
+		QueryId:  call.QueryId,
+		Error:    errstr,
+		Finished: true,
 	}, nil
 
 }
