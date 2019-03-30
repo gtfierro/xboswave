@@ -98,15 +98,17 @@ func (wmq *WaveMQServer) OnStream(method string, cb StreamCallback) {
 
 func (wmq *WaveMQServer) Serve() error {
 	// listen on URIs for each method
-	interfaceURI := fmt.Sprintf("%s/s.grpcserver/%s/i.grpc/slot/call", wmq.baseURI, wmq.name)
-	incoming := wmq.subscribe(interfaceURI)
+	interfaceURI := fmt.Sprintf("%s/s.grpcserver/%s/i.grpc/slot/", wmq.baseURI, wmq.name)
+	incomingcall := wmq.subscribe(interfaceURI + "call")
+	incomingstream := wmq.subscribe(interfaceURI + "stream")
+	log.Info(interfaceURI+"call", interfaceURI+"stream")
 
 	for methodName, callback := range wmq.unaryHandlers {
 		methodName := methodName
 		callback := callback
 		go func() {
-			log.Println("Listening")
-			for msg := range incoming {
+			log.Info("Listening")
+			for msg := range incomingcall {
 				msg := msg
 
 				go func() {
@@ -133,7 +135,7 @@ func (wmq *WaveMQServer) Serve() error {
 						return
 					}
 
-					log.Println("Publish on", respuri)
+					log.Info("Publish on", respuri)
 					x, err := wmq.client.Publish(context.Background(), &mqpb.PublishParams{
 						Perspective: wmq.perspective,
 						Namespace:   wmq.namespace,
@@ -145,24 +147,66 @@ func (wmq *WaveMQServer) Serve() error {
 						log.Error(err)
 						return
 					}
-					log.Println("result", x)
+					log.Info("result", x)
 				}()
 			}
 		}()
 	}
 
-	//	for methodName, callback := range wmq.streamHandlers {
-	//		methodName := methodName
-	//		callback := callback
-	//		go func() {
-	//			for msg := range incoming {
-	//				if err := callback(msg); err != nil {
-	//					log.Error(err)
-	//					//TODO: handle this
-	//				}
-	//			}
-	//		}()
-	//	}
+	for methodName, callback := range wmq.streamHandlers {
+		methodName := methodName
+		callback := callback
+		go func() {
+			for msg := range incomingstream {
+				msg := msg
+
+				go func() {
+					log.Printf("incoming streaming call %s", methodName)
+					streamingcall := getStreamingCallByMethod(msg, methodName)
+					log.Info(streamingcall)
+					if streamingcall == nil {
+						return
+					}
+
+					stream, err := callback(streamingcall)
+					if err != nil {
+						log.Error(err)
+						return
+						//TODO: handle this
+					}
+
+					for resp := range stream {
+						if resp == nil {
+							log.Error("NO MORE")
+							return
+						}
+						b, err := proto.Marshal(resp)
+						if err != nil {
+							log.Error(err)
+							return
+						}
+
+						respuri := fmt.Sprintf("%s/s.grpcserver/%s/i.grpc/signal/response", wmq.baseURI, wmq.name)
+						log.Info("Publish on", respuri)
+						x, err := wmq.client.Publish(context.Background(), &mqpb.PublishParams{
+							Perspective: wmq.perspective,
+							Namespace:   wmq.namespace,
+							Uri:         respuri,
+							Content:     []*mqpb.PayloadObject{{Schema: "xbosproto/GRPCServer", Content: b}},
+							Persist:     false,
+						})
+						if err != nil {
+							log.Error(err)
+							return
+						}
+						log.Info("result", x)
+					}
+					log.Info("DONE here")
+
+				}()
+			}
+		}()
+	}
 	return nil
 }
 
@@ -175,7 +219,7 @@ func (wmq *WaveMQServer) subscribe(uri string) chan *mqpb.Message {
 				Perspective: wmq.perspective,
 				Namespace:   wmq.namespace,
 				Uri:         uri,
-				Identifier:  "grpc server frontend test",
+				Identifier:  "grpc server frontend test" + uri,
 				Expiry:      int64(10 * 60), // 10 minutes
 			})
 			if err != nil {
@@ -220,10 +264,39 @@ func getUnaryCallByMethod(m *mqpb.Message, method string) *xbospb.UnaryCall {
 		log.Error(err)
 		return nil
 	}
-	return &msg
+	log.Info(msg.Method, method)
+	if msg.Method == method {
+		return &msg
+	}
+	return nil
 }
 
-func GetPayload(call *xbospb.UnaryCall, msg proto.Message) error {
+func getStreamingCallByMethod(m *mqpb.Message, method string) *xbospb.StreamingCall {
+	pos := m.Tbs.Payload
+	if len(pos) == 0 {
+		return nil
+	}
+
+	if pos[0].Schema != "xbosproto/GRPCServer" {
+		return nil
+	}
+
+	var msg xbospb.StreamingCall
+	err := proto.Unmarshal(pos[0].Content, &msg)
+	if err != nil {
+		log.Error(err)
+		return nil
+	}
+	if msg.Method == method {
+		return &msg
+	}
+	return nil
+}
+
+func GetStreamingPayload(call *xbospb.StreamingCall, msg proto.Message) error {
+	return ptypes.UnmarshalAny(call.Payload, msg)
+}
+func GetUnaryPayload(call *xbospb.UnaryCall, msg proto.Message) error {
 	return ptypes.UnmarshalAny(call.Payload, msg)
 }
 
@@ -240,6 +313,27 @@ func MakeUnaryResponse(call *xbospb.UnaryCall, msg proto.Message, err error) (*x
 		QueryId: call.QueryId,
 		Error:   errstr,
 		Payload: packed,
+	}, nil
+
+}
+
+func MakeStreamingResponse(call *xbospb.StreamingCall, msg proto.Message, err error) (*xbospb.StreamingResponse, error) {
+	if msg == nil {
+		return nil, nil
+	}
+	packed, err := ptypes.MarshalAny(msg)
+	if err != nil {
+		return nil, err
+	}
+	var errstr string
+	if err != nil {
+		errstr = err.Error()
+	}
+	return &xbospb.StreamingResponse{
+		QueryId:  call.QueryId,
+		Error:    errstr,
+		Payload:  packed,
+		Finished: false,
 	}, nil
 
 }
