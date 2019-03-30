@@ -31,19 +31,57 @@ func (s *testserver) TestStream(ctx context.Context, in *xbospb.TestParams, serv
 }
 
 type stream struct {
-	c   chan proto.Message
-	ctx context.Context
+	c        chan proto.Message
+	finished chan bool
+	response chan *xbospb.StreamingResponse
+	ctx      context.Context
 	grpc.ServerStream
 }
 
 func newStream(duration time.Duration) *stream {
 	ctx, _ := context.WithTimeout(context.Background(), duration)
-
 	return &stream{
-		c:   make(chan proto.Message),
-		ctx: ctx,
+		c:        make(chan proto.Message),
+		finished: make(chan bool),
+		response: make(chan *xbospb.StreamingResponse),
+		ctx:      ctx,
 	}
 }
+
+func (s *stream) finish(call *xbospb.StreamingCall, err error) {
+	resp, err := grpcserver.MakeStreamingResponseFinish(call, err)
+	if err != nil {
+		log.Println("error make stream", err)
+	}
+	s.response <- resp
+	s.finished <- true
+}
+
+func (s *stream) start(call *xbospb.StreamingCall) {
+	go func() {
+	replyloop:
+		for {
+			select {
+			case reply := <-s.c:
+				resp, err := grpcserver.MakeStreamingResponse(call, reply, nil)
+				if err != nil {
+					log.Println("error make stream", err)
+				}
+				s.response <- resp
+			case <-s.finished:
+				break replyloop
+			case <-s.Context().Done():
+				break replyloop
+			}
+		}
+		close(s.response)
+		close(s.c)
+	}()
+}
+
+//func (s *stream) reportErr(err error) {
+//    s.c <-
+//}
 
 func (s *stream) Send(msg *xbospb.TestResponse) error {
 	s.c <- msg
@@ -68,76 +106,33 @@ func main() {
 	var backend testserver
 
 	srv.OnUnary("TestUnary", func(call *xbospb.UnaryCall) (*xbospb.UnaryResponse, error) {
-		//log.Printf("%+v", call)
-		//log.Println("query id", call.QueryId)
-		//log.Println("type", call.Payload.GetTypeUrl())
-		//log.Println("len pay", len(call.Payload.GetValue()))
-
 		var msg xbospb.TestParams
 		err := grpcserver.GetUnaryPayload(call, &msg)
 		if err != nil {
 			return nil, err
 		}
-
 		reply, err := backend.TestUnary(context.Background(), &msg)
-
 		log.Printf("Reply: %+v", reply)
-
 		resp, err := grpcserver.MakeUnaryResponse(call, reply, err)
 		return resp, err
 	})
 
 	srv.OnStream("TestStream", func(call *xbospb.StreamingCall) (chan *xbospb.StreamingResponse, error) {
 		var msg xbospb.TestParams
-
 		err := grpcserver.GetStreamingPayload(call, &msg)
 		if err != nil {
 			return nil, err
 		}
 
 		s := newStream(30 * time.Second)
-
-		finished := make(chan bool)
-		c := make(chan *xbospb.StreamingResponse)
-
-		ctx, cancel := context.WithTimeout(s.Context(), 3*time.Second)
-		go func() {
-			err := backend.TestStream(ctx, &msg, s)
-			if err != nil {
-				log.Println("Error?", err)
-				//TODO: transmit error
-			}
-			cancel()
-			finished <- true
-		}()
+		s.start(call)
 
 		go func() {
-		replyloop:
-			for {
-				select {
-				case reply := <-s.c:
-					resp, err := grpcserver.MakeStreamingResponse(call, reply, err)
-					if err != nil {
-						log.Println("error make stream", err)
-					}
-					if resp == nil {
-						log.Println("FINISH")
-						continue
-					}
-					c <- resp
-				case <-finished:
-					log.Println("DONE2")
-					break replyloop
-				case <-s.Context().Done():
-					log.Println("DONE")
-					break replyloop
-				}
-			}
-			log.Println("closing up")
-			close(c)
-			close(s.c)
+			err := backend.TestStream(s.Context(), &msg, s)
+			s.finish(call, err)
 		}()
-		return c, nil
+
+		return s.response, nil
 	})
 
 	srv.Serve()
