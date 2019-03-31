@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='xbospb',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\tiot.proto\x12\x06xbospb\x1a\x13nullabletypes.proto\"\'\n\x03URI\x12\x11\n\tnamespace\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"c\n\x06Triple\x12\x1c\n\x07subject\x18\x01 \x01(\x0b\x32\x0b.xbospb.URI\x12\x1e\n\tpredicate\x18\x02 \x01(\x0b\x32\x0b.xbospb.URI\x12\x1b\n\x06object\x18\x03 \x01(\x0b\x32\x0b.xbospb.URI\"\xbb\x02\n\x12XBOSIoTDeviceState\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x11\n\trequestid\x18\x02 \x01(\x03\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x12&\n\nthermostat\x18\x04 \x01(\x0b\x32\x12.xbospb.Thermostat\x12\x1c\n\x05meter\x18\x05 \x01(\x0b\x32\r.xbospb.Meter\x12\x1c\n\x05light\x18\x06 \x01(\x0b\x32\r.xbospb.Light\x12\x1a\n\x04\x65vse\x18\x07 \x01(\x0b\x32\x0c.xbospb.EVSE\x12/\n\x0fweather_station\x18\x08 \x01(\x0b\x32\x16.xbospb.WeatherStation\x12\x44\n\x1aweather_station_prediction\x18\t \x01(\x0b\x32 .xbospb.WeatherStationPrediction\"\xb9\x01\n\x16XBOSIoTDeviceActuation\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x11\n\trequestid\x18\x02 \x01(\x03\x12&\n\nthermostat\x18\x03 \x01(\x0b\x32\x12.xbospb.Thermostat\x12\x1c\n\x05meter\x18\x04 \x01(\x0b\x32\r.xbospb.Meter\x12\x1c\n\x05light\x18\x05 \x01(\x0b\x32\r.xbospb.Light\x12\x1a\n\x04\x65vse\x18\x06 \x01(\x0b\x32\x0c.xbospb.EVSE\"?\n\x0eXBOSIoTContext\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x1f\n\x07\x63ontext\x18\x02 \x03(\x0b\x32\x0e.xbospb.Triple\"\xae\x03\n\nThermostat\x12#\n\x0btemperature\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12)\n\x11relative_humidity\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1e\n\x08override\x18\x03 \x01(\x0b\x32\x0c.xbospb.Bool\x12\x1f\n\tfan_state\x18\x04 \x01(\x0b\x32\x0c.xbospb.Bool\x12!\n\x08\x66\x61n_mode\x18\x05 \x01(\x0e\x32\x0f.xbospb.FanMode\x12\x1e\n\x04mode\x18\x06 \x01(\x0e\x32\x10.xbospb.HVACMode\x12 \n\x05state\x18\x07 \x01(\x0e\x32\x11.xbospb.HVACState\x12*\n\x13\x65nabled_heat_stages\x18\x08 \x01(\x0b\x32\r.xbospb.Int32\x12*\n\x13\x65nabled_cool_stages\x18\t \x01(\x0b\x32\r.xbospb.Int32\x12(\n\x10heating_setpoint\x18\n \x01(\x0b\x32\x0e.xbospb.Double\x12(\n\x10\x63ooling_setpoint\x18\x0b \x01(\x0b\x32\x0e.xbospb.Double\"o\n\x05Meter\x12\x1d\n\x05power\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07voltage\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12&\n\x0e\x61pparent_power\x18\x03 \x01(\x0b\x32\x0e.xbospb.Double\"G\n\x05Light\x12\x1b\n\x05state\x18\x01 \x01(\x0b\x32\x0c.xbospb.Bool\x12!\n\nbrightness\x18\x02 \x01(\x0b\x32\r.xbospb.Int64\"\xb7\x01\n\x04\x45VSE\x12%\n\rcurrent_limit\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07\x63urrent\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07voltage\x18\x03 \x01(\x0b\x32\x0e.xbospb.Double\x12)\n\x12\x63harging_time_left\x18\x04 \x01(\x0b\x32\r.xbospb.Int32\x12\x1b\n\x05state\x18\x05 \x01(\x0b\x32\x0c.xbospb.Bool\"\xdf\x01\n\x0eWeatherStation\x12#\n\x0btemperature\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12 \n\x08humidity\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12.\n\x16nearest_storm_distance\x18\x03 \x01(\x0b\x32\x0e.xbospb.Double\x12,\n\x15nearest_storm_bearing\x18\x04 \x01(\x0b\x32\r.xbospb.Int32\x12(\n\x10precip_intensity\x18\x05 \x01(\x0b\x32\x0e.xbospb.Double\"\xaf\x01\n\x18WeatherStationPrediction\x12@\n\x0bpredictions\x18\x01 \x03(\x0b\x32+.xbospb.WeatherStationPrediction.Prediction\x1aQ\n\nPrediction\x12\x17\n\x0fprediction_time\x18\x01 \x01(\x04\x12*\n\nprediction\x18\x02 \x01(\x0b\x32\x16.xbospb.WeatherStation*-\n\x07\x46\x61nMode\x12\x0b\n\x07\x46\x61nAuto\x10\x00\x12\t\n\x05\x46\x61nOn\x10\x01\x12\n\n\x06\x46\x61nOff\x10\x02*Y\n\x08HVACMode\x12\x0f\n\x0bHVACModeOff\x10\x00\x12\x14\n\x10HVACModeHeatOnly\x10\x01\x12\x14\n\x10HVACModeCoolOnly\x10\x02\x12\x10\n\x0cHVACModeAuto\x10\x03*\x81\x01\n\tHVACState\x12\x10\n\x0cHVACStateOff\x10\x00\x12\x17\n\x13HVACStateHeatStage1\x10\x01\x12\x17\n\x13HVACStateCoolStage1\x10\x02\x12\x17\n\x13HVACStateHeatStage2\x10\x03\x12\x17\n\x13HVACStateCoolStage2\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\tiot.proto\x12\x06xbospb\x1a\x13nullabletypes.proto\"\'\n\x03URI\x12\x11\n\tnamespace\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"c\n\x06Triple\x12\x1c\n\x07subject\x18\x01 \x01(\x0b\x32\x0b.xbospb.URI\x12\x1e\n\tpredicate\x18\x02 \x01(\x0b\x32\x0b.xbospb.URI\x12\x1b\n\x06object\x18\x03 \x01(\x0b\x32\x0b.xbospb.URI\"\xbb\x02\n\x12XBOSIoTDeviceState\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x11\n\trequestid\x18\x02 \x01(\x03\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x12&\n\nthermostat\x18\x04 \x01(\x0b\x32\x12.xbospb.Thermostat\x12\x1c\n\x05meter\x18\x05 \x01(\x0b\x32\r.xbospb.Meter\x12\x1c\n\x05light\x18\x06 \x01(\x0b\x32\r.xbospb.Light\x12\x1a\n\x04\x65vse\x18\x07 \x01(\x0b\x32\x0c.xbospb.EVSE\x12/\n\x0fweather_station\x18\x08 \x01(\x0b\x32\x16.xbospb.WeatherStation\x12\x44\n\x1aweather_station_prediction\x18\t \x01(\x0b\x32 .xbospb.WeatherStationPrediction\"\xb9\x01\n\x16XBOSIoTDeviceActuation\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x11\n\trequestid\x18\x02 \x01(\x03\x12&\n\nthermostat\x18\x03 \x01(\x0b\x32\x12.xbospb.Thermostat\x12\x1c\n\x05meter\x18\x04 \x01(\x0b\x32\r.xbospb.Meter\x12\x1c\n\x05light\x18\x05 \x01(\x0b\x32\r.xbospb.Light\x12\x1a\n\x04\x65vse\x18\x06 \x01(\x0b\x32\x0c.xbospb.EVSE\"?\n\x0eXBOSIoTContext\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x1f\n\x07\x63ontext\x18\x02 \x03(\x0b\x32\x0e.xbospb.Triple\"\xae\x03\n\nThermostat\x12#\n\x0btemperature\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12)\n\x11relative_humidity\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1e\n\x08override\x18\x03 \x01(\x0b\x32\x0c.xbospb.Bool\x12\x1f\n\tfan_state\x18\x04 \x01(\x0b\x32\x0c.xbospb.Bool\x12!\n\x08\x66\x61n_mode\x18\x05 \x01(\x0e\x32\x0f.xbospb.FanMode\x12\x1e\n\x04mode\x18\x06 \x01(\x0e\x32\x10.xbospb.HVACMode\x12 \n\x05state\x18\x07 \x01(\x0e\x32\x11.xbospb.HVACState\x12*\n\x13\x65nabled_heat_stages\x18\x08 \x01(\x0b\x32\r.xbospb.Int32\x12*\n\x13\x65nabled_cool_stages\x18\t \x01(\x0b\x32\r.xbospb.Int32\x12(\n\x10heating_setpoint\x18\n \x01(\x0b\x32\x0e.xbospb.Double\x12(\n\x10\x63ooling_setpoint\x18\x0b \x01(\x0b\x32\x0e.xbospb.Double\"\xa9\x01\n\x12ThermostatSchedule\x12@\n\x0bscheduleMap\x18\x01 \x03(\x0b\x32+.xbospb.ThermostatSchedule.ScheduleMapEntry\x1aQ\n\x10ScheduleMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12,\n\x05value\x18\x02 \x01(\x0b\x32\x1d.xbospb.ThermostatScheduleDay:\x02\x38\x01\"H\n\x15ThermostatScheduleDay\x12/\n\x06\x62locks\x18\x01 \x03(\x0b\x32\x1f.xbospb.ThermostatScheduleBlock\"\x9b\x01\n\x17ThermostatScheduleBlock\x12(\n\x10heating_setpoint\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12(\n\x10\x63ooling_setpoint\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1e\n\x04mode\x18\x03 \x01(\x0e\x32\x10.xbospb.HVACMode\x12\x0c\n\x04time\x18\x04 \x01(\t\"\x8f\x01\n\x05Meter\x12\x1d\n\x05power\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07voltage\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12&\n\x0e\x61pparent_power\x18\x03 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1e\n\x06\x65nergy\x18\x04 \x01(\x0b\x32\x0e.xbospb.Double\"G\n\x05Light\x12\x1b\n\x05state\x18\x01 \x01(\x0b\x32\x0c.xbospb.Bool\x12!\n\nbrightness\x18\x02 \x01(\x0b\x32\r.xbospb.Int64\"\xb7\x01\n\x04\x45VSE\x12%\n\rcurrent_limit\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07\x63urrent\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07voltage\x18\x03 \x01(\x0b\x32\x0e.xbospb.Double\x12)\n\x12\x63harging_time_left\x18\x04 \x01(\x0b\x32\r.xbospb.Int32\x12\x1b\n\x05state\x18\x05 \x01(\x0b\x32\x0c.xbospb.Bool\"\xdf\x01\n\x0eWeatherStation\x12#\n\x0btemperature\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12 \n\x08humidity\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12.\n\x16nearest_storm_distance\x18\x03 \x01(\x0b\x32\x0e.xbospb.Double\x12,\n\x15nearest_storm_bearing\x18\x04 \x01(\x0b\x32\r.xbospb.Int32\x12(\n\x10precip_intensity\x18\x05 \x01(\x0b\x32\x0e.xbospb.Double\"\xaf\x01\n\x18WeatherStationPrediction\x12@\n\x0bpredictions\x18\x01 \x03(\x0b\x32+.xbospb.WeatherStationPrediction.Prediction\x1aQ\n\nPrediction\x12\x17\n\x0fprediction_time\x18\x01 \x01(\x04\x12*\n\nprediction\x18\x02 \x01(\x0b\x32\x16.xbospb.WeatherStation*-\n\x07\x46\x61nMode\x12\x0b\n\x07\x46\x61nAuto\x10\x00\x12\t\n\x05\x46\x61nOn\x10\x01\x12\n\n\x06\x46\x61nOff\x10\x02*Y\n\x08HVACMode\x12\x0f\n\x0bHVACModeOff\x10\x00\x12\x14\n\x10HVACModeHeatOnly\x10\x01\x12\x14\n\x10HVACModeCoolOnly\x10\x02\x12\x10\n\x0cHVACModeAuto\x10\x03*\x81\x01\n\tHVACState\x12\x10\n\x0cHVACStateOff\x10\x00\x12\x17\n\x13HVACStateHeatStage1\x10\x01\x12\x17\n\x13HVACStateCoolStage1\x10\x02\x12\x17\n\x13HVACStateHeatStage2\x10\x03\x12\x17\n\x13HVACStateCoolStage2\x10\x04\x62\x06proto3')
   ,
   dependencies=[nullabletypes__pb2.DESCRIPTOR,])
 
@@ -46,8 +46,8 @@ _FANMODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1964,
-  serialized_end=2009,
+  serialized_start=2401,
+  serialized_end=2446,
 )
 _sym_db.RegisterEnumDescriptor(_FANMODE)
 
@@ -77,8 +77,8 @@ _HVACMODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2011,
-  serialized_end=2100,
+  serialized_start=2448,
+  serialized_end=2537,
 )
 _sym_db.RegisterEnumDescriptor(_HVACMODE)
 
@@ -112,8 +112,8 @@ _HVACSTATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2103,
-  serialized_end=2232,
+  serialized_start=2540,
+  serialized_end=2669,
 )
 _sym_db.RegisterEnumDescriptor(_HVACSTATE)
 
@@ -508,6 +508,157 @@ _THERMOSTAT = _descriptor.Descriptor(
 )
 
 
+_THERMOSTATSCHEDULE_SCHEDULEMAPENTRY = _descriptor.Descriptor(
+  name='ScheduleMapEntry',
+  full_name='xbospb.ThermostatSchedule.ScheduleMapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='xbospb.ThermostatSchedule.ScheduleMapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='xbospb.ThermostatSchedule.ScheduleMapEntry.value', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=_b('8\001'),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1277,
+  serialized_end=1358,
+)
+
+_THERMOSTATSCHEDULE = _descriptor.Descriptor(
+  name='ThermostatSchedule',
+  full_name='xbospb.ThermostatSchedule',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='scheduleMap', full_name='xbospb.ThermostatSchedule.scheduleMap', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_THERMOSTATSCHEDULE_SCHEDULEMAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1189,
+  serialized_end=1358,
+)
+
+
+_THERMOSTATSCHEDULEDAY = _descriptor.Descriptor(
+  name='ThermostatScheduleDay',
+  full_name='xbospb.ThermostatScheduleDay',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='blocks', full_name='xbospb.ThermostatScheduleDay.blocks', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1360,
+  serialized_end=1432,
+)
+
+
+_THERMOSTATSCHEDULEBLOCK = _descriptor.Descriptor(
+  name='ThermostatScheduleBlock',
+  full_name='xbospb.ThermostatScheduleBlock',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='heating_setpoint', full_name='xbospb.ThermostatScheduleBlock.heating_setpoint', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='cooling_setpoint', full_name='xbospb.ThermostatScheduleBlock.cooling_setpoint', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='mode', full_name='xbospb.ThermostatScheduleBlock.mode', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='time', full_name='xbospb.ThermostatScheduleBlock.time', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1435,
+  serialized_end=1590,
+)
+
+
 _METER = _descriptor.Descriptor(
   name='Meter',
   full_name='xbospb.Meter',
@@ -536,6 +687,13 @@ _METER = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='energy', full_name='xbospb.Meter.energy', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -548,8 +706,8 @@ _METER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1188,
-  serialized_end=1299,
+  serialized_start=1593,
+  serialized_end=1736,
 )
 
 
@@ -586,8 +744,8 @@ _LIGHT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1301,
-  serialized_end=1372,
+  serialized_start=1738,
+  serialized_end=1809,
 )
 
 
@@ -645,8 +803,8 @@ _EVSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1375,
-  serialized_end=1558,
+  serialized_start=1812,
+  serialized_end=1995,
 )
 
 
@@ -704,8 +862,8 @@ _WEATHERSTATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1561,
-  serialized_end=1784,
+  serialized_start=1998,
+  serialized_end=2221,
 )
 
 
@@ -742,8 +900,8 @@ _WEATHERSTATIONPREDICTION_PREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1881,
-  serialized_end=1962,
+  serialized_start=2318,
+  serialized_end=2399,
 )
 
 _WEATHERSTATIONPREDICTION = _descriptor.Descriptor(
@@ -772,8 +930,8 @@ _WEATHERSTATIONPREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1787,
-  serialized_end=1962,
+  serialized_start=2224,
+  serialized_end=2399,
 )
 
 _TRIPLE.fields_by_name['subject'].message_type = _URI
@@ -801,9 +959,17 @@ _THERMOSTAT.fields_by_name['enabled_heat_stages'].message_type = nullabletypes__
 _THERMOSTAT.fields_by_name['enabled_cool_stages'].message_type = nullabletypes__pb2._INT32
 _THERMOSTAT.fields_by_name['heating_setpoint'].message_type = nullabletypes__pb2._DOUBLE
 _THERMOSTAT.fields_by_name['cooling_setpoint'].message_type = nullabletypes__pb2._DOUBLE
+_THERMOSTATSCHEDULE_SCHEDULEMAPENTRY.fields_by_name['value'].message_type = _THERMOSTATSCHEDULEDAY
+_THERMOSTATSCHEDULE_SCHEDULEMAPENTRY.containing_type = _THERMOSTATSCHEDULE
+_THERMOSTATSCHEDULE.fields_by_name['scheduleMap'].message_type = _THERMOSTATSCHEDULE_SCHEDULEMAPENTRY
+_THERMOSTATSCHEDULEDAY.fields_by_name['blocks'].message_type = _THERMOSTATSCHEDULEBLOCK
+_THERMOSTATSCHEDULEBLOCK.fields_by_name['heating_setpoint'].message_type = nullabletypes__pb2._DOUBLE
+_THERMOSTATSCHEDULEBLOCK.fields_by_name['cooling_setpoint'].message_type = nullabletypes__pb2._DOUBLE
+_THERMOSTATSCHEDULEBLOCK.fields_by_name['mode'].enum_type = _HVACMODE
 _METER.fields_by_name['power'].message_type = nullabletypes__pb2._DOUBLE
 _METER.fields_by_name['voltage'].message_type = nullabletypes__pb2._DOUBLE
 _METER.fields_by_name['apparent_power'].message_type = nullabletypes__pb2._DOUBLE
+_METER.fields_by_name['energy'].message_type = nullabletypes__pb2._DOUBLE
 _LIGHT.fields_by_name['state'].message_type = nullabletypes__pb2._BOOL
 _LIGHT.fields_by_name['brightness'].message_type = nullabletypes__pb2._INT64
 _EVSE.fields_by_name['current_limit'].message_type = nullabletypes__pb2._DOUBLE
@@ -825,6 +991,9 @@ DESCRIPTOR.message_types_by_name['XBOSIoTDeviceState'] = _XBOSIOTDEVICESTATE
 DESCRIPTOR.message_types_by_name['XBOSIoTDeviceActuation'] = _XBOSIOTDEVICEACTUATION
 DESCRIPTOR.message_types_by_name['XBOSIoTContext'] = _XBOSIOTCONTEXT
 DESCRIPTOR.message_types_by_name['Thermostat'] = _THERMOSTAT
+DESCRIPTOR.message_types_by_name['ThermostatSchedule'] = _THERMOSTATSCHEDULE
+DESCRIPTOR.message_types_by_name['ThermostatScheduleDay'] = _THERMOSTATSCHEDULEDAY
+DESCRIPTOR.message_types_by_name['ThermostatScheduleBlock'] = _THERMOSTATSCHEDULEBLOCK
 DESCRIPTOR.message_types_by_name['Meter'] = _METER
 DESCRIPTOR.message_types_by_name['Light'] = _LIGHT
 DESCRIPTOR.message_types_by_name['EVSE'] = _EVSE
@@ -877,6 +1046,35 @@ Thermostat = _reflection.GeneratedProtocolMessageType('Thermostat', (_message.Me
   ))
 _sym_db.RegisterMessage(Thermostat)
 
+ThermostatSchedule = _reflection.GeneratedProtocolMessageType('ThermostatSchedule', (_message.Message,), dict(
+
+  ScheduleMapEntry = _reflection.GeneratedProtocolMessageType('ScheduleMapEntry', (_message.Message,), dict(
+    DESCRIPTOR = _THERMOSTATSCHEDULE_SCHEDULEMAPENTRY,
+    __module__ = 'iot_pb2'
+    # @@protoc_insertion_point(class_scope:xbospb.ThermostatSchedule.ScheduleMapEntry)
+    ))
+  ,
+  DESCRIPTOR = _THERMOSTATSCHEDULE,
+  __module__ = 'iot_pb2'
+  # @@protoc_insertion_point(class_scope:xbospb.ThermostatSchedule)
+  ))
+_sym_db.RegisterMessage(ThermostatSchedule)
+_sym_db.RegisterMessage(ThermostatSchedule.ScheduleMapEntry)
+
+ThermostatScheduleDay = _reflection.GeneratedProtocolMessageType('ThermostatScheduleDay', (_message.Message,), dict(
+  DESCRIPTOR = _THERMOSTATSCHEDULEDAY,
+  __module__ = 'iot_pb2'
+  # @@protoc_insertion_point(class_scope:xbospb.ThermostatScheduleDay)
+  ))
+_sym_db.RegisterMessage(ThermostatScheduleDay)
+
+ThermostatScheduleBlock = _reflection.GeneratedProtocolMessageType('ThermostatScheduleBlock', (_message.Message,), dict(
+  DESCRIPTOR = _THERMOSTATSCHEDULEBLOCK,
+  __module__ = 'iot_pb2'
+  # @@protoc_insertion_point(class_scope:xbospb.ThermostatScheduleBlock)
+  ))
+_sym_db.RegisterMessage(ThermostatScheduleBlock)
+
 Meter = _reflection.GeneratedProtocolMessageType('Meter', (_message.Message,), dict(
   DESCRIPTOR = _METER,
   __module__ = 'iot_pb2'
@@ -921,4 +1119,5 @@ _sym_db.RegisterMessage(WeatherStationPrediction)
 _sym_db.RegisterMessage(WeatherStationPrediction.Prediction)
 
 
+_THERMOSTATSCHEDULE_SCHEDULEMAPENTRY._options = None
 # @@protoc_insertion_point(module_scope)
