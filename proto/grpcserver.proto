@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+// framing messages for exposing GRPC servers over WAVEMQ
+package xbospb;
+
+import "google/protobuf/any.proto";
+
+message GRPCServerMessage {
+    UnaryCall UnaryCall = 1;
+    UnaryResponse UnaryResponse = 2;
+    StreamingCall StreamingCall = 3;
+    StreamingResponse StreamingResponse = 4;
+    Ping Ping = 5;
+    Pong Pong = 6;
+}
+
+message Ping {
+    repeated int64 active_queries = 1;
+}
+
+message Pong {
+}
+
+message UnaryCall {
+    string method = 1;
+    int64 query_id = 2;
+    google.protobuf.Any payload = 3;
+}
+
+message UnaryResponse {
+    int64 query_id = 1;
+    string error = 2;
+    google.protobuf.Any payload = 3;
+}
+
+message StreamingCall {
+    string method = 1;
+    int64 query_id = 2;
+    google.protobuf.Any payload = 3;
+}
+
+message StreamingResponse {
+    int64 query_id = 1;
+    string error = 2;
+    // true if the stream is done
+    bool finished = 3;
+    google.protobuf.Any payload = 4;
+}
+
+// dummy service
+service Test {
+    rpc TestUnary(TestParams) returns (TestResponse) {}
+    rpc TestStream(TestParams) returns (stream TestResponse) {}
+}
+
+message TestParams {
+    string x = 1;
+}
+message TestResponse {
+    string x = 1;
+}
