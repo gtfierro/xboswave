@@ -39,7 +39,7 @@ type Config struct {
 // <base uri> / s.grpcserver / <server name> / i.grpc / slot / <call name>
 
 type UnaryCallback func(*xbospb.UnaryCall) (*xbospb.UnaryResponse, error)
-type StreamCallback func(*xbospb.StreamingCall) (chan *xbospb.StreamingResponse, error)
+type StreamCallback func(*xbospb.StreamingCall, *StreamContext) error
 
 type WaveMQServer struct {
 	client         mqpb.WAVEMQClient
@@ -168,14 +168,19 @@ func (wmq *WaveMQServer) Serve() error {
 						return
 					}
 
-					stream, err := callback(streamingcall)
-					if err != nil {
-						log.Error(err)
-						return
-						//TODO: handle this
-					}
+					streamctx := NewStreamingContext(60 * time.Second)
 
-					for resp := range stream {
+					streamctx.Start(streamingcall)
+					go func() {
+						err := callback(streamingcall, streamctx)
+						if err != nil {
+							log.Error(err)
+							return
+							//TODO: handle this
+						}
+					}()
+
+					for resp := range streamctx.GetResponseChannel() {
 						if resp == nil {
 							return
 						}
@@ -348,4 +353,65 @@ func MakeStreamingResponseFinish(call *xbospb.StreamingCall, err error) (*xbospb
 		Finished: true,
 	}, nil
 
+}
+
+type StreamContext struct {
+	c        chan proto.Message
+	finished chan bool
+	response chan *xbospb.StreamingResponse
+	ctx      context.Context
+	grpc.ServerStream
+}
+
+func NewStreamingContext(timeout time.Duration) *StreamContext {
+	ctx, _ := context.WithTimeout(context.Background(), timeout)
+	return &StreamContext{
+		c:        make(chan proto.Message),
+		finished: make(chan bool),
+		response: make(chan *xbospb.StreamingResponse),
+		ctx:      ctx,
+	}
+}
+
+func (s *StreamContext) Finish(call *xbospb.StreamingCall, err error) {
+	resp, err := MakeStreamingResponseFinish(call, err)
+	if err != nil {
+		log.Println("error make StreamContext", err)
+	}
+	s.response <- resp
+	s.finished <- true
+}
+
+func (s *StreamContext) Start(call *xbospb.StreamingCall) {
+	go func() {
+	replyloop:
+		for {
+			select {
+			case reply := <-s.c:
+				resp, err := MakeStreamingResponse(call, reply, nil)
+				if err != nil {
+					log.Println("error make StreamContext", err)
+				}
+				s.response <- resp
+			case <-s.finished:
+				break replyloop
+			case <-s.Context().Done():
+				break replyloop
+			}
+		}
+		close(s.response)
+		close(s.c)
+	}()
+}
+
+func (s *StreamContext) Send(msg *xbospb.TestResponse) error {
+	s.c <- msg
+	return nil
+}
+func (s *StreamContext) Context() context.Context {
+	return s.ctx
+}
+
+func (s *StreamContext) GetResponseChannel() chan *xbospb.StreamingResponse {
+	return s.response
 }
