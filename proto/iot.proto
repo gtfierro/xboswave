@@ -121,12 +121,12 @@ message Thermostat {
 
 message ThermostatSchedule {
     //Map day of week to daily schedule
-    map<string, ScheduleDay> scheduleMap = 1;
+    map<string, ThermostatScheduleDay> scheduleMap = 1;
 }
 
 message ThermostatScheduleDay {
     //Daily schedule is Multiple Blocks
-    repeated ScheduleBlock blocks = 1;
+    repeated ThermostatScheduleBlock blocks = 1;
 }
 
 message ThermostatScheduleBlock {
