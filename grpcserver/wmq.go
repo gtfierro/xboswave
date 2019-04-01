@@ -127,8 +127,6 @@ func (wmq *WaveMQServer) Serve() error {
 					}
 
 					// TODO: send response back
-					log.Printf("%+v", resp)
-
 					respuri := fmt.Sprintf("%s/s.grpcserver/%s/i.grpc/signal/response", wmq.baseURI, wmq.name)
 					b, err := proto.Marshal(resp)
 					if err != nil {
@@ -405,6 +403,8 @@ func (s *StreamContext) Start(call *xbospb.StreamingCall) {
 	}()
 }
 
+// TODO: the type of this needs to match the GRPC server implementation
+// unless we can find a way to subvert that
 func (s *StreamContext) Send(msg *mortarpb.FetchResponse) error {
 	s.C <- msg
 	return nil
