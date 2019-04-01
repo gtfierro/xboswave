@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	mortarpb "git.sr.ht/~gabe/mortar/proto"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	xbospb "github.com/gtfierro/xboswave/proto"
@@ -356,7 +357,7 @@ func MakeStreamingResponseFinish(call *xbospb.StreamingCall, err error) (*xbospb
 }
 
 type StreamContext struct {
-	c        chan proto.Message
+	C        chan proto.Message
 	finished chan bool
 	response chan *xbospb.StreamingResponse
 	ctx      context.Context
@@ -366,7 +367,7 @@ type StreamContext struct {
 func NewStreamingContext(timeout time.Duration) *StreamContext {
 	ctx, _ := context.WithTimeout(context.Background(), timeout)
 	return &StreamContext{
-		c:        make(chan proto.Message),
+		C:        make(chan proto.Message),
 		finished: make(chan bool),
 		response: make(chan *xbospb.StreamingResponse),
 		ctx:      ctx,
@@ -387,7 +388,7 @@ func (s *StreamContext) Start(call *xbospb.StreamingCall) {
 	replyloop:
 		for {
 			select {
-			case reply := <-s.c:
+			case reply := <-s.C:
 				resp, err := MakeStreamingResponse(call, reply, nil)
 				if err != nil {
 					log.Println("error make StreamContext", err)
@@ -400,12 +401,12 @@ func (s *StreamContext) Start(call *xbospb.StreamingCall) {
 			}
 		}
 		close(s.response)
-		close(s.c)
+		close(s.C)
 	}()
 }
 
-func (s *StreamContext) Send(msg *xbospb.TestResponse) error {
-	s.c <- msg
+func (s *StreamContext) Send(msg *mortarpb.FetchResponse) error {
+	s.C <- msg
 	return nil
 }
 func (s *StreamContext) Context() context.Context {
