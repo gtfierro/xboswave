@@ -20,8 +20,8 @@ import (
 
 // this is a "stringy" version of pb.Attestation that is easier to
 type Attestation struct {
-	// perspective is implicit (its who is running this program)
-
+	// base64 encoded
+	Attester string
 	// base64 encoded
 	Subject string
 	// base64 encoded
@@ -31,8 +31,12 @@ type Attestation struct {
 	PolicyStatements []PolicyStatement
 }
 
-func ParseAttestation(att *pb.Attestation) Attestation {
-	return Attestation{
+func ParseAttestation(att *pb.Attestation) *Attestation {
+	if att.Body == nil {
+		return nil
+	}
+	return &Attestation{
+		Attester:         base64.URLEncoding.EncodeToString(att.Body.AttesterHash),
 		Subject:          base64.URLEncoding.EncodeToString(att.SubjectHash),
 		Hash:             base64.URLEncoding.EncodeToString(att.Hash),
 		ValidFrom:        time.Unix(0, att.Body.ValidFrom*1e6),
@@ -254,7 +258,9 @@ func main() {
 	}
 
 	log.Println("load att1.pem", db.LoadAttestationFile("att1.pem"))
-	db.watch(".")
+	go db.watch(".")
+
+	db.RunShell()
 
 	_ = db
 }

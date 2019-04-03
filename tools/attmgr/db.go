@@ -3,13 +3,17 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
+	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
+	"github.com/abiosoft/ishell"
 	"github.com/fsnotify/fsnotify"
 	"github.com/immesys/wave/eapi/pb"
 	"github.com/pkg/errors"
@@ -19,6 +23,9 @@ type DB struct {
 	db          *sql.DB
 	wave        pb.WAVEClient
 	perspective *pb.Perspective
+	//base64
+	phash string
+	shell *ishell.Shell
 }
 
 func NewDB(cfg *Config) (*DB, error) {
@@ -28,6 +35,22 @@ func NewDB(cfg *Config) (*DB, error) {
 		wave:        getConn(cfg.Agent),
 		perspective: getPerspective(cfg.Perspective, "", "missing perspective"),
 	}
+
+	// get entity hash
+	resp, err := db.wave.Inspect(context.Background(), &pb.InspectParams{
+		Content: db.perspective.EntitySecret.DER,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if resp.Error != nil {
+		return nil, fmt.Errorf("could not inspect file: %s\n", resp.Error.Message)
+	}
+	if resp.Entity == nil {
+		return nil, fmt.Errorf("file was not an entity %s\n", cfg.Perspective)
+	}
+	db.phash = base64.URLEncoding.EncodeToString(resp.Entity.Hash)
+
 	db.db, err = sql.Open("sqlite3", cfg.Path)
 	if err != nil {
 		return nil, err
@@ -37,6 +60,7 @@ func NewDB(cfg *Config) (*DB, error) {
 	_, err = db.db.Exec(`CREATE TABLE IF NOT EXISTS attestations (
         id          INTEGER PRIMARY KEY,
         hash        TEXT UNIQUE NOT NULL,
+		subject		TEXT NOT NULL,
         inserted    DATETIME DEFAULT CURRENT_TIMESTAMP,
         expires     DATETIME NOT NULL,
         policy      INTEGER NOT NULL
@@ -53,10 +77,22 @@ func NewDB(cfg *Config) (*DB, error) {
 		return nil, err
 	}
 
+	// setup interactive shell
+	db.setupShell()
+
 	return db, nil
 }
 
 func (db *DB) watch(dir string) {
+	// load in existing
+	files, err := filepath.Glob("*.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, filename := range files {
+		log.Println("load detected file: ", db.LoadAttestationFile(filename))
+	}
+
 	// watch the directory!
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -72,11 +108,9 @@ func (db *DB) watch(dir string) {
 				if !ok {
 					return
 				}
-				if event.Op == fsnotify.Create {
-					if strings.HasSuffix(event.Name, ".pem") {
-						log.Println("Loading new .pem file ", event.Name)
-						log.Println("load detected file: ", db.LoadAttestationFile(event.Name))
-					}
+				if event.Op == fsnotify.Create && strings.HasSuffix(event.Name, ".pem") {
+					log.Println("Loading new .pem file ", event.Name)
+					log.Println("load detected file: ", db.LoadAttestationFile(event.Name))
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -94,7 +128,14 @@ func (db *DB) watch(dir string) {
 	<-done
 }
 
-func (db *DB) insertAttestation(att Attestation) error {
+func (db *DB) insertAttestation(att *Attestation) error {
+
+	if att == nil {
+		return errors.New("Could not insert attestation that was not complete or fully decoded")
+	}
+
+	// check attesterhash
+	//if att.Attester
 
 	tx, err := db.db.BeginTx(context.Background(), &sql.TxOptions{
 		ReadOnly: false,
@@ -161,9 +202,9 @@ func (db *DB) insertAttestation(att Attestation) error {
 	fmt.Println(ids)
 
 	// insert attestations
-	stmt = "INSERT OR IGNORE INTO attestations(hash, expires, policy) VALUES (?, ?, ?)"
+	stmt = "INSERT OR IGNORE INTO attestations(hash, expires, policy, subject) VALUES (?, ?, ?, ?)"
 	for _, id := range ids {
-		_, err = tx.Exec(stmt, att.Hash, att.ValidUntil, id)
+		_, err = tx.Exec(stmt, att.Hash, att.ValidUntil, id, att.Subject)
 		if err != nil {
 			log.Println(errors.Wrap(err, "insert att"))
 			if rollbackErr := tx.Rollback(); rollbackErr != nil {
@@ -187,6 +228,26 @@ func (db *DB) getUnique(attribute string, where map[string]string) ([]string, er
 		if err := rows.Scan(&s); err != nil {
 			return res, err
 		}
+		res = append(res, s)
+	}
+
+	return res, nil
+}
+
+func (db *DB) getUniqueFromPolicy(attribute string, where map[string]string) ([]string, error) {
+	stmt := formQueryStr("policies", attribute, where)
+	rows, err := db.db.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+	var res []string
+	defer rows.Close()
+	for rows.Next() {
+		var s string
+		if err := rows.Scan(&s); err != nil {
+			return res, err
+		}
+		res = append(res, s)
 	}
 
 	return res, nil
@@ -205,6 +266,95 @@ func formQueryStr(table, attribute string, where map[string]string) string {
 	return stmt
 }
 
-func getAttestations(*sql.Rows) ([]Attestation, error) {
-	return nil, nil
+func (db *DB) readAttestations(rows *sql.Rows) ([]Attestation, error) {
+	var ret []Attestation
+	for rows.Next() {
+		att := &Attestation{}
+		var expires interface{}
+		var policyid int
+		if err := rows.Scan(&att.Hash, &att.Subject, &expires, &policyid); err != nil {
+			return nil, err
+		}
+		if expires != nil {
+			att.ValidUntil = expires.(time.Time)
+		}
+		fmt.Println(policyid)
+		ret = append(ret, *att)
+	}
+	return ret, nil
+}
+
+func (db *DB) RunShell() {
+	db.shell.Run()
+}
+
+func (db *DB) listAttestation(filter *filter) ([]Attestation, error) {
+	stmt := `SELECT hash, subject, expires, policy
+			 FROM attestations
+			 LEFT JOIN policies ON policies.id = attestations.policy
+			 `
+
+	where, err := filter.toSQL()
+	if err != nil {
+		return nil, err
+	}
+	if len(where) > 0 {
+		stmt += " WHERE " + where
+	}
+	fmt.Println(stmt)
+
+	rows, err := db.db.Query(stmt)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	return db.readAttestations(rows)
+}
+
+type filter struct {
+	attid       *int
+	hash        *string
+	policy      *int
+	namespace   *string
+	resource    *string
+	pset        *string
+	permissions []string
+}
+
+func (f *filter) toSQL() (string, error) {
+	var filters []string
+	if f == nil {
+		return "", nil
+	}
+
+	if f.attid != nil {
+		filters = append(filters, fmt.Sprintf("attestations.id=%d ", *f.attid))
+	}
+	if f.hash != nil {
+		filters = append(filters, fmt.Sprintf("attestations.hash='%s' ", *f.hash))
+	}
+	if f.policy != nil {
+		filters = append(filters, fmt.Sprintf("attestations.policy=%d ", *f.policy))
+	}
+	if f.namespace != nil {
+		filters = append(filters, fmt.Sprintf("policies.namespace='%s' ", *f.namespace))
+	}
+	if f.resource != nil {
+		filters = append(filters, fmt.Sprintf("policies.resource='%s' ", *f.resource))
+	}
+	if f.pset != nil {
+		filters = append(filters, fmt.Sprintf("policies.pset='%s' ", *f.pset))
+	}
+
+	if f.permissions != nil {
+		// sort permissions for consistency
+		var s = sort.StringSlice(f.permissions)
+		s.Sort()
+		b, err := json.Marshal(s)
+		if err != nil {
+			return "", err
+		}
+		filters = append(filters, fmt.Sprintf("policies.permissions='%s' ", string(b)))
+	}
+	return strings.Join(filters, " AND "), nil
 }
