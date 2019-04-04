@@ -57,11 +57,11 @@ func main() {
 	}()
 
 	frontend_stage_cfg := &stages.WAVEMQFrontendStageConfig{
-		SiteRouter: "localhost:4516",
-		//EntityFile: "filename",
-		Namespace:  "GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==",
-		BaseURI:    "mortar",
-		ServerName: "mortar",
+		SiteRouter: cfg.WAVEMQ.SiteRouter,
+		EntityFile: cfg.WAVEMQ.EntityFile,
+		Namespace:  cfg.WAVEMQ.Namespace,
+		BaseURI:    cfg.WAVEMQ.BaseURI,
+		ServerName: cfg.WAVEMQ.ServerName,
 	}
 
 	frontend_stage, err := stages.NewWAVEMQFrontendStage(frontend_stage_cfg)
