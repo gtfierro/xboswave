@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -90,7 +89,9 @@ func (db *DB) watch(dir string) {
 		log.Fatal(err)
 	}
 	for _, filename := range files {
-		log.Println("load detected file: ", db.LoadAttestationFile(filename))
+		if err := db.LoadAttestationFile(filename); err != nil {
+			log.Warning("Could not load detected attestation: ", err)
+		}
 	}
 
 	// watch the directory!
@@ -109,14 +110,15 @@ func (db *DB) watch(dir string) {
 					return
 				}
 				if event.Op == fsnotify.Create && strings.HasSuffix(event.Name, ".pem") {
-					log.Println("Loading new .pem file ", event.Name)
-					log.Println("load detected file: ", db.LoadAttestationFile(event.Name))
+					if err := db.LoadAttestationFile(event.Name); err != nil {
+						log.Warning("Could not load detected attestation: ", err)
+					}
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
 				}
-				log.Println("error:", err)
+				log.Error("error:", err)
 			}
 		}
 	}()
@@ -126,6 +128,63 @@ func (db *DB) watch(dir string) {
 		log.Fatal(err)
 	}
 	<-done
+}
+
+func (db *DB) insertPolicy(pol *PolicyStatement) error {
+	if pol == nil {
+		return errors.New("could not insert empty policy")
+	}
+	if pol.Namespace == "" {
+		return errors.New("Policy needs namespace")
+	}
+	if pol.PermissionSet == "" {
+		return errors.New("Policy needs PermissionSet")
+	}
+	if len(pol.Permissions) == 0 {
+		return errors.New("Policy needs permissions")
+	}
+
+	tx, err := db.db.BeginTx(context.Background(), &sql.TxOptions{
+		ReadOnly: false,
+	})
+	if err != nil {
+		return err
+	}
+	// sort permissions for consistency
+	var s = sort.StringSlice(pol.Permissions)
+	s.Sort()
+	b, err := json.Marshal(s)
+	if err != nil {
+		return err
+	}
+
+	row := tx.QueryRow(formQueryStr("policies", "id", map[string]string{
+		"namespace":    pol.Namespace,
+		"resource":     pol.Resource,
+		"pset":         pol.PermissionSet,
+		"indirections": fmt.Sprintf("%d", pol.Indirections),
+		"permissions":  string(b),
+	}))
+	var id int
+	if err := row.Scan(&id); err != nil && err != sql.ErrNoRows {
+		log.Error(errors.Wrap(err, "query policy"))
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
+		}
+		return err
+	} else if err == nil {
+		return tx.Commit()
+	}
+	stmt := "INSERT INTO policies(namespace, resource, pset, indirections, permissions) VALUES (?, ?, ?, ?, ?)"
+	_, err = tx.Exec(stmt, pol.Namespace, pol.Resource, pol.PermissionSet, pol.Indirections, string(b))
+	if err != nil {
+		log.Error(errors.Wrap(err, "upsert policy"))
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
+		}
+	}
+
+	return tx.Commit()
 }
 
 func (db *DB) insertAttestation(att *Attestation) error {
@@ -166,7 +225,7 @@ func (db *DB) insertAttestation(att *Attestation) error {
 		}))
 		var id int
 		if err := row.Scan(&id); err != nil && err != sql.ErrNoRows {
-			log.Println(errors.Wrap(err, "query policy"))
+			log.Error(errors.Wrap(err, "query policy"))
 			if rollbackErr := tx.Rollback(); rollbackErr != nil {
 				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
 			}
@@ -178,7 +237,7 @@ func (db *DB) insertAttestation(att *Attestation) error {
 
 		_, err = tx.Exec(stmt, ps.Namespace, ps.Resource, ps.PermissionSet, ps.Indirections, string(b))
 		if err != nil {
-			log.Println(errors.Wrap(err, "upsert policy"))
+			log.Error(errors.Wrap(err, "upsert policy"))
 			if rollbackErr := tx.Rollback(); rollbackErr != nil {
 				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
 			}
@@ -192,33 +251,28 @@ func (db *DB) insertAttestation(att *Attestation) error {
 			"permissions":  string(b),
 		}))
 		if err := row.Scan(&id); err != nil {
-			log.Println(errors.Wrap(err, "query policy id"))
+			log.Error(errors.Wrap(err, "query policy id"))
 			if rollbackErr := tx.Rollback(); rollbackErr != nil {
 				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
 			}
 		}
 		ids = append(ids, id)
 	}
-	fmt.Println(ids)
 
 	// insert attestations
 	stmt = "INSERT INTO attestations(hash, expires, policies, subject) VALUES (?, ?, ?, ?) ON CONFLICT(hash) DO UPDATE SET policies=json_patch(policies, '%s')"
 	for _, id := range ids {
 		pol, err := json.Marshal(map[int]int{id: 0})
 		if err != nil {
-			log.Println(errors.Wrap(err, "insert att"))
+			log.Error(errors.Wrap(err, "insert att"))
 			if rollbackErr := tx.Rollback(); rollbackErr != nil {
 				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
 			}
 		}
 
-		//pol := fmt.Sprintf("'{%d: 0}'", id)
-		fmt.Printf(stmt+"\n", string(pol))
-		fmt.Println(pol)
-
 		_, err = tx.Exec(fmt.Sprintf(stmt, string(pol)), att.Hash, att.ValidUntil, string(pol), att.Subject)
 		if err != nil {
-			log.Println(errors.Wrap(err, "insert att"))
+			log.Error(errors.Wrap(err, "insert att"))
 			if rollbackErr := tx.Rollback(); rollbackErr != nil {
 				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
 			}
@@ -294,7 +348,6 @@ func (db *DB) readAttestations(rows *sql.Rows) ([]Attestation, error) {
 		if err := json.Unmarshal(_policyids, &policyids); err != nil {
 			return nil, err
 		}
-		fmt.Println(policyids)
 		for policyid := range policyids {
 			policies, err := db.listPolicy(&filter{polid: &policyid})
 			if err != nil {
@@ -313,7 +366,7 @@ func (db *DB) readPolicies(rows *sql.Rows) ([]PolicyStatement, error) {
 	for rows.Next() {
 		pol := &PolicyStatement{}
 		var _perm []byte
-		if err := rows.Scan(&pol.Namespace, &pol.Resource, &pol.PermissionSet, &pol.Indirections, &_perm); err != nil {
+		if err := rows.Scan(&pol.id, &pol.Namespace, &pol.Resource, &pol.PermissionSet, &pol.Indirections, &_perm); err != nil {
 			return nil, err
 		}
 		if err := json.Unmarshal(_perm, &pol.Permissions); err != nil {
@@ -322,6 +375,20 @@ func (db *DB) readPolicies(rows *sql.Rows) ([]PolicyStatement, error) {
 		ret = append(ret, *pol)
 	}
 	return ret, nil
+}
+
+func (db *DB) getPoliciesById(ids []int) ([]PolicyStatement, error) {
+
+	var stmts []PolicyStatement
+	for _, policyid := range ids {
+		policies, err := db.listPolicy(&filter{polid: &policyid})
+		if err != nil {
+			return nil, err
+		}
+		stmts = append(stmts, policies...)
+	}
+
+	return stmts, nil
 }
 
 func (db *DB) RunShell() {
@@ -341,7 +408,6 @@ func (db *DB) listAttestation(filter *filter) ([]Attestation, error) {
 	if len(where) > 0 {
 		stmt += " WHERE " + where
 	}
-	fmt.Println(stmt)
 
 	rows, err := db.db.Query(stmt)
 	defer rows.Close()
@@ -352,7 +418,7 @@ func (db *DB) listAttestation(filter *filter) ([]Attestation, error) {
 }
 
 func (db *DB) listPolicy(filter *filter) ([]PolicyStatement, error) {
-	stmt := `SELECT namespace, resource, pset, indirections, permissions
+	stmt := `SELECT id, namespace, resource, pset, indirections, permissions
 			 FROM policies
 			 `
 
@@ -363,7 +429,6 @@ func (db *DB) listPolicy(filter *filter) ([]PolicyStatement, error) {
 	if len(where) > 0 {
 		stmt += " WHERE " + where
 	}
-	fmt.Println(stmt)
 
 	rows, err := db.db.Query(stmt)
 	defer rows.Close()

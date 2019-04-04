@@ -6,8 +6,9 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,8 +16,17 @@ import (
 	"github.com/immesys/wave/consts"
 	"github.com/immesys/wave/eapi"
 	"github.com/immesys/wave/eapi/pb"
+	logrus "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
+
+var log = logrus.New()
+
+func init() {
+	log.SetFormatter(&logrus.TextFormatter{FullTimestamp: true, ForceColors: true})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(logrus.DebugLevel)
+}
 
 // this is a "stringy" version of pb.Attestation that is easier to
 type Attestation struct {
@@ -46,6 +56,7 @@ func ParseAttestation(att *pb.Attestation) *Attestation {
 }
 
 type PolicyStatement struct {
+	id int
 	// base64 encoded
 	Namespace string
 	// base64 encoded
@@ -245,6 +256,34 @@ type Config struct {
 //	}
 //	fmt.Printf("Perspective graph sync complete\n")
 //}
+
+//ParseDuration is a little like the existing time.ParseDuration
+//but adds days and years because its really annoying not having that
+// from Michael Andersen
+func ParseDuration(s string) (*time.Duration, error) {
+	if s == "" {
+		return nil, nil
+	}
+	pat := regexp.MustCompile(`^(\d+y)?(\d+d)?(\d+h)?(\d+m)?(\d+s)?$`)
+	res := pat.FindStringSubmatch(s)
+	if res == nil {
+		return nil, fmt.Errorf("Invalid duration")
+	}
+	res = res[1:]
+	sec := int64(0)
+	for idx, mul := range []int64{365 * 24 * 60 * 60, 24 * 60 * 60, 60 * 60, 60, 1} {
+		if res[idx] != "" {
+			key := res[idx][:len(res[idx])-1]
+			v, e := strconv.ParseInt(key, 10, 64)
+			if e != nil { //unlikely
+				return nil, e
+			}
+			sec += v * mul
+		}
+	}
+	rv := time.Duration(sec) * time.Second
+	return &rv, nil
+}
 
 func main() {
 	cfg := &Config{

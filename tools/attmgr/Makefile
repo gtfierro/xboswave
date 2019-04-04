@@ -11,7 +11,7 @@ sql:
 	sqlite3 attestations.sqlite3
 
 clean:
-	-rm attestations.sqlite3
+	-rm -f attestations.sqlite3
 
 generate-entities:
 	wv mke -o ns.ent --nopassphrase
