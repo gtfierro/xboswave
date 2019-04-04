@@ -60,10 +60,10 @@ func NewDB(cfg *Config) (*DB, error) {
 	_, err = db.db.Exec(`CREATE TABLE IF NOT EXISTS attestations (
         id          INTEGER PRIMARY KEY,
         hash        TEXT UNIQUE NOT NULL,
-		subject		TEXT NOT NULL,
+        subject		TEXT NOT NULL,
         inserted    DATETIME DEFAULT CURRENT_TIMESTAMP,
         expires     DATETIME NOT NULL,
-        policy      INTEGER NOT NULL
+        policies    JSON
     );`)
 	_, err = db.db.Exec(`CREATE TABLE IF NOT EXISTS policies (
         id          INTEGER PRIMARY KEY,
@@ -168,7 +168,7 @@ func (db *DB) insertAttestation(att *Attestation) error {
 		if err := row.Scan(&id); err != nil && err != sql.ErrNoRows {
 			log.Println(errors.Wrap(err, "query policy"))
 			if rollbackErr := tx.Rollback(); rollbackErr != nil {
-				log.Fatalf("update drivers: unable to rollback: %v", rollbackErr)
+				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
 			}
 			return err
 		} else if err == nil {
@@ -180,7 +180,7 @@ func (db *DB) insertAttestation(att *Attestation) error {
 		if err != nil {
 			log.Println(errors.Wrap(err, "upsert policy"))
 			if rollbackErr := tx.Rollback(); rollbackErr != nil {
-				log.Fatalf("update drivers: unable to rollback: %v", rollbackErr)
+				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
 			}
 		}
 
@@ -194,7 +194,7 @@ func (db *DB) insertAttestation(att *Attestation) error {
 		if err := row.Scan(&id); err != nil {
 			log.Println(errors.Wrap(err, "query policy id"))
 			if rollbackErr := tx.Rollback(); rollbackErr != nil {
-				log.Fatalf("update drivers: unable to rollback: %v", rollbackErr)
+				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
 			}
 		}
 		ids = append(ids, id)
@@ -202,13 +202,25 @@ func (db *DB) insertAttestation(att *Attestation) error {
 	fmt.Println(ids)
 
 	// insert attestations
-	stmt = "INSERT OR IGNORE INTO attestations(hash, expires, policy, subject) VALUES (?, ?, ?, ?)"
+	stmt = "INSERT INTO attestations(hash, expires, policies, subject) VALUES (?, ?, ?, ?) ON CONFLICT(hash) DO UPDATE SET policies=json_patch(policies, '%s')"
 	for _, id := range ids {
-		_, err = tx.Exec(stmt, att.Hash, att.ValidUntil, id, att.Subject)
+		pol, err := json.Marshal(map[int]int{id: 0})
 		if err != nil {
 			log.Println(errors.Wrap(err, "insert att"))
 			if rollbackErr := tx.Rollback(); rollbackErr != nil {
-				log.Fatalf("update drivers: unable to rollback: %v", rollbackErr)
+				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
+			}
+		}
+
+		//pol := fmt.Sprintf("'{%d: 0}'", id)
+		fmt.Printf(stmt+"\n", string(pol))
+		fmt.Println(pol)
+
+		_, err = tx.Exec(fmt.Sprintf(stmt, string(pol)), att.Hash, att.ValidUntil, string(pol), att.Subject)
+		if err != nil {
+			log.Println(errors.Wrap(err, "insert att"))
+			if rollbackErr := tx.Rollback(); rollbackErr != nil {
+				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
 			}
 		}
 	}
@@ -271,15 +283,43 @@ func (db *DB) readAttestations(rows *sql.Rows) ([]Attestation, error) {
 	for rows.Next() {
 		att := &Attestation{}
 		var expires interface{}
-		var policyid int
-		if err := rows.Scan(&att.Hash, &att.Subject, &expires, &policyid); err != nil {
+		var policyids map[int]int
+		var _policyids []byte
+		if err := rows.Scan(&att.Hash, &att.Subject, &expires, &_policyids); err != nil {
 			return nil, err
 		}
 		if expires != nil {
 			att.ValidUntil = expires.(time.Time)
 		}
-		fmt.Println(policyid)
+		if err := json.Unmarshal(_policyids, &policyids); err != nil {
+			return nil, err
+		}
+		fmt.Println(policyids)
+		for policyid := range policyids {
+			policies, err := db.listPolicy(&filter{polid: &policyid})
+			if err != nil {
+				return nil, err
+			}
+			att.PolicyStatements = append(att.PolicyStatements, policies...)
+		}
 		ret = append(ret, *att)
+
+	}
+	return ret, nil
+}
+
+func (db *DB) readPolicies(rows *sql.Rows) ([]PolicyStatement, error) {
+	var ret []PolicyStatement
+	for rows.Next() {
+		pol := &PolicyStatement{}
+		var _perm []byte
+		if err := rows.Scan(&pol.Namespace, &pol.Resource, &pol.PermissionSet, &pol.Indirections, &_perm); err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(_perm, &pol.Permissions); err != nil {
+			return nil, err
+		}
+		ret = append(ret, *pol)
 	}
 	return ret, nil
 }
@@ -289,9 +329,9 @@ func (db *DB) RunShell() {
 }
 
 func (db *DB) listAttestation(filter *filter) ([]Attestation, error) {
-	stmt := `SELECT hash, subject, expires, policy
-			 FROM attestations
-			 LEFT JOIN policies ON policies.id = attestations.policy
+	stmt := `SELECT hash, subject, expires, policies
+			 FROM attestations, json_each(policies)
+			 LEFT JOIN policies ON policies.id = json_each.value
 			 `
 
 	where, err := filter.toSQL()
@@ -311,7 +351,30 @@ func (db *DB) listAttestation(filter *filter) ([]Attestation, error) {
 	return db.readAttestations(rows)
 }
 
+func (db *DB) listPolicy(filter *filter) ([]PolicyStatement, error) {
+	stmt := `SELECT namespace, resource, pset, indirections, permissions
+			 FROM policies
+			 `
+
+	where, err := filter.toSQL()
+	if err != nil {
+		return nil, err
+	}
+	if len(where) > 0 {
+		stmt += " WHERE " + where
+	}
+	fmt.Println(stmt)
+
+	rows, err := db.db.Query(stmt)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	return db.readPolicies(rows)
+}
+
 type filter struct {
+	polid       *int
 	attid       *int
 	hash        *string
 	policy      *int
@@ -329,6 +392,9 @@ func (f *filter) toSQL() (string, error) {
 
 	if f.attid != nil {
 		filters = append(filters, fmt.Sprintf("attestations.id=%d ", *f.attid))
+	}
+	if f.polid != nil {
+		filters = append(filters, fmt.Sprintf("policies.id=%d ", *f.polid))
 	}
 	if f.hash != nil {
 		filters = append(filters, fmt.Sprintf("attestations.hash='%s' ", *f.hash))

@@ -26,6 +26,12 @@ func parseFilterFromArgs(args []string) (*filter, error) {
 			if err != nil {
 				return nil, err
 			}
+		case "polid":
+			_id, err := strconv.Atoi(parts[1])
+			filter.polid = &_id
+			if err != nil {
+				return nil, err
+			}
 		case "hash":
 			filter.hash = &parts[1]
 		case "policy":
@@ -69,6 +75,27 @@ func (db *DB) setupShell() {
 			}
 			for _, a := range atts {
 				fmt.Printf("%+v\n", a)
+			}
+		},
+	})
+
+	// list policies that meet the given filters
+	db.shell.AddCmd(&ishell.Cmd{
+		Name: "listpol",
+		Help: "List policies",
+		Func: func(c *ishell.Context) {
+			filter, err := parseFilterFromArgs(c.Args)
+			if err != nil {
+				c.Err(err)
+				return
+			}
+			pols, err := db.listPolicy(filter)
+			if err != nil {
+				c.Err(err)
+				return
+			}
+			for _, p := range pols {
+				fmt.Printf("%+v\n", p)
 			}
 		},
 	})

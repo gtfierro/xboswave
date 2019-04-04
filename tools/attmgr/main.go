@@ -250,14 +250,14 @@ func main() {
 	cfg := &Config{
 		Path:        "attestations.sqlite3",
 		Agent:       "localhost:410",
-		Perspective: "test.ent",
+		Perspective: "src.ent",
 	}
 	db, err := NewDB(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("load att1.pem", db.LoadAttestationFile("att1.pem"))
+	//log.Println("load att1.pem", db.LoadAttestationFile("att1.pem"))
 	go db.watch(".")
 
 	db.RunShell()
