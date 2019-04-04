@@ -411,10 +411,10 @@ func (db *DB) listAttestation(filter *filter) ([]Attestation, error) {
 	fmt.Println(stmt)
 
 	rows, err := db.db.Query(stmt)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	return db.readAttestations(rows)
 }
 

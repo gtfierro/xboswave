@@ -7,6 +7,9 @@ trun: build
 build:
 	go build --tags "sqlite_json"
 
+install:
+	go install --tags "sqlite_json"
+
 sql:
 	sqlite3 attestations.sqlite3
 
