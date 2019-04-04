@@ -1,0 +1,27 @@
+database:
+    path: "_hod_"
+    buildings:
+        ciee: ttl/ciee.ttl
+    ontologies:
+        - "./ttl/BrickFrame.ttl"
+        - "./ttl/Brick.ttl"
+
+http:
+    enable: false
+    address: localhost
+    port: 47808
+
+grpc:
+    enable: false
+    address: localhost
+    port: 47808
+
+profile:
+    enableCpu: false
+    enableMem: false
+    enableBlock: false
+    enableHttp: false
+    httpPort: 8080
+
+output:
+    logLevel: info

@@ -1,0 +1,7 @@
+HodConfig: "hodconfig.yml"
+#BTrDBAddr: "127.0.0.1:4410"
+InfluxDBAddr: "http://127.0.0.1:8086"
+InfluxDBUser: ""
+InfluxDBPass: ""
+ListenAddr: "127.0.0.1:4587"
+PrometheusAddr: "127.0.0.1:9091"
