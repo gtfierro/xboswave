@@ -23,7 +23,7 @@ You should of course configure the rest of the file to point to whatever db you 
 
 ### Client Configuration
 
-Install/upgrade the `pyxbos` paragraph
+Install/upgrade the `pyxbos` package
 
 ```python
 client = MortarClient({
