@@ -141,3 +141,56 @@ func (db *DB) CreateAttestation(subjectHashOrFile string, ValidUntil time.Time, 
 
 	return nil
 }
+
+// check that this attestation can be used in a real proof by
+// seeing if we can build a proof to what it is granting
+func (db *DB) Validate(att Attestation) error {
+
+	for _, policy := range att.PolicyStatements {
+		pset := resolveEntityNameOrHashOrFile(db.wave, db.perspective, policy.PermissionSet, "bad permission set")
+		ns := resolveEntityNameOrHashOrFile(db.wave, db.perspective, policy.Namespace, "bad namesapce")
+		params := &pb.BuildRTreeProofParams{
+			Perspective: db.perspective,
+			// subject is the perspective by default
+			Namespace: ns,
+			Statements: []*pb.RTreePolicyStatement{
+				&pb.RTreePolicyStatement{
+					PermissionSet: pset,
+					Permissions:   policy.Permissions,
+					Resource:      policy.Resource,
+				},
+			},
+		}
+
+		resp, err := db.wave.BuildRTreeProof(context.Background(), params)
+		if err != nil {
+			return err
+		}
+		if resp.Error != nil {
+			return fmt.Errorf("error: %v\n", resp.Error.Message)
+		}
+
+		vresp, err := db.wave.VerifyProof(context.Background(), &pb.VerifyProofParams{
+			ProofDER: resp.ProofDER,
+		})
+		if err != nil {
+			return err
+		}
+		if vresp.Error != nil {
+			return fmt.Errorf("error: %v\n", vresp.Error.Message)
+		}
+		//proof := vresp.Result
+		//fmt.Printf("  Validity:\n")
+		//fmt.Printf("   - Readable: %v\n", !proof.Attestation.Validity.NotDecrypted)
+		//fmt.Printf("   - Revoked: %v\n", proof.Attestation.Validity.Revoked)
+		//fmt.Printf("   - Malformed: %v\n", proof.Attestation.Validity.Malformed)
+		//fmt.Printf("   - Subject invalid: %v\n", proof.Attestation.Validity.DstInvalid)
+		//if !proof.Attestation.Validity.NotDecrypted {
+		//	fmt.Printf("   - Valid: %v\n", proof.Attestation.Validity.Valid)
+		//	fmt.Printf("   - Expired: %v\n", proof.Attestation.Validity.Expired)
+		//	fmt.Printf("   - Attester invalid: %v\n", proof.Attestation.Validity.SrcInvalid)
+		//}
+
+	}
+	return nil
+}

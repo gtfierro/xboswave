@@ -145,7 +145,7 @@ func (db *DB) setupShell() {
 			}
 			table := tablewriter.NewWriter(os.Stdout)
 			table.SetRowLine(true)
-			table.SetHeader([]string{"hash", "subject", "valid until", "expires in", "policies"})
+			table.SetHeader([]string{"hash", "subject", "valid until", "expires in", "policies", "valid", "error"})
 			for _, a := range atts {
 				var _policies []string
 				for _, pol := range a.PolicyStatements {
@@ -153,12 +153,21 @@ func (db *DB) setupShell() {
 				}
 				expires := time.Until(a.ValidUntil)
 				expires = time.Second * time.Duration(expires.Seconds())
+
+				validerr := db.Validate(a)
+				var es string
+				if validerr != nil {
+					es = validerr.Error()
+				}
+
 				table.Append([]string{
 					a.Hash,
 					a.Subject,
 					a.ValidUntil.Format(time.RFC822Z),
 					fmt.Sprintf("%s", expires),
 					strings.Join(_policies, ", "),
+					fmt.Sprintf("%v", validerr == nil),
+					es,
 				})
 			}
 			table.Render()
