@@ -285,11 +285,36 @@ func ParseDuration(s string) (*time.Duration, error) {
 	return &rv, nil
 }
 
+const DATABASE_LOCATION = "WAVEATTD_DB_LOCATION"
+const WAVE_ENTITY = "WAVE_DEFAULT_ENTITY"
+const WAVE_AGENT = "WAVE_AGENT"
+
 func main() {
+
+	var (
+		location string
+		entity   string
+		agent    string
+		found    bool
+	)
+
+	location, found = os.LookupEnv(DATABASE_LOCATION)
+	if !found {
+		location = "waveattd.sqlite3"
+	}
+	entity, found = os.LookupEnv(WAVE_ENTITY)
+	if !found {
+		log.Fatal("Set WAVE_DEFAULT_ENTITY")
+	}
+	agent, found = os.LookupEnv(WAVE_AGENT)
+	if !found {
+		agent = "localhost:410"
+	}
+
 	cfg := &Config{
-		Path:        "attestations.sqlite3",
-		Agent:       "localhost:410",
-		Perspective: "src.ent",
+		Path:        location,
+		Agent:       agent,
+		Perspective: entity,
 	}
 	db, err := NewDB(cfg)
 	if err != nil {
