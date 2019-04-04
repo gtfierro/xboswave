@@ -408,6 +408,7 @@ func (db *DB) listAttestation(filter *filter) ([]Attestation, error) {
 	if len(where) > 0 {
 		stmt += " WHERE " + where
 	}
+	fmt.Println(stmt)
 
 	rows, err := db.db.Query(stmt)
 	defer rows.Close()
@@ -439,14 +440,15 @@ func (db *DB) listPolicy(filter *filter) ([]PolicyStatement, error) {
 }
 
 type filter struct {
-	polid       *int
-	attid       *int
-	hash        *string
-	policy      *int
-	namespace   *string
-	resource    *string
-	pset        *string
-	permissions []string
+	polid           *int
+	attid           *int
+	hash            *string
+	policy          *int
+	namespace       *string
+	resource        *string
+	pset            *string
+	expiring_before *time.Time
+	permissions     []string
 }
 
 func (f *filter) toSQL() (string, error) {
@@ -475,6 +477,11 @@ func (f *filter) toSQL() (string, error) {
 	}
 	if f.pset != nil {
 		filters = append(filters, fmt.Sprintf("policies.pset='%s' ", *f.pset))
+	}
+	if f.expiring_before != nil {
+		today := time.Now().Format("2006-01-02 15:04:05")
+		d := (*f.expiring_before).Format("2006-01-02 15:04:05")
+		filters = append(filters, fmt.Sprintf("attestations.expires BETWEEN '%s' and '%s' ", today, d))
 	}
 
 	if f.permissions != nil {

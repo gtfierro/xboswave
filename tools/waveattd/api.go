@@ -194,3 +194,17 @@ func (db *DB) Validate(att Attestation) error {
 	}
 	return nil
 }
+
+func (db *DB) ListExpiring(within_next time.Duration) ([]Attestation, error) {
+	expiring_before := time.Now().Add(within_next)
+
+	f := &filter{
+		expiring_before: &expiring_before,
+	}
+
+	atts, err := db.listAttestation(f)
+	if err != nil {
+		return nil, err
+	}
+	return atts, nil
+}

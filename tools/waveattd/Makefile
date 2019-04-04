@@ -1,8 +1,8 @@
 run: build
-	./attmgr
+	./waveattd
 
 trun: clean build
-	./attmgr
+	./waveattd
 
 build:
 	go build --tags "sqlite_json"

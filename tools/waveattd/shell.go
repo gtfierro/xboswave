@@ -61,6 +61,59 @@ func (db *DB) setupShell() {
 	db.shell.SetHomeHistoryPath(".attmgr_history")
 
 	db.shell.AddCmd(&ishell.Cmd{
+		Name: "expires",
+		Help: "Find attestations about to expire (takes optional duration arg)",
+		Func: func(c *ishell.Context) {
+			var expiry *time.Duration
+			var err error
+			var _expiry string
+			if len(c.Args) > 0 {
+				_expiry = c.Args[0]
+			} else {
+				_expiry = "30d"
+			}
+			expiry, err = ParseDuration(_expiry)
+			if err != nil {
+				c.Err(err)
+				return
+			}
+			atts, err := db.ListExpiring(*expiry)
+			if err != nil {
+				c.Err(err)
+				return
+			}
+			table := tablewriter.NewWriter(os.Stdout)
+			table.SetRowLine(true)
+			table.SetHeader([]string{"hash", "subject", "valid until", "expires in", "policies", "valid", "error"})
+			for _, a := range atts {
+				var _policies []string
+				for _, pol := range a.PolicyStatements {
+					_policies = append(_policies, fmt.Sprintf("%d", pol.id))
+				}
+				expires := time.Until(a.ValidUntil)
+				expires = time.Second * time.Duration(expires.Seconds())
+
+				validerr := db.Validate(a)
+				var es string
+				if validerr != nil {
+					es = validerr.Error()
+				}
+
+				table.Append([]string{
+					a.Hash,
+					a.Subject,
+					a.ValidUntil.Format(time.RFC822Z),
+					fmt.Sprintf("%s", expires),
+					strings.Join(_policies, ", "),
+					fmt.Sprintf("%v", validerr == nil),
+					es,
+				})
+			}
+			table.Render()
+		},
+	})
+
+	db.shell.AddCmd(&ishell.Cmd{
 		Name: "newp",
 		Help: "Create policy",
 		Func: func(c *ishell.Context) {
