@@ -70,7 +70,26 @@ function setup_wavemq() {
     echo $OPUT
 }
 
+function setup_influxdb() {
+    rm -rf influxdata
+    mkdir influxdata
+    docker kill xboswave-demo-setup-influxdb
+    docker rm xboswave-demo-setup-influxdb
+    OPUT=$(docker run -d -p 8086:8086 \
+           -v ${curdir}/influxdata:/var/lib/influxdb \
+           --name xboswave-demo-setup-influxdb \
+           influxdb 2>&1)
+    echo $OPUT
+}
+
+function setup_ingester() {
+    # TODO: configure the ingester so it takes environment variables
+    # TODO: enable some static configuration of the ingester?
+    echo "setup"
+}
+
 setup_waved
+setup_influxdb
 create_entity "XBOS_DEMO_NAMESPACE_ENTITY" $XBOS_DEMO_NAMESPACE_ENTITY
 create_entity "XBOS_DEMO_ADMIN_ENTITY" $XBOS_DEMO_ADMIN_ENTITY
 create_entity "XBOS_DEMO_WAVEMQ_SITE_ROUTER_ENTITY" $XBOS_DEMO_WAVEMQ_SITE_ROUTER_ENTITY
