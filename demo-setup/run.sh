@@ -17,6 +17,11 @@ if ! command_exists wv; then
     exit 1
 fi
 
+if ! command_exists docker; then
+    echo "Install docker"
+    exit 1
+fi
+
 check_var XBOS_DEMO_NAMESPACE_ENTITY
 check_var XBOS_DEMO_ADMIN_ENTITY
 check_var XBOS_DEMO_INGESTER_ENTITY
@@ -35,7 +40,7 @@ function setup_waved() {
                 -v ${curdir}/etc/waved/:/etc/waved/ \
                 -p 910:910 \
                 --restart always \
-                waved:latest 2>&1)
+                xbos/waved:latest 2>&1)
     echo $OPUT
     sleep 2
 }
@@ -67,7 +72,7 @@ function setup_wavemq() {
                 -v ${curdir}/etc/wavemq/:/etc/wavemq/ \
                 -p 9516:4516 \
                 --restart always \
-                wavemq:latest 2>&1)
+                xbos/wavemq:latest 2>&1)
     echo $OPUT
 }
 
@@ -101,7 +106,7 @@ function setup_ingester() {
         -v ${curdir}/etc/ingester:/etc/ingester/ \
         -p 2222:2222 \
         --restart always \
-        ingester:latest 2>&1)
+        xbos/ingester:latest 2>&1)
     echo $OPUT
 }
 
