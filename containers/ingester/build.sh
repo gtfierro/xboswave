@@ -9,5 +9,7 @@ popd
 cp ../../ingester/ingester .
 mkdir -p plugins
 cp ../../ingester/plugins/*.so plugins/
-docker build -t ingester:${VERSION} .
-docker tag ingester:${VERSION} ingester:latest
+docker build -t xbos/ingester:${VERSION} .
+docker tag xbos/ingester:${VERSION} xbos/ingester:latest
+docker push xbos/ingester:${VERSION}
+docker push xbos/ingester:latest
