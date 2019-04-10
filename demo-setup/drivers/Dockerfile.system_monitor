@@ -1,10 +1,3 @@
-FROM python:3.7-alpine
-
-RUN apk --no-cache add musl-dev linux-headers g++
-
-COPY . /app
-WORKDIR /app
-
-RUN pip install -r requirements.txt
+FROM xbos/pybase
 
 CMD ["python", "system_monitor.py"]
