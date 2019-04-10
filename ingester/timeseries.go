@@ -251,6 +251,15 @@ func newInfluxDB(c *InfluxDBConfig) *influxClient {
 	}
 	logrus.Info("Connected to InfluxDB!")
 
+	q := influx.Query{
+		Command: "create database xbos",
+	}
+	if response, err := conn.Query(q); err == nil && response.Error() == nil {
+		logrus.Info(response.Results)
+	} else if err != nil {
+		logrus.Fatal(errors.Wrap(err, "could not create xbos db in influx"))
+	}
+
 	i := &influxClient{
 		conn:        conn,
 		dbname:      c.Database,
