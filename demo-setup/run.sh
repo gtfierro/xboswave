@@ -19,6 +19,7 @@ fi
 
 check_var XBOS_DEMO_NAMESPACE_ENTITY
 check_var XBOS_DEMO_ADMIN_ENTITY
+check_var XBOS_DEMO_INGESTER_ENTITY
 check_var XBOS_DEMO_WAVEMQ_SITE_ROUTER_ENTITY
 check_var XBOS_DEMO_DRIVER_SYSTEM_MONITOR
 
@@ -71,8 +72,8 @@ function setup_wavemq() {
 }
 
 function setup_influxdb() {
-    rm -rf influxdata
-    mkdir influxdata
+    #rm -rf influxdata
+    mkdir -p influxdata
     docker kill xboswave-demo-setup-influxdb
     docker rm xboswave-demo-setup-influxdb
     OPUT=$(docker run -d -p 8086:8086 \
@@ -86,6 +87,22 @@ function setup_ingester() {
     # TODO: configure the ingester so it takes environment variables
     # TODO: enable some static configuration of the ingester?
     echo "setup"
+    docker kill xboswave-demo-setup-ingester
+    docker rm xboswave-demo-setup-ingester
+    cp $XBOS_DEMO_INGESTER_ENTITY etc/ingester/.
+    ssh-keygen -f etc/ingester/sshkey -N '' -t ed25519 -b 1024
+    OPUT=$(docker run -d --name xboswave-demo-setup-ingester \
+        --link=xboswave-demo-setup-wavemq \
+        --link=xboswave-demo-setup-influxdb \
+        -e XBOS_INGESTER_SITE_ROUTER="xboswave-demo-setup-wavemq:4516"\
+        -e XBOS_INGESTER_INFLUXDB_ADDR="http://xboswave-demo-setup-influxdb:8086"\
+        -e XBOS_INGESTER_ENTITY_FILE=/etc/ingester/${XBOS_DEMO_INGESTER_ENTITY} \
+        -e WAVE_DEFAULT_ENTITY=/etc/ingester/${XBOS_DEMO_INGESTER_ENTITY} \
+        -v ${curdir}/etc/ingester:/etc/ingester/ \
+        -p 2222:2222 \
+        --restart always \
+        ingester:latest 2>&1)
+    echo $OPUT
 }
 
 setup_waved
@@ -94,6 +111,7 @@ create_entity "XBOS_DEMO_NAMESPACE_ENTITY" $XBOS_DEMO_NAMESPACE_ENTITY
 create_entity "XBOS_DEMO_ADMIN_ENTITY" $XBOS_DEMO_ADMIN_ENTITY
 create_entity "XBOS_DEMO_WAVEMQ_SITE_ROUTER_ENTITY" $XBOS_DEMO_WAVEMQ_SITE_ROUTER_ENTITY
 create_entity "XBOS_DEMO_DRIVER_SYSTEM_MONITOR" $XBOS_DEMO_DRIVER_SYSTEM_MONITOR
+create_entity "XBOS_DEMO_INGESTER_ENTITY" $XBOS_DEMO_INGESTER_ENTITY
 
 namespace_hash=$(wv inspect namespace.ent  | grep Hash | awk '{print $2}')
 
@@ -105,6 +123,15 @@ if [[ $? != 0 ]]; then
     echo "\n" | wv rtprove --subject $XBOS_DEMO_ADMIN_ENTITY -o test.pem "wavemq:publish,subscribe@${XBOS_DEMO_NAMESPACE_ENTITY}/*"
 else
     wv verify test.pem
+fi
+
+# ingester
+echo "\n" | wv rtprove --subject $XBOS_DEMO_INGESTER_ENTITY -o ingester-proof.pem "wavemq:subscribe@${XBOS_DEMO_NAMESPACE_ENTITY}/*"
+if [[ $? != 0 ]]; then
+    echo "\n" | wv rtgrant --attester $XBOS_DEMO_ADMIN_ENTITY --subject $XBOS_DEMO_INGESTER_ENTITY -e 3y --indirections 0 "wavemq:subscribe@${XBOS_DEMO_NAMESPACE_ENTITY}/*"
+    echo "\n" | wv rtprove --subject $XBOS_DEMO_INGESTER_ENTITY -o ingester-proof.pem "wavemq:subscribe@${XBOS_DEMO_NAMESPACE_ENTITY}/*"
+else
+    wv verify ingester-proof.pem
 fi
 
 echo "\n" | wv rtprove --subject $XBOS_DEMO_WAVEMQ_SITE_ROUTER_ENTITY -o xbos-demo-namespace-routeproof.pem "wavemq:route@${XBOS_DEMO_NAMESPACE_ENTITY}/*"
@@ -124,6 +151,7 @@ else
 fi
 
 setup_wavemq
+setup_ingester
 
 
 # setup drivers
@@ -144,5 +172,9 @@ docker run -d --name xbos-demo-driver-system-monitor \
     -e BASE_RESOURCE=drivers/systemmonitor \
     -e WAVE_DEFAULT_ENTITY=${XBOS_DEMO_DRIVER_SYSTEM_MONITOR} \
     --restart always \
-    sys
+    system_monitor
 docker cp $XBOS_DEMO_DRIVER_SYSTEM_MONITOR xbos-demo-driver-system-monitor:/app/.
+
+echo "ssh -p 2222 root@172.17.0.1"
+echo "add xbosproto/XBOS /plugins/system_monitor.so ${namespace_hash} *"
+echo "namespace hash: ${namespace_hash}"
