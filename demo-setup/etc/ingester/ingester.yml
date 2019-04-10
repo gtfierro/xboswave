@@ -13,6 +13,7 @@ wavemq:
     clientid: "testme124"
 
 ingestershell:
+    # uses server logins
     passwordlogin: true
-    password: "testpass"
+    password: "demo"
     sshhostkey: "/etc/ingester/sshkey"

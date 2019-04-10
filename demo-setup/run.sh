@@ -12,6 +12,18 @@ function check_var {
     fi
 }
 
+echo='echo -e'
+RED='\033[1;31m'
+BLUE='\033[1;34m'
+GREEN='\033[1;32m'
+CYAN='\033[1;36m'
+YELLOW='\033[1;33m'
+INFO=$YELLOW
+PROMPT=$BLUE
+ERROR=$RED
+OK=$GREEN
+NC='\033[0m' # No Color
+
 if ! command_exists wv; then
     echo "Install wv"
     exit 1
@@ -30,7 +42,11 @@ check_var XBOS_DEMO_DRIVER_SYSTEM_MONITOR
 
 curdir=$(pwd)
 
-# TODO pull containers
+$echo "${INFO}Getting latest containers${NC}"
+docker pull xbos/waved:latest
+docker pull xbos/wavemq:latest
+docker pull xbos/ingester:latest
+docker pull xbos/driver_system_monitor
 
 function setup_waved() {
     # set up waved
@@ -110,17 +126,23 @@ function setup_ingester() {
     echo $OPUT
 }
 
+$echo "${INFO}Setting up WAVED, InfluxDB${NC}"
 setup_waved
 setup_influxdb
+
+$echo "${INFO}Creating entities${NC}"
 create_entity "XBOS_DEMO_NAMESPACE_ENTITY" $XBOS_DEMO_NAMESPACE_ENTITY
 create_entity "XBOS_DEMO_ADMIN_ENTITY" $XBOS_DEMO_ADMIN_ENTITY
 create_entity "XBOS_DEMO_WAVEMQ_SITE_ROUTER_ENTITY" $XBOS_DEMO_WAVEMQ_SITE_ROUTER_ENTITY
 create_entity "XBOS_DEMO_DRIVER_SYSTEM_MONITOR" $XBOS_DEMO_DRIVER_SYSTEM_MONITOR
 create_entity "XBOS_DEMO_INGESTER_ENTITY" $XBOS_DEMO_INGESTER_ENTITY
 
-namespace_hash=$(wv inspect namespace.ent  | grep Hash | awk '{print $2}')
+oput=$(wv inspect ${XBOS_DEMO_NAMESPACE_ENTITY})
+echo $oput
+namespace_hash=$(wv inspect ${XBOS_DEMO_NAMESPACE_ENTITY}  | grep Hash | awk '{print $2}')
+check_var namespace_hash
 
-set -x
+$echo "${INFO}Granting permissions${NC}"
 # create dots
 echo "\n" | wv rtprove --subject $XBOS_DEMO_ADMIN_ENTITY -o test.pem "wavemq:publish,subscribe@${XBOS_DEMO_NAMESPACE_ENTITY}/*"
 if [[ $? != 0 ]]; then
@@ -155,6 +177,7 @@ else
     wv verify test.pem
 fi
 
+$echo "${INFO}Setting up WAVEMQ, Ingester${NC}"
 setup_wavemq
 setup_ingester
 
@@ -168,6 +191,8 @@ BASE_RESOURCE=drivers/systemmonitor
 WAVEMQ_SITE_ROUTER="xboswave-demo-setup-wavemq:4516"
 WAVE_DEFAULT_ENTITY=$XBOS_DEMO_DRIVER_SYSTEM_MONITOR
 
+$echo "${INFO}Starting drivers${NC}"
+
 docker kill xbos-demo-driver-system-monitor
 docker rm xbos-demo-driver-system-monitor
 docker run -d --name xbos-demo-driver-system-monitor \
@@ -177,9 +202,14 @@ docker run -d --name xbos-demo-driver-system-monitor \
     -e BASE_RESOURCE=drivers/systemmonitor \
     -e WAVE_DEFAULT_ENTITY=${XBOS_DEMO_DRIVER_SYSTEM_MONITOR} \
     --restart always \
-    system_monitor
+    xbos/driver_system_monitor
 docker cp $XBOS_DEMO_DRIVER_SYSTEM_MONITOR xbos-demo-driver-system-monitor:/app/.
 
-echo "ssh -p 2222 root@172.17.0.1"
-echo "add xbosproto/XBOS /plugins/system_monitor.so ${namespace_hash} *"
-echo "namespace hash: ${namespace_hash}"
+$echo "${INFO}Adding archival requests${NC}"
+#echo "ssh -p 2222 root@172.17.0.1"
+cmd="add xbosproto/XBOS /plugins/system_monitor.so ${namespace_hash} *"
+$echo "${OK}Password is 'demo'${NC}"
+echo "$cmd" |  ssh -p 2222 root@172.17.0.1
+
+$echo "${OK}Password is 'demo'${NC}"
+echo "list" |  ssh -p 2222 root@172.17.0.1

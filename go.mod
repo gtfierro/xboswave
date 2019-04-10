@@ -43,6 +43,7 @@ require (
 	github.com/ucbrise/vuvuzelacrypto v0.0.0-20180723204325-fccab9b96bef // indirect
 	github.com/urfave/cli v1.20.0 // indirect
 	go.opencensus.io v0.19.0 // indirect
+	golang.org/x/net v0.0.0-20181217023233-e147a9138326
 	google.golang.org/grpc v1.17.0
 	gopkg.in/BTrDB/btrdb.v4 v4.0.0-20180821183339-596e21fb2a6f // indirect
 	gopkg.in/btrdb.v4 v4.0.0-20180821183339-596e21fb2a6f
