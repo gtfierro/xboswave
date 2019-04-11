@@ -30,6 +30,22 @@ namespace.ent
 
 Each process runs in its own Docker container.
 
+The ingester is configured to archive the data published by the system monitor driver. You can access this data at the default InfluxDB port (8086) using your favorite client library or through the `influx` CLI:
+
+```
+$ docker exec -it xboswave-demo-setup-influxdb influx
+Connected to http://localhost:8086 version 1.7.5
+InfluxDB shell version: 1.7.5
+Enter an InfluxQL query
+> use xbos;
+Using database xbos
+> select count(*) from timeseries;
+name: timeseries
+time count_value
+---- -----------
+0    1547
+```
+
 The `wv` invocations to create the grants and entities can be found in `run.sh`.
 
 ### Setting Up
@@ -46,6 +62,7 @@ cd xboswave/demo-setup
 source environment.sh
 ./run.sh
 ```
+
 
 ### Tearing Down
 
