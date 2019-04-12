@@ -40,5 +40,6 @@ create_entity service service.ent
 create_entity client client.ent
 
 grant_if_not_exists namespace.ent service.ent GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==:serve_grpc namespace.ent xbospb/Test/*  serviceproof.pem
+grant_if_not_exists namespace.ent client.ent GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==:call_grpc namespace.ent xbospb/Test/*  clientproof.pem
 
 rm att*.pem

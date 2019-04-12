@@ -7,8 +7,10 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/binary"
+	"encoding/pem"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 
 	"github.com/cloudflare/cfssl/log"
@@ -22,11 +24,12 @@ type ClientCredentials struct {
 	perspective     *pb.Perspective
 	grpcservice     string
 	perspectiveHash []byte
+	proof           []byte
 	namespace       string
 	wave            pb.WAVEClient
 }
 
-func NewClientCredentials(perspective *pb.Perspective, agent string, namespace string, grpcservice string) (*WaveCredentials, error) {
+func NewClientCredentials(perspective *pb.Perspective, agent string, namespace string, grpcservice string) (*ClientCredentials, error) {
 
 	conn, err := grpc.Dial(agent, grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
 	if err != nil {
@@ -34,7 +37,7 @@ func NewClientCredentials(perspective *pb.Perspective, agent string, namespace s
 	}
 	wave := pb.NewWAVEClient(conn)
 
-	cc := &WaveCredentials{
+	cc := &ClientCredentials{
 		perspective: perspective,
 		wave:        wave,
 	}
@@ -88,64 +91,36 @@ func (cc *ClientCredentials) ClientHandshake(ctx context.Context, authority stri
 		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
 	}
 
-	log.Debug("read ent hash")
-	entityHashBA := make([]byte, 34)
-	_, err = io.ReadFull(conn, entityHashBA)
+	header, err := cc.GeneratePeerHeader()
 	if err != nil {
 		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
+		return nil, nil, fmt.Errorf("could not generate header: %v", err)
 	}
-	log.Debug("read sig size")
-	signatureSizeBA := make([]byte, 2)
-	_, err = io.ReadFull(conn, signatureSizeBA)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
-	}
-	signatureSize := binary.LittleEndian.Uint16(signatureSizeBA)
-	signature := make([]byte, signatureSize)
-	log.Debug("read sig")
-	_, err = io.ReadFull(conn, signature)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
-	}
-	log.Debug("read proof size")
-	proofSizeBA := make([]byte, 4)
-	_, err = io.ReadFull(conn, proofSizeBA)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
-	}
-	proofSize := binary.LittleEndian.Uint32(proofSizeBA)
-	if proofSize > 10*1024*1024 {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("bad proof")
-	}
-	log.Debug("read proof")
-	proof := make([]byte, proofSize)
-	_, err = io.ReadFull(conn, proof)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
-	}
-
-	//First verify the signature
-	log.Debug("Verify Server handshake")
-	err = cc.VerifyServerHandshake(cc.namespace, entityHashBA, signature, proof, cs.PeerCertificates[0].Signature)
+	_, err = conn.Write(header)
 	if err != nil {
 		rawConn.Close()
 		return nil, nil, err
 	}
 
+	hdr, err := cc.ReadPeerHeader(conn)
+	if err != nil {
+		rawConn.Close()
+		return nil, nil, errors.Wrap(err, "Could not read server header")
+	}
+
+	err = cc.VerifyServerHandshake(cc.namespace, hdr, cs.PeerCertificates[0].Signature)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "Could not verify server handshake")
+	}
+
 	return conn, nil, nil
 }
 
-func (cc *ClientCredentials) VerifyServerHandshake(nsString string, entityHash []byte, signature []byte, proof []byte, cert []byte) error {
-	log.Info("Verifying server handshake", nsString)
+func (cc *ClientCredentials) VerifyServerHandshake(nsString string, hdr serverHeader, cert []byte) error {
+	log.Info("Client verifying server handshake ", nsString)
 	resp, err := cc.wave.VerifySignature(context.Background(), &pb.VerifySignatureParams{
-		Signer:    entityHash,
-		Signature: signature,
+		Signer:    hdr.entityHash,
+		Signature: hdr.signature,
 		Content:   cert,
 	})
 	if err != nil {
@@ -162,8 +137,8 @@ func (cc *ClientCredentials) VerifyServerHandshake(nsString string, entityHash [
 
 	//Signature ok, verify proof
 	presp, err := cc.wave.VerifyProof(context.Background(), &pb.VerifyProofParams{
-		ProofDER: proof,
-		Subject:  entityHash,
+		ProofDER: hdr.proof,
+		Subject:  hdr.entityHash,
 		RequiredRTreePolicy: &pb.RTreePolicy{
 			Namespace: ns,
 			Statements: []*pb.RTreePolicyStatement{
@@ -184,11 +159,9 @@ func (cc *ClientCredentials) VerifyServerHandshake(nsString string, entityHash [
 	if presp.Error != nil {
 		return errors.New(presp.Error.Message)
 	}
-	if !bytes.Equal(presp.Result.Subject, entityHash) {
+	if !bytes.Equal(presp.Result.Subject, hdr.entityHash) {
 		return errors.New("proof valid but for a different entity")
 	}
-	log.Info(">", ns)
-	log.Infof("%+v", presp.Result)
 	return nil
 }
 
@@ -203,7 +176,7 @@ func (cc *ClientCredentials) Info() credentials.ProtocolInfo {
 	}
 }
 func (cc *ClientCredentials) Clone() credentials.TransportCredentials {
-	return &WaveCredentials{
+	return &ClientCredentials{
 		perspective:     cc.perspective,
 		perspectiveHash: cc.perspectiveHash,
 		namespace:       cc.namespace,
@@ -213,4 +186,146 @@ func (cc *ClientCredentials) Clone() credentials.TransportCredentials {
 
 func (cc *ClientCredentials) OverrideServerName(name string) error {
 	return nil
+}
+
+func (cc *ClientCredentials) AddGRPCProofFile(filename string) (ns string, proof []byte, err error) {
+	contents, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", nil, errors.Wrap(err, "could not read designated routing file")
+	}
+
+	der := contents
+	pblock, _ := pem.Decode(contents)
+	if pblock != nil {
+		der = pblock.Bytes
+	}
+
+	resp, err := cc.wave.VerifyProof(context.Background(), &pb.VerifyProofParams{
+		ProofDER: der,
+	})
+	if err != nil {
+		return "", nil, errors.Wrap(err, "could not verify dr file")
+	}
+	if resp.Error != nil {
+		return "", nil, fmt.Errorf("could not verify dr file: %v", resp.Error.Message)
+	}
+
+	ns = base64.URLEncoding.EncodeToString(resp.Result.Policy.RTreePolicy.Namespace)
+	//Check proof actually grants the right permissions:
+	found := false
+outer:
+	for _, s := range resp.Result.Policy.RTreePolicy.Statements {
+		if s.Resource == cc.grpcservice && bytes.Equal(s.GetPermissionSet(), []byte(XBOSPermissionSet)) {
+			for _, perm := range s.Permissions {
+				//TODO: need to MATCH the uri here for each of the uris, make sure we prove it
+				if perm == GRPCCallPermission {
+					found = true
+					break outer
+				}
+			}
+		}
+	}
+
+	if !found {
+		return "", nil, fmt.Errorf("designated routing proof does not actually prove xbos:serve_grpc on any namespace")
+	}
+	cc.namespace = ns
+	cc.proof = der
+
+	return ns, der, nil
+}
+
+// client hash
+// signature length
+// signature (over proof)
+// proof length
+// proof
+func (cc *ClientCredentials) GeneratePeerHeader() ([]byte, error) {
+	hdr := bytes.Buffer{}
+	if len(cc.perspectiveHash) != 34 {
+		panic(cc.perspectiveHash)
+	}
+	//First: 34 byte entity hash
+	hdr.Write(cc.perspectiveHash)
+	//Second: signature of cert
+	sigresp, err := cc.wave.Sign(context.Background(), &pb.SignParams{
+		Perspective: cc.perspective,
+		Content:     cc.proof,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if sigresp.Error != nil {
+		return nil, errors.New(sigresp.Error.Message)
+	}
+	siglen := make([]byte, 2)
+	sig := sigresp.Signature
+	binary.LittleEndian.PutUint16(siglen, uint16(len(sig)))
+	hdr.Write(siglen)
+	hdr.Write(sig)
+
+	//Third: the namespace proof for this namespace
+	prooflen := make([]byte, 4)
+	binary.LittleEndian.PutUint32(prooflen, uint32(len(cc.proof)))
+	hdr.Write(prooflen)
+	hdr.Write(cc.proof)
+	return hdr.Bytes(), nil
+}
+
+func (cc *ClientCredentials) ReadPeerHeader(conn io.Reader) (serverHeader, error) {
+	var (
+		err error
+		hdr serverHeader
+	)
+	entityHashBA := make([]byte, 34)
+	_, err = io.ReadFull(conn, entityHashBA)
+	if err != nil {
+		return hdr, fmt.Errorf("could not read proof: %v\n", err)
+	}
+
+	signatureSizeBA := make([]byte, 2)
+	_, err = io.ReadFull(conn, signatureSizeBA)
+	if err != nil {
+		return hdr, fmt.Errorf("could not read proof: %v\n", err)
+	}
+
+	signatureSize := binary.LittleEndian.Uint16(signatureSizeBA)
+	signature := make([]byte, signatureSize)
+	_, err = io.ReadFull(conn, signature)
+	if err != nil {
+		return hdr, fmt.Errorf("could not read proof: %v\n", err)
+	}
+	proofSizeBA := make([]byte, 4)
+	_, err = io.ReadFull(conn, proofSizeBA)
+	if err != nil {
+		return hdr, fmt.Errorf("could not read proof: %v\n", err)
+	}
+	proofSize := binary.LittleEndian.Uint32(proofSizeBA)
+	if proofSize > 10*1024*1024 {
+		return hdr, fmt.Errorf("bad proof")
+	}
+	log.Debug("server read proof")
+	proof := make([]byte, proofSize)
+	_, err = io.ReadFull(conn, proof)
+	if err != nil {
+		return hdr, fmt.Errorf("could not read proof: %v\n", err)
+	}
+
+	hdr.entityHash = entityHashBA
+	hdr.signature = signature
+	hdr.proof = proof
+
+	return hdr, nil
+	////First verify the signature
+	//log.Debug("Verify Server handshake")
+	//err = cc.VerifyServerHandshake(cc.namespace, entityHashBA, signature, proof, cs.PeerCertificates[0].Signature)
+	//if err != nil {
+	//	return err
+	//}
+}
+
+type serverHeader struct {
+	entityHash []byte
+	signature  []byte
+	proof      []byte
 }

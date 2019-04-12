@@ -57,7 +57,7 @@ func loadPerspective(filename string) *pb.Perspective {
 }
 
 func init() {
-	log.Level = log.LevelInfo
+	log.Level = log.LevelDebug
 }
 
 func main() {
@@ -85,6 +85,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	clientcred.AddGRPCProofFile("clientproof.pem")
 
 	//setup client
 	clientconn, err := grpc.Dial("localhost:7373", grpc.WithTransportCredentials(clientcred), grpc.FailOnNonTempDialError(true), grpc.WithBlock(), grpc.WithTimeout(30*time.Second))

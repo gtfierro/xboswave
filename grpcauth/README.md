@@ -29,6 +29,7 @@ The implementation is adapted from [https://github.com/immesys/wavemq](https://g
 - [ ] additional app-specific metadata in WAVE proofs
     - time bound on historical timeseries retrieval
     - limiting which streams can be returned
+- [ ] build proof automatically (easy)
 
 
 ### Usage

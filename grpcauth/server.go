@@ -30,6 +30,7 @@ const XBOSPermissionSet_b64 = "GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA=="
 const XBOSPermissionSet = "\x1b\x20\xb9\xc1\x45\x06\x28\xe3\x7a\xb8\x2e\x20\xc6\xe1\xfa\x4e\x9c\xd4\xf6\xfb\xee\x28\x71\x9e\x25\xad\x63\x52\xbe\x06\xfa\x3f\xcd\x6c"
 
 const GRPCServePermission = "serve_grpc"
+const GRPCCallPermission = "call_grpc"
 
 // type TransportCredentials interface {
 // 	// ClientHandshake does the authentication handshake specified by the corresponding
@@ -141,10 +142,7 @@ func (wc *WaveCredentials) AddGRPCProofFile(filename string) (ns string, proof [
 	found := false
 outer:
 	for _, s := range resp.Result.Policy.RTreePolicy.Statements {
-		if bytes.Equal(s.GetPermissionSet(), []byte(XBOSPermissionSet)) {
-			if s.Resource != wc.grpcservice {
-				continue
-			}
+		if s.Resource == wc.grpcservice && bytes.Equal(s.GetPermissionSet(), []byte(XBOSPermissionSet)) {
 			for _, perm := range s.Permissions {
 				//TODO: need to MATCH the uri here for each of the uris, make sure we prove it
 				if perm == GRPCServePermission {
@@ -169,95 +167,15 @@ func (wc *WaveCredentials) ServerTransportCredentials() credentials.TransportCre
 }
 
 func (wc *WaveCredentials) ClientHandshake(ctx context.Context, authority string, rawConn net.Conn) (net.Conn, credentials.AuthInfo, error) {
-	roots := x509.NewCertPool()
-
-	log.Debug("start client handshake")
-	conn := tls.Client(rawConn, &tls.Config{
-		InsecureSkipVerify: true,
-		RootCAs:            roots,
-	})
-
-	err := conn.Handshake()
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, err
-	}
-	cs := conn.ConnectionState()
-	if len(cs.PeerCertificates) != 1 {
-		fmt.Printf("peer connection weird response")
-		rawConn.Close()
-		return nil, nil, errors.New("Wrong certificates")
-	}
-
-	nsbin, err := base64.URLEncoding.DecodeString(wc.namespace)
-	if err != nil {
-		panic(err)
-	}
-	_, err = conn.Write(nsbin)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
-	}
-
-	log.Debug("read ent hash")
-	entityHashBA := make([]byte, 34)
-	_, err = io.ReadFull(conn, entityHashBA)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
-	}
-	log.Debug("read sig size")
-	signatureSizeBA := make([]byte, 2)
-	_, err = io.ReadFull(conn, signatureSizeBA)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
-	}
-	signatureSize := binary.LittleEndian.Uint16(signatureSizeBA)
-	signature := make([]byte, signatureSize)
-	log.Debug("read sig")
-	_, err = io.ReadFull(conn, signature)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
-	}
-	log.Debug("read proof size")
-	proofSizeBA := make([]byte, 4)
-	_, err = io.ReadFull(conn, proofSizeBA)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
-	}
-	proofSize := binary.LittleEndian.Uint32(proofSizeBA)
-	if proofSize > 10*1024*1024 {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("bad proof")
-	}
-	log.Debug("read proof")
-	proof := make([]byte, proofSize)
-	_, err = io.ReadFull(conn, proof)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
-	}
-
-	//First verify the signature
-	log.Debug("Verify Server handshake")
-	err = wc.VerifyServerHandshake(wc.namespace, entityHashBA, signature, proof, cs.PeerCertificates[0].Signature)
-	if err != nil {
-		rawConn.Close()
-		return nil, nil, err
-	}
-
-	return conn, nil, nil
+	return nil, nil, errors.New("NOT IMPLEMENTED")
 }
 
-func (wc *WaveCredentials) VerifyServerHandshake(nsString string, entityHash []byte, signature []byte, proof []byte, cert []byte) error {
-	log.Info("Verifying server handshake", nsString)
+func (wc *WaveCredentials) VerifyClientHandshake(nsString string, hdr clientHeader) error {
+	log.Info("Server verifying server handshake ", nsString)
 	resp, err := wc.wave.VerifySignature(context.Background(), &pb.VerifySignatureParams{
-		Signer:    entityHash,
-		Signature: signature,
-		Content:   cert,
+		Signer:    hdr.entityHash,
+		Signature: hdr.signature,
+		Content:   hdr.proof,
 	})
 	if err != nil {
 		log.Error(err)
@@ -276,14 +194,14 @@ func (wc *WaveCredentials) VerifyServerHandshake(nsString string, entityHash []b
 
 	//Signature ok, verify proof
 	presp, err := wc.wave.VerifyProof(context.Background(), &pb.VerifyProofParams{
-		ProofDER: proof,
-		Subject:  entityHash,
+		ProofDER: hdr.proof,
+		Subject:  hdr.entityHash,
 		RequiredRTreePolicy: &pb.RTreePolicy{
 			Namespace: ns,
 			Statements: []*pb.RTreePolicyStatement{
 				{
 					PermissionSet: []byte(XBOSPermissionSet),
-					Permissions:   []string{GRPCServePermission},
+					Permissions:   []string{GRPCCallPermission},
 					// grpc_package/ServiceName/* (all methods)
 					// grpc_package/ServiceName/Method1 (only method 1)
 					Resource: wc.grpcservice, // TODO: replace this with the name, etc of the GRPC service
@@ -300,7 +218,7 @@ func (wc *WaveCredentials) VerifyServerHandshake(nsString string, entityHash []b
 		log.Error(presp.Error.Message)
 		return errors.New(presp.Error.Message)
 	}
-	if !bytes.Equal(presp.Result.Subject, entityHash) {
+	if !bytes.Equal(presp.Result.Subject, hdr.entityHash) {
 		log.Error("proof valid")
 		return errors.New("proof valid but for a different entity")
 	}
@@ -325,6 +243,43 @@ func (wc *WaveCredentials) ServerHandshake(rawConn net.Conn) (net.Conn, credenti
 		rawConn.Close()
 		return nil, nil, fmt.Errorf("could not generate header: %v", err)
 	}
+
+	hdr, err := wc.ReadPeerHeader(conn)
+	if err != nil {
+		rawConn.Close()
+		return nil, nil, errors.Wrap(err, "Could not read server header")
+	}
+
+	err = wc.VerifyClientHandshake(wc.namespace, hdr)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "Could not verify server handshake")
+	}
+
+	//	if true {
+	//		log.Debug("server read proof size")
+	//		proofSizeBA := make([]byte, 4)
+	//		_, err = io.ReadFull(conn, proofSizeBA)
+	//		if err != nil {
+	//			rawConn.Close()
+	//			return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
+	//		}
+	//		proofSize := binary.LittleEndian.Uint32(proofSizeBA)
+	//		if proofSize > 10*1024*1024 {
+	//			rawConn.Close()
+	//			return nil, nil, fmt.Errorf("bad proof")
+	//		}
+	//		log.Debug("server read proof")
+	//		proof := make([]byte, proofSize)
+	//		_, err = io.ReadFull(conn, proof)
+	//		if err != nil {
+	//			rawConn.Close()
+	//			return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
+	//		}
+	//
+	//		// verify proof
+	//
+	//	}
+
 	header, err := wc.GeneratePeerHeader(namespace, cert2.Signature)
 	if err != nil {
 		rawConn.Close()
@@ -335,6 +290,7 @@ func (wc *WaveCredentials) ServerHandshake(rawConn net.Conn) (net.Conn, credenti
 		rawConn.Close()
 		return nil, nil, err
 	}
+
 	return conn, nil, nil
 }
 
@@ -433,4 +389,62 @@ func genCert() (tls.Certificate, *x509.Certificate) {
 		panic(err)
 	}
 	return cert, x509cert
+}
+
+func (wc *WaveCredentials) ReadPeerHeader(conn io.Reader) (clientHeader, error) {
+	var (
+		err error
+		hdr clientHeader
+	)
+	entityHashBA := make([]byte, 34)
+	_, err = io.ReadFull(conn, entityHashBA)
+	if err != nil {
+		return hdr, fmt.Errorf("could not read proof: %v\n", err)
+	}
+
+	signatureSizeBA := make([]byte, 2)
+	_, err = io.ReadFull(conn, signatureSizeBA)
+	if err != nil {
+		return hdr, fmt.Errorf("could not read proof: %v\n", err)
+	}
+
+	signatureSize := binary.LittleEndian.Uint16(signatureSizeBA)
+	signature := make([]byte, signatureSize)
+	_, err = io.ReadFull(conn, signature)
+	if err != nil {
+		return hdr, fmt.Errorf("could not read proof: %v\n", err)
+	}
+	proofSizeBA := make([]byte, 4)
+	_, err = io.ReadFull(conn, proofSizeBA)
+	if err != nil {
+		return hdr, fmt.Errorf("could not read proof: %v\n", err)
+	}
+	proofSize := binary.LittleEndian.Uint32(proofSizeBA)
+	if proofSize > 10*1024*1024 {
+		return hdr, fmt.Errorf("bad proof")
+	}
+	log.Debug("server read proof")
+	proof := make([]byte, proofSize)
+	_, err = io.ReadFull(conn, proof)
+	if err != nil {
+		return hdr, fmt.Errorf("could not read proof: %v\n", err)
+	}
+
+	hdr.entityHash = entityHashBA
+	hdr.signature = signature
+	hdr.proof = proof
+
+	return hdr, nil
+	////First verify the signature
+	//log.Debug("Verify Server handshake")
+	//err = cc.VerifyServerHandshake(cc.namespace, entityHashBA, signature, proof, cs.PeerCertificates[0].Signature)
+	//if err != nil {
+	//	return err
+	//}
+}
+
+type clientHeader struct {
+	entityHash []byte
+	signature  []byte
+	proof      []byte
 }
