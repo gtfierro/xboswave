@@ -56,11 +56,15 @@ func loadPerspective(filename string) *pb.Perspective {
 	}
 }
 
-func main() {
-	server_perspective := loadPerspective("service2.ent")
+func init() {
+	log.Level = log.LevelInfo
+}
 
-	//wavecreds, err := grpcauth.NewWaveCredentials(perspective, "localhost:410", "serviceproof.pem")
-	serverwavecreds, err := grpcauth.NewWaveCredentials(server_perspective, "localhost:410", "proof1.pem", "")
+func main() {
+	server_perspective := loadPerspective("service.ent")
+
+	serverwavecreds, err := grpcauth.NewWaveCredentials(server_perspective, "localhost:410", "")
+	//	serverwavecreds, err := grpcauth.NewWaveCredentials(server_perspective, "localhost:410", "proof1.pem", "")
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "Could not create wave creds"))
 	}
@@ -72,13 +76,16 @@ func main() {
 
 	grpcServer := grpc.NewServer(grpc.Creds(serverwavecreds))
 	xbospb.RegisterTestServer(grpcServer, testserver{})
+	serverwavecreds.AddServiceInfo(grpcServer)
+	serverwavecreds.AddGRPCProofFile("serviceproof.pem")
 	go grpcServer.Serve(l)
 
 	client_perspective := loadPerspective("client.ent")
-	clientwavecreds, err := grpcauth.NewWaveCredentials(client_perspective, "localhost:410", "", "GyDFHWM5l8TzGz2h7_f_okOKWV67H_wRWHM-heDl8WLjXQ==")
+	clientwavecreds, err := grpcauth.NewWaveCredentials(client_perspective, "localhost:410", "GyAtxLD3P3pC9i7cC3_ziVdEZTdltfCV0B97JQqTC2JKXg==")
 	if err != nil {
 		log.Fatal(err)
 	}
+	clientwavecreds.AddGRPCService("xbospb/Test/*")
 
 	//setup client
 	clientconn, err := grpc.Dial("localhost:7373", grpc.WithTransportCredentials(clientwavecreds), grpc.FailOnNonTempDialError(true), grpc.WithBlock(), grpc.WithTimeout(30*time.Second))

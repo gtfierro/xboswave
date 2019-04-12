@@ -16,6 +16,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/cloudflare/cfssl/log"
@@ -60,13 +61,15 @@ const GRPCServePermission = "serve_grpc"
 
 type WaveCredentials struct {
 	perspective     *pb.Perspective
+	info            map[string]grpc.ServiceInfo
+	grpcservice     string
 	perspectiveHash []byte
 	proof           []byte
 	namespace       string
 	wave            pb.WAVEClient
 }
 
-func NewWaveCredentials(perspective *pb.Perspective, agent string, prooffile string, namespace string) (*WaveCredentials, error) {
+func NewWaveCredentials(perspective *pb.Perspective, agent string, namespace string) (*WaveCredentials, error) {
 
 	conn, err := grpc.Dial(agent, grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
 	if err != nil {
@@ -91,18 +94,31 @@ func NewWaveCredentials(perspective *pb.Perspective, agent string, prooffile str
 	}
 	wc.perspectiveHash = iresp.Entity.Hash
 
-	if prooffile != "" {
-		ns, proof, err := wc.AddGRPCProofFile(prooffile)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not verify/load proof file")
-		}
-		wc.namespace = ns
-		wc.proof = proof
-	} else {
-		wc.namespace = namespace
-	}
+	wc.namespace = namespace
 
 	return wc, nil
+}
+
+func (wc *WaveCredentials) AddServiceInfo(server *grpc.Server) {
+	wc.info = server.GetServiceInfo()
+
+	var uris []string
+
+	// form a list of <package name>/<service name>/<method name> URIs
+	for pkg_svc_name, svc_info := range wc.info {
+		uri_pkg_svc_name := strings.Replace(pkg_svc_name, ".", "/", -1)
+		for _, method_info := range svc_info.Methods {
+			// TODO: get rid of this hack
+			wc.grpcservice = uri_pkg_svc_name + "/*"
+			uris = append(uris, uri_pkg_svc_name+"/"+method_info.Name)
+			log.Info("GRPC Resource: ", uris[len(uris)-1])
+		}
+	}
+}
+
+// of form <pkg>/<service name>/<method name>
+func (wc *WaveCredentials) AddGRPCService(uri string) {
+	wc.grpcservice = uri
 }
 
 func (wc *WaveCredentials) AddGRPCProofFile(filename string) (ns string, proof []byte, err error) {
@@ -133,7 +149,13 @@ func (wc *WaveCredentials) AddGRPCProofFile(filename string) (ns string, proof [
 outer:
 	for _, s := range resp.Result.Policy.RTreePolicy.Statements {
 		if bytes.Equal(s.GetPermissionSet(), []byte(XBOSPermissionSet)) {
+			if s.Resource != wc.grpcservice {
+				continue
+			}
 			for _, perm := range s.Permissions {
+				//TODO: need to MATCH the uri here
+				// for each of the uris, make sure we prove it
+				log.Info("HERE>", perm, " | ", s.Resource, " | ", wc.grpcservice)
 				if perm == GRPCServePermission {
 					found = true
 					break outer
@@ -145,6 +167,8 @@ outer:
 	if !found {
 		return "", nil, fmt.Errorf("designated routing proof does not actually prove xbos:serve_grpc on any namespace")
 	}
+	wc.namespace = ns
+	wc.proof = der
 
 	return ns, der, nil
 }
@@ -156,6 +180,7 @@ func (wc *WaveCredentials) ServerTransportCredentials() credentials.TransportCre
 func (wc *WaveCredentials) ClientHandshake(ctx context.Context, authority string, rawConn net.Conn) (net.Conn, credentials.AuthInfo, error) {
 	roots := x509.NewCertPool()
 
+	log.Debug("start client handshake")
 	conn := tls.Client(rawConn, &tls.Config{
 		InsecureSkipVerify: true,
 		RootCAs:            roots,
@@ -183,12 +208,14 @@ func (wc *WaveCredentials) ClientHandshake(ctx context.Context, authority string
 		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
 	}
 
+	log.Debug("read ent hash")
 	entityHashBA := make([]byte, 34)
 	_, err = io.ReadFull(conn, entityHashBA)
 	if err != nil {
 		rawConn.Close()
 		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
 	}
+	log.Debug("read sig size")
 	signatureSizeBA := make([]byte, 2)
 	_, err = io.ReadFull(conn, signatureSizeBA)
 	if err != nil {
@@ -197,11 +224,13 @@ func (wc *WaveCredentials) ClientHandshake(ctx context.Context, authority string
 	}
 	signatureSize := binary.LittleEndian.Uint16(signatureSizeBA)
 	signature := make([]byte, signatureSize)
+	log.Debug("read sig")
 	_, err = io.ReadFull(conn, signature)
 	if err != nil {
 		rawConn.Close()
 		return nil, nil, fmt.Errorf("could not read proof: %v\n", err)
 	}
+	log.Debug("read proof size")
 	proofSizeBA := make([]byte, 4)
 	_, err = io.ReadFull(conn, proofSizeBA)
 	if err != nil {
@@ -213,6 +242,7 @@ func (wc *WaveCredentials) ClientHandshake(ctx context.Context, authority string
 		rawConn.Close()
 		return nil, nil, fmt.Errorf("bad proof")
 	}
+	log.Debug("read proof")
 	proof := make([]byte, proofSize)
 	_, err = io.ReadFull(conn, proof)
 	if err != nil {
@@ -221,6 +251,7 @@ func (wc *WaveCredentials) ClientHandshake(ctx context.Context, authority string
 	}
 
 	//First verify the signature
+	log.Debug("Verify Server handshake")
 	err = wc.VerifyServerHandshake(wc.namespace, entityHashBA, signature, proof, cs.PeerCertificates[0].Signature)
 	if err != nil {
 		rawConn.Close()
@@ -261,7 +292,7 @@ func (wc *WaveCredentials) VerifyServerHandshake(nsString string, entityHash []b
 					Permissions:   []string{GRPCServePermission},
 					// grpc_package/ServiceName/* (all methods)
 					// grpc_package/ServiceName/Method1 (only method 1)
-					Resource: "def", // TODO: replace this with the name, etc of the GRPC service
+					Resource: wc.grpcservice, // TODO: replace this with the name, etc of the GRPC service
 				},
 			},
 		},
@@ -293,6 +324,7 @@ func (wc *WaveCredentials) ServerHandshake(rawConn net.Conn) (net.Conn, credenti
 	}
 	namespace := make([]byte, 34)
 	_, err = io.ReadFull(conn, namespace)
+	log.Debug("namespace ", namespace)
 	if err != nil {
 		rawConn.Close()
 		return nil, nil, fmt.Errorf("could not generate header: %v", err)
