@@ -8,13 +8,21 @@ This package provides WAVE-based authentication + authorization for GRPC service
 All GRPC connections happen over TLS (currently using self-signed certs)
 Services and clients possess WAVE entities.
 Services provide a proof during the handshake that they are authorized to provide a GRPC service on a given namespace.
-This is indicated with the `GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==:serve_grpc` permission.
+Clients provide a proof during the handshake that they are authorized to call that GRPC service on that namespace.
+
+This is indicated with the serve_grpc` and `call_grpc` permissions on the XBOS `GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==` permission set.
 
 ```
-# for granting all methods
+# grant to server to serve all methods
 wv rtgrant --attester namespace.ent \
            --subject service.ent \
            GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==:serve_grpc@namespace.ent/\
+           <package name>/<service name>/*
+
+# grant to client to call all methods
+wv rtgrant --attester namespace.ent \
+           --subject client.ent \
+           GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==:call_grpc@namespace.ent/\
            <package name>/<service name>/*
 ```
 

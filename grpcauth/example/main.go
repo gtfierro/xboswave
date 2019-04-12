@@ -64,7 +64,6 @@ func main() {
 	server_perspective := loadPerspective("service.ent")
 
 	serverwavecreds, err := grpcauth.NewServerCredentials(server_perspective, "localhost:410")
-	//	serverwavecreds, err := grpcauth.NewWaveCredentials(server_perspective, "localhost:410", "proof1.pem", "")
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "Could not create wave creds"))
 	}
