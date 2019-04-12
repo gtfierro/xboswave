@@ -63,7 +63,7 @@ func init() {
 func main() {
 	server_perspective := loadPerspective("service.ent")
 
-	serverwavecreds, err := grpcauth.NewWaveCredentials(server_perspective, "localhost:410", "")
+	serverwavecreds, err := grpcauth.NewServerCredentials(server_perspective, "localhost:410")
 	//	serverwavecreds, err := grpcauth.NewWaveCredentials(server_perspective, "localhost:410", "proof1.pem", "")
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "Could not create wave creds"))
@@ -81,14 +81,13 @@ func main() {
 	go grpcServer.Serve(l)
 
 	client_perspective := loadPerspective("client.ent")
-	clientwavecreds, err := grpcauth.NewWaveCredentials(client_perspective, "localhost:410", "GyAtxLD3P3pC9i7cC3_ziVdEZTdltfCV0B97JQqTC2JKXg==")
+	clientcred, err := grpcauth.NewClientCredentials(client_perspective, "localhost:410", "GyBHxjkpzmGxXk9qgJW6AJHCXleNifvhgusCs0v1MLFWJg==", "xbospb/Test/*")
 	if err != nil {
 		log.Fatal(err)
 	}
-	clientwavecreds.AddGRPCService("xbospb/Test/*")
 
 	//setup client
-	clientconn, err := grpc.Dial("localhost:7373", grpc.WithTransportCredentials(clientwavecreds), grpc.FailOnNonTempDialError(true), grpc.WithBlock(), grpc.WithTimeout(30*time.Second))
+	clientconn, err := grpc.Dial("localhost:7373", grpc.WithTransportCredentials(clientcred), grpc.FailOnNonTempDialError(true), grpc.WithBlock(), grpc.WithTimeout(30*time.Second))
 	if err != nil {
 		log.Fatal(err)
 	}

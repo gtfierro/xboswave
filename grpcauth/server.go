@@ -69,7 +69,7 @@ type WaveCredentials struct {
 	wave            pb.WAVEClient
 }
 
-func NewWaveCredentials(perspective *pb.Perspective, agent string, namespace string) (*WaveCredentials, error) {
+func NewServerCredentials(perspective *pb.Perspective, agent string) (*WaveCredentials, error) {
 
 	conn, err := grpc.Dial(agent, grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
 	if err != nil {
@@ -94,8 +94,6 @@ func NewWaveCredentials(perspective *pb.Perspective, agent string, namespace str
 	}
 	wc.perspectiveHash = iresp.Entity.Hash
 
-	wc.namespace = namespace
-
 	return wc, nil
 }
 
@@ -114,11 +112,6 @@ func (wc *WaveCredentials) AddServiceInfo(server *grpc.Server) {
 			log.Info("GRPC Resource: ", uris[len(uris)-1])
 		}
 	}
-}
-
-// of form <pkg>/<service name>/<method name>
-func (wc *WaveCredentials) AddGRPCService(uri string) {
-	wc.grpcservice = uri
 }
 
 func (wc *WaveCredentials) AddGRPCProofFile(filename string) (ns string, proof []byte, err error) {
@@ -153,9 +146,7 @@ outer:
 				continue
 			}
 			for _, perm := range s.Permissions {
-				//TODO: need to MATCH the uri here
-				// for each of the uris, make sure we prove it
-				log.Info("HERE>", perm, " | ", s.Resource, " | ", wc.grpcservice)
+				//TODO: need to MATCH the uri here for each of the uris, make sure we prove it
 				if perm == GRPCServePermission {
 					found = true
 					break outer
@@ -269,14 +260,17 @@ func (wc *WaveCredentials) VerifyServerHandshake(nsString string, entityHash []b
 		Content:   cert,
 	})
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 	if resp.Error != nil {
+		log.Error(resp.Error.Message)
 		return errors.New(resp.Error.Message)
 	}
 
 	ns, err := base64.URLEncoding.DecodeString(nsString)
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 
@@ -297,15 +291,17 @@ func (wc *WaveCredentials) VerifyServerHandshake(nsString string, entityHash []b
 			},
 		},
 	})
-	log.Info(ns)
 
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 	if presp.Error != nil {
+		log.Error(presp.Error.Message)
 		return errors.New(presp.Error.Message)
 	}
 	if !bytes.Equal(presp.Result.Subject, entityHash) {
+		log.Error("proof valid")
 		return errors.New("proof valid but for a different entity")
 	}
 	return nil
