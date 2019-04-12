@@ -10,7 +10,7 @@ Services and clients possess WAVE entities.
 Services provide a proof during the handshake that they are authorized to provide a GRPC service on a given namespace.
 Clients provide a proof during the handshake that they are authorized to call that GRPC service on that namespace.
 
-This is indicated with the serve_grpc` and `call_grpc` permissions on the XBOS `GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==` permission set.
+This is indicated with the `serve_grpc` and `call_grpc` permissions on the XBOS `GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==` permission set.
 
 ```
 # grant to server to serve all methods
@@ -85,6 +85,9 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
+
+    // add service authorization proof
+	clientcred.AddGRPCProofFile("clientproof.pem")
 
     // add credentials object to normal GRPC dial
     clientconn, err := grpc.Dial("localhost:7373", grpc.WithTransportCredentials(clientcred), grpc.FailOnNonTempDialError(true), grpc.WithBlock(), grpc.WithTimeout(30*time.Second))
