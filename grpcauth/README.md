@@ -36,26 +36,26 @@ The implementation is adapted from [https://github.com/immesys/wavemq](https://g
 Server (simplified):
 ```go
 import (
-	"github.com/gtfierro/xboswave/grpcauth"
+    "github.com/gtfierro/xboswave/grpcauth"
 )
 
 func main() {
 
     // setup WAVE perspective and create credentials object
-	server_perspective := loadPerspective("service.ent")
-	serverwavecreds, _ := grpcauth.NewServerCredentials(server_perspective, "localhost:410")
+    server_perspective := loadPerspective("service.ent")
+    serverwavecreds, _ := grpcauth.NewServerCredentials(server_perspective, "localhost:410")
 
     // register generic GRPC server with service
-	xbospb.RegisterTestServer(grpcServer, testserver{})
+    xbospb.RegisterTestServer(grpcServer, testserver{})
 
     // inject a description of the service into the credentials object
-	serverwavecreds.AddServiceInfo(grpcServer)
+    serverwavecreds.AddServiceInfo(grpcServer)
 
     // add the service authorization proof (see below)
-	serverwavecreds.AddGRPCProofFile("serviceproof.pem")
+    serverwavecreds.AddGRPCProofFile("serviceproof.pem")
 
     // serve GRPC
-	grpcServer.Serve(l)
+    grpcServer.Serve(l)
 }
 ```
 
@@ -63,25 +63,25 @@ Client (simplified):
 
 ```go
 import (
-	"github.com/gtfierro/xboswave/grpcauth"
+    "github.com/gtfierro/xboswave/grpcauth"
 )
 
 func main() {
 
     // setup WAVE perspective and create CLIENT credentials object
-	client_perspective := loadPerspective("client.ent")
+    client_perspective := loadPerspective("client.ent")
 
     // namespace, GRPC service descriptor
-	clientcred, err := grpcauth.NewClientCredentials(client_perspective, "localhost:410", "GyBHxjkpzmGxXk9qgJW6AJHCXleNifvhgusCs0v1MLFWJg==", "xbospb/Test/*")
-	if err != nil {
-		log.Fatal(err)
-	}
+    clientcred, err := grpcauth.NewClientCredentials(client_perspective, "localhost:410", "GyBHxjkpzmGxXk9qgJW6AJHCXleNifvhgusCs0v1MLFWJg==", "xbospb/Test/*")
+    if err != nil {
+        log.Fatal(err)
+    }
 
     // add credentials object to normal GRPC dial
-	clientconn, err := grpc.Dial("localhost:7373", grpc.WithTransportCredentials(clientcred), grpc.FailOnNonTempDialError(true), grpc.WithBlock(), grpc.WithTimeout(30*time.Second))
-	if err != nil {
-		log.Fatal(err)
-	}
-	testclient := xbospb.NewTestClient(clientconn)
+    clientconn, err := grpc.Dial("localhost:7373", grpc.WithTransportCredentials(clientcred), grpc.FailOnNonTempDialError(true), grpc.WithBlock(), grpc.WithTimeout(30*time.Second))
+    if err != nil {
+        log.Fatal(err)
+    }
+    testclient := xbospb.NewTestClient(clientconn)
 }
 ```
