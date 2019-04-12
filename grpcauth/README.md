@@ -24,12 +24,12 @@ The implementation is adapted from [https://github.com/immesys/wavemq](https://g
 
 - [ ] use hash of WAVE entity to bootstrap TLS connection
     - [ ] avoids self-signed TLS, which we have now
-- [ ] client provides proof of authorization
-    - am I allowed to call this method?
 - [ ] additional app-specific metadata in WAVE proofs
     - time bound on historical timeseries retrieval
     - limiting which streams can be returned
 - [ ] build proof automatically (easy)
+- [X] client provides proof of authorization
+    - am I allowed to call this method?
 
 
 ### Usage
