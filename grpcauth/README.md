@@ -35,6 +35,8 @@ The implementation is adapted from [https://github.com/immesys/wavemq](https://g
 - [ ] additional app-specific metadata in WAVE proofs
     - time bound on historical timeseries retrieval
     - limiting which streams can be returned
+- [ ] Develop Python bindings:
+    - start [here](https://github.com/googleapis/google-auth-library-python/blob/master/google/auth/credentials.py) ?
 - [ ] build proof automatically (easy)
 - [X] client provides proof of authorization
     - am I allowed to call this method?
