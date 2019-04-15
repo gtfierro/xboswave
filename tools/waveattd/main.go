@@ -189,6 +189,10 @@ func main() {
 		agent = "localhost:410"
 	}
 
+	log.Info("╒ WAVEATTD_DB_LOCATION: ", location)
+	log.Info("╞ WAVE_DEFAULT_ENTITY: ", entity)
+	log.Info("╘ WAVE_AGENT: ", agent)
+
 	cfg := &Config{
 		Path:        location,
 		Agent:       agent,
