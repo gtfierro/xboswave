@@ -2,14 +2,17 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/john-b-yang/xboswave/golang/drivers/pelican/storage"
 	pb "github.com/john-b-yang/xboswave/golang/drivers/protos"
+	pb2 "github.com/john-b-yang/xboswave/proto"
 	"google.golang.org/grpc"
 )
 
@@ -53,6 +56,12 @@ func main() {
 	username := confData["username"].(string)
 	password := confData["password"].(string)
 	sitename := confData["sitename"].(string)
+	namespace := confData["namespace"].(string)
+	namespaceBytes, namespaceErr := base64.URLEncoding.DecodeString(namespace)
+	if namespaceErr != nil {
+		fmt.Printf("Failed to convert namespace to bytes: %v", namespaceErr)
+		os.Exit(1)
+	}
 
 	pelicans, err := storage.ReadPelicans(username, password, sitename)
 	if err != nil {
@@ -64,6 +73,7 @@ func main() {
 	paramBytes, paramReadErr := ioutil.ReadFile("params.json")
 	if paramReadErr != nil {
 		fmt.Printf("Failed to read params.json file properly: %s\n", paramReadErr)
+		os.Exit(1)
 	}
 	var paramData map[string]interface{}
 	if unmarshalErr := json.Unmarshal(paramBytes, &paramData); unmarshalErr != nil {
@@ -71,8 +81,16 @@ func main() {
 	}
 
 	pollInt, pollIntErr := time.ParseDuration(paramData["poll_interval"].(string))
+	pollDr, pollDrErr := time.ParseDuration(paramData["poll_interval_dr"].(string))
+	pollSched, pollSchedErr := time.ParseDuration(paramData["poll_interval_sched"].(string))
 	if pollIntErr != nil {
 		fmt.Printf("Failed to parse duration of poll interval properly: %v", pollIntErr)
+	}
+	if pollDrErr != nil {
+		fmt.Printf("Failed to parse duration of demond response (DR) poll interval properly: %v", pollDrErr)
+	}
+	if pollSchedErr != nil {
+		fmt.Printf("Failed to parse duration of schedule poll interval properly: %v", pollDrErr)
 	}
 
 	// Establish a GRPC connection to the site router.
@@ -95,24 +113,87 @@ func main() {
 					done <- true
 				} else if status != nil {
 					fmt.Printf("%s %+v\n", currentPelican.Name, status)
-
-					statusBytes, err := json.Marshal(status)
-					if err != nil {
-						fmt.Printf("Failed to convert status struct to bytes: %v", err)
-						done <- true
+					statusMsg := &pb2.XBOSIoTDeviceState{
+						Time: uint64(status.Time),
+						Thermostat: &pb2.Thermostat{
+							Temperature:      &pb2.Double{Value: status.Temperature},
+							RelativeHumidity: &pb2.Double{Value: status.RelHumidity},
+							Override:         &pb2.Bool{Value: status.Override},
+							FanState:         &pb2.Bool{Value: status.Fan},
+							Mode:             pb2.HVACMode(status.Mode),
+							State:            pb2.HVACState(status.State),
+						},
 					}
-					// TODO(john-b-yang): Clarify parameters here
+					statusBytes, statusErr := proto.Marshal(statusMsg)
+					if statusErr != nil {
+						fmt.Printf("Failed to serialized Pelican status message: %v", statusErr)
+					}
 					payload := &pb.PayloadObject{
-						Schema:  "status",
+						Schema:  "PelicanStatus", // TODO(john-b-yang) Check what schema supposed to be
 						Content: statusBytes,
 					}
 					publishParams := &pb.PublishParams{
-						Content: []*pb.PayloadObject{payload},
+						Content:   []*pb.PayloadObject{payload},
+						Namespace: namespaceBytes,
 					}
 
 					client.Publish(context.Background(), publishParams)
 				}
 				time.Sleep(pollInt)
+			}
+		}()
+
+		go func() {
+			for {
+				if drStatus, drErr := currentPelican.TrackDREvent(); drErr != nil {
+					fmt.Printf("Failed to retrieve Pelican's DR status: %v\n", drErr)
+				} else if drStatus != nil {
+					fmt.Printf("%s DR Status: %+v\n", currentPelican.Name, drStatus)
+				}
+				time.Sleep(pollDr)
+			}
+		}()
+
+		go func() {
+			for {
+				if schedStatus, schedErr := currentPelican.GetSchedule(); schedErr != nil {
+					fmt.Printf("Failed to retrieve Pelican's Schedule: %v\n", schedErr)
+				} else {
+					fmt.Printf("%s Schedule: %+v\n", currentPelican.Name, schedStatus)
+
+					// Convert Go Struct to Proto Message
+					schedule := &pb2.ThermostatSchedule{}
+					for day, blockSchedules := range schedStatus.DaySchedules {
+						var blockList []*pb2.ThermostatScheduleBlock
+						for _, block := range blockSchedules {
+							blockMsg := &pb2.ThermostatScheduleBlock{
+								HeatingSetpoint: &pb2.Double{Value: block.HeatSetting},
+								CoolingSetpoint: &pb2.Double{Value: block.CoolSetting},
+								Time:            block.Time,
+							}
+							blockList = append(blockList, blockMsg)
+						}
+						schedule.ScheduleMap[day] = &pb2.ThermostatScheduleDay{
+							Blocks: blockList,
+						}
+					}
+
+					scheduleBytes, scheduleErr := proto.Marshal(schedule)
+					if scheduleErr != nil {
+						fmt.Printf("Failed to serialized Pelican schedule message: %v", scheduleErr)
+					}
+					payload := &pb.PayloadObject{
+						Schema:  "PelicanScheduleStatus", // TODO(john-b-yang) Check what schema supposed to be
+						Content: scheduleBytes,
+					}
+					publishParams := &pb.PublishParams{
+						Content:   []*pb.PayloadObject{payload},
+						Namespace: namespaceBytes,
+					}
+
+					client.Publish(context.Background(), publishParams)
+				}
+				time.Sleep(pollSched)
 			}
 		}()
 	}
@@ -267,62 +348,6 @@ func main() {
 
 		done := make(chan bool)
 		for i, pelican := range pelicans {
-			currentPelican := pelican
-			currentIface := tstatIfaces[i]
-			currentDRIface := drstatIfaces[i]
-			currentSchedIface := schedstatIfaces[i]
-			currentOccupancyIface := occupancyIfaces[i]
-
-			go func() {
-				for {
-					if status, err := currentPelican.GetStatus(); err != nil {
-						fmt.Printf("Failed to retrieve Pelican status: %v\n", err)
-						done <- true
-					} else if status != nil {
-						fmt.Printf("%s %+v\n", currentPelican.Name, status)
-
-						po, err := bw2.CreateMsgPackPayloadObject(bw2.FromDotForm(TSTAT_PO_DF), status)
-						if err != nil {
-							fmt.Printf("Failed to create msgpack PO: %v", err)
-							done <- true
-						}
-						currentIface.PublishSignal("info", po)
-					}
-					time.Sleep(pollInt)
-				}
-			}()
-
-			go func() {
-				for {
-					if drStatus, drErr := currentPelican.TrackDREvent(); drErr != nil {
-						fmt.Printf("Failed to retrieve Pelican's DR status: %v\n", drErr)
-					} else if drStatus != nil {
-						fmt.Printf("%s DR Status: %+v\n", currentPelican.Name, drStatus)
-						po, err := bw2.CreateMsgPackPayloadObject(bw2.FromDotForm(DR_PO_DF), drStatus)
-						if err != nil {
-							fmt.Printf("Failed to create DR msgpack PO: %v", err)
-						}
-						currentDRIface.PublishSignal("info", po)
-					}
-					time.Sleep(pollDr)
-				}
-			}()
-
-			go func() {
-				for {
-					if schedStatus, schedErr := currentPelican.GetSchedule(); schedErr != nil {
-						fmt.Printf("Failed to retrieve Pelican's Schedule: %v\n", schedErr)
-					} else {
-						fmt.Printf("%s Schedule: %+v\n", currentPelican.Name, schedStatus)
-						po, err := bw2.CreateMsgPackPayloadObject(bw2.FromDotForm(SCHED_PO_DF), schedStatus)
-						if err != nil {
-							fmt.Printf("Failed to create Schedule msgpack PO: %v", err)
-						}
-						currentSchedIface.PublishSignal("info", po)
-					}
-					time.Sleep(pollSched)
-				}
-			}()
 
 			occupancy, err := currentPelican.GetOccupancy()
 			if err != nil {

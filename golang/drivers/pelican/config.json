@@ -1,5 +1,6 @@
 {
 	"username": "username",
 	"password": "password",
-	"sitename": "sitename"
+	"sitename": "sitename",
+	"namespace": "namespace"
 }
