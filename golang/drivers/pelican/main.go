@@ -180,7 +180,7 @@ func main() {
 				content = append(content, po.Content...)
 			}
 
-			// Replace bw2 "ValueInto" with conversion method for byte slice -> struct
+			// Replace bw2 "ValueInto" with conversion method for byte slice -> struct (HINT: proto.Unmarshal)
 
 			var setpoints setpointsMsg
 
@@ -259,6 +259,11 @@ func main() {
 						Content: statusBytes,
 					}
 					publishParams := &pb.PublishParams{
+						Perspective: &pb.Perspective{
+							EntitySecret: &pb.EntitySecret{
+								DER: perspective,
+							},
+						},
 						Content:   []*pb.PayloadObject{payload},
 						Namespace: namespaceBytes,
 					}
@@ -302,6 +307,11 @@ func main() {
 						Content: scheduleBytes,
 					}
 					publishParams := &pb.PublishParams{
+						Perspective: &pb.Perspective{
+							EntitySecret: &pb.EntitySecret{
+								DER: perspective,
+							},
+						},
 						Content:   []*pb.PayloadObject{payload},
 						Namespace: namespaceBytes,
 					}
