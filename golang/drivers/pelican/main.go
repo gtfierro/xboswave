@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/john-b-yang/xboswave/golang/drivers/pelican/storage"
+	"github.com/john-b-yang/xboswave/golang/drivers/pelican/types"
 	pb "github.com/john-b-yang/xboswave/golang/drivers/protos"
 	pb2 "github.com/john-b-yang/xboswave/proto"
 	"google.golang.org/grpc"
@@ -102,6 +104,24 @@ func main() {
 
 	client := pb.NewWAVEMQClient(conn)
 
+	for _, pelican := range pelicans {
+		pelican := pelican
+		name := strings.Replace(pelican.Name, " ", "_", -1)
+		name = strings.Replace(name, "&", "_and_", -1)
+		name = strings.Replace(name, "'", "", -1)
+		fmt.Println("Transforming", pelican.Name, "=>", name)
+
+		// Ensure thermostat is running with correct number of stages
+		if err := pelican.ModifyStages(&types.PelicanStageParams{
+			HeatingStages: &pelican.HeatingStages,
+			CoolingStages: &pelican.CoolingStages,
+		}); err != nil {
+			fmt.Printf("Failed to configure heating/cooling stages for pelican %s: %s\n",
+				pelican.Name, err)
+			//os.Exit(1)
+		}
+	}
+
 	done := make(chan bool)
 	for _, pelican := range pelicans {
 		currentPelican := pelican
@@ -140,17 +160,6 @@ func main() {
 					client.Publish(context.Background(), publishParams)
 				}
 				time.Sleep(pollInt)
-			}
-		}()
-
-		go func() {
-			for {
-				if drStatus, drErr := currentPelican.TrackDREvent(); drErr != nil {
-					fmt.Printf("Failed to retrieve Pelican's DR status: %v\n", drErr)
-				} else if drStatus != nil {
-					fmt.Printf("%s DR Status: %+v\n", currentPelican.Name, drStatus)
-				}
-				time.Sleep(pollDr)
 			}
 		}()
 
@@ -196,27 +205,50 @@ func main() {
 				time.Sleep(pollSched)
 			}
 		}()
+
+		// TODO(john-b-yang): No Corresponding Proto Message
+		go func() {
+			for {
+				if drStatus, drErr := currentPelican.TrackDREvent(); drErr != nil {
+					fmt.Printf("Failed to retrieve Pelican's DR status: %v\n", drErr)
+				} else if drStatus != nil {
+					fmt.Printf("%s DR Status: %+v\n", currentPelican.Name, drStatus)
+					// TODO(john-b-yang): Implement DR Status Publishing
+				}
+				time.Sleep(pollDr)
+			}
+		}()
+
+		occupancy, err := currentPelican.GetOccupancy()
+		if err != nil {
+			fmt.Printf("Failed to retrieve initial occupancy reading: %s\n", err)
+			return
+		}
+
+		// Start occupancy tracking loop only if thermostat has the necessary sensor
+		if occupancy != types.OCCUPANCY_UNKNOWN {
+			go func() {
+				for {
+					occupancy, err := currentPelican.GetOccupancy()
+					if err != nil {
+						fmt.Printf("Failed to read thermostat occupancy: %s\n", err)
+					} else {
+						occupancyMsg := occupancyMsg{
+							Occupancy: (occupancy == types.OCCUPANCY_OCCUPIED),
+							Time:      time.Now().UnixNano(),
+						}
+						fmt.Printf("%s Occupancy Status: %+v\n", currentPelican.Name, occupancyMsg)
+						// TODO(john-b-yang): Implement Occupancy Msg Publishing
+					}
+					time.Sleep(pollInt)
+				}
+			}()
+		}
 	}
 	<-done
 
 	/*
 		for i, pelican := range pelicans {
-			pelican := pelican
-			name := strings.Replace(pelican.Name, " ", "_", -1)
-			name = strings.Replace(name, "&", "_and_", -1)
-			name = strings.Replace(name, "'", "", -1)
-			fmt.Println("Transforming", pelican.Name, "=>", name)
-
-			// Ensure thermostat is running with correct number of stages
-			if err := pelican.ModifyStages(&types.PelicanStageParams{
-				HeatingStages: &pelican.HeatingStages,
-				CoolingStages: &pelican.CoolingStages,
-			}); err != nil {
-				fmt.Printf("Failed to configure heating/cooling stages for pelican %s: %s\n",
-					pelican.Name, err)
-				//os.Exit(1)
-			}
-
 			tstatIfaces[i].SubscribeSlot("setpoints", func(msg *bw2.SimpleMessage) {
 				po := msg.GetOnePODF(TSTAT_PO_DF)
 				if po == nil {
@@ -345,39 +377,5 @@ func main() {
 				}
 			})
 		}
-
-		done := make(chan bool)
-		for i, pelican := range pelicans {
-
-			occupancy, err := currentPelican.GetOccupancy()
-			if err != nil {
-				fmt.Printf("Failed to retrieve initial occupancy reading: %s\n", err)
-				return
-			}
-			// Start occupancy tracking loop only if thermostat has the necessary sensor
-			if occupancy != types.OCCUPANCY_UNKNOWN {
-				go func() {
-					for {
-						occupancy, err := currentPelican.GetOccupancy()
-						if err != nil {
-							fmt.Printf("Failed to read thermostat occupancy: %s\n", err)
-						} else {
-							occupancyStatus := occupancyMsg{
-								Occupancy: (occupancy == types.OCCUPANCY_OCCUPIED),
-								Time:      time.Now().UnixNano(),
-							}
-							po, err := bw2.CreateMsgPackPayloadObject(bw2.FromDotForm(OCCUPANCY_PO_DF), occupancyStatus)
-							if err != nil {
-								fmt.Printf("Failed to create occupancy msgpack PO: %s\n", err)
-							} else {
-								currentOccupancyIface.PublishSignal("info", po)
-							}
-						}
-						time.Sleep(pollInt)
-					}
-				}()
-			}
-		}
-		<-done
 	*/
 }
