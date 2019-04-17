@@ -41,7 +41,9 @@ type occupancyMsg struct {
 	Time      int64 `msgpack:"time"`
 }
 
-// TODO(john-b-yang): Figure out what other fields are necessary
+// WAVE 3 Entity File
+const EntityFile = "entity.ent"
+
 // Required Fields for Publishing and Subscribing to WAVEMQ site router
 const SiteRouter = "127.0.0.1:4516"
 
@@ -95,6 +97,12 @@ func main() {
 		fmt.Printf("Failed to parse duration of schedule poll interval properly: %v", pollDrErr)
 	}
 
+	// Load WAVE3 Entity File to be used
+	perspective, perspectiveErr := ioutil.ReadFile(EntityFile)
+	if perspectiveErr != nil {
+		fmt.Printf("Could not load entity %v, you might need to create one and grant it permissions\n", EntityFile)
+	}
+
 	// Establish a GRPC connection to the site router.
 	conn, err := grpc.Dial(SiteRouter, grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
 	if err != nil {
@@ -119,6 +127,104 @@ func main() {
 			fmt.Printf("Failed to configure heating/cooling stages for pelican %s: %s\n",
 				pelican.Name, err)
 			//os.Exit(1)
+		}
+
+		subscribeSetpoints, setpointsErr := client.Subscribe(context.Background(), &pb.SubscribeParams{
+			Perspective: &pb.Perspective{
+				EntitySecret: &pb.EntitySecret{
+					DER: perspective,
+				},
+			},
+			Uri:        "temp", // TODO(john-b-yang): Replace w/ appropriate URI
+			Namespace:  namespaceBytes,
+			Identifier: "setpoints",
+			Expiry:     60, // TODO(john-b-yang): Set appropriate amount of time here (currently 1 minute)
+		})
+
+		if setpointsErr != nil {
+			fmt.Printf("Failed to subscribe to setpoints slot: %v\n", setpointsErr)
+			os.Exit(1)
+		}
+
+		subscribeSchedule, scheduleErr := client.Subscribe(context.Background(), &pb.SubscribeParams{
+			Perspective: &pb.Perspective{
+				EntitySecret: &pb.EntitySecret{
+					DER: perspective,
+				},
+			},
+			Uri:        "temp", // TODO(john-b-yang): Replace w/ appropriate URI
+			Namespace:  namespaceBytes,
+			Identifier: "schedule",
+			Expiry:     60, // TODO(john-b-yang): Set appropriate amount of time here (currently 1 minute)
+		})
+
+		if scheduleErr != nil {
+			fmt.Printf("Failed to subscribe to schedule slot: %v\n", scheduleErr)
+			os.Exit(1)
+		}
+
+		// TODO(john-b-yang)
+		for {
+			msg, err := subscribeSetpoints.Recv()
+			if err != nil {
+				fmt.Println("Received malformed PO on setpoints slot. Dropping, ", err)
+				os.Exit(1)
+			}
+			if msg.Error != nil {
+				fmt.Println("Received malformed PO on setpoints slot. Dropping, ", msg.Error.Message)
+				os.Exit(1)
+			}
+
+			content := []byte{}
+			for _, po := range msg.Message.Tbs.Payload {
+				content = append(content, po.Content...)
+			}
+
+			// Replace bw2 "ValueInto" with conversion method for byte slice -> struct
+
+			var setpoints setpointsMsg
+
+			params := types.PelicanSetpointParams{
+				HeatingSetpoint: setpoints.HeatingSetpoint,
+				CoolingSetpoint: setpoints.CoolingSetpoint,
+			}
+			if err := pelican.ModifySetpoints(&params); err != nil {
+				fmt.Println(err)
+			} else {
+				fmt.Printf("Set heating setpoint to %v and cooling setpoint to %v\n",
+					setpoints.HeatingSetpoint, setpoints.CoolingSetpoint)
+			}
+		}
+
+		for {
+			msg, err := subscribeSchedule.Recv()
+			if err != nil {
+				fmt.Println("Received malformed PO on schedule slot. Dropping, ", err)
+				os.Exit(1)
+			}
+			if msg.Error != nil {
+				fmt.Println("Received malformed PO on schedule slot. Dropping, ", msg.Error.Message)
+				os.Exit(1)
+			}
+
+			content := []byte{}
+			for _, po := range msg.Message.Tbs.Payload {
+				content = append(content, po.Content...)
+			}
+
+			// Replace bw2 "ValueInto" with conversion method for byte slice -> struct
+
+			var schedule types.ThermostatSchedule
+			if schedule.DaySchedules == nil {
+				fmt.Println("Received message on stage slot with no content. Dropping.")
+				return
+			}
+
+			if err := pelican.SetSchedule(&schedule); err != nil {
+				fmt.Println(err)
+			} else {
+				fmt.Printf("Set pelican schedule to: %v", schedule)
+			}
 		}
 	}
 
@@ -249,30 +355,6 @@ func main() {
 
 	/*
 		for i, pelican := range pelicans {
-			tstatIfaces[i].SubscribeSlot("setpoints", func(msg *bw2.SimpleMessage) {
-				po := msg.GetOnePODF(TSTAT_PO_DF)
-				if po == nil {
-					fmt.Println("Received message on setpoints slot without required PO. Droping.")
-					return
-				}
-
-				var setpoints setpointsMsg
-				if err := po.(bw2.MsgPackPayloadObject).ValueInto(&setpoints); err != nil {
-					fmt.Println("Received malformed PO on setpoints slot. Dropping.", err)
-					return
-				}
-
-				params := types.PelicanSetpointParams{
-					HeatingSetpoint: setpoints.HeatingSetpoint,
-					CoolingSetpoint: setpoints.CoolingSetpoint,
-				}
-				if err := pelican.ModifySetpoints(&params); err != nil {
-					fmt.Println(err)
-				} else {
-					fmt.Printf("Set heating setpoint to %v and cooling setpoint to %v\n",
-						setpoints.HeatingSetpoint, setpoints.CoolingSetpoint)
-				}
-			})
 
 			tstatIfaces[i].SubscribeSlot("state", func(msg *bw2.SimpleMessage) {
 				po := msg.GetOnePODF(TSTAT_PO_DF)
@@ -350,30 +432,6 @@ func main() {
 					if stages.CoolingStages != nil {
 						fmt.Printf("Set pelican cooling stages to: %d\n", *stages.CoolingStages)
 					}
-				}
-			})
-
-			schedstatIfaces[i].SubscribeSlot("schedule", func(msg *bw2.SimpleMessage) {
-				po := msg.GetOnePODF(SCHED_PO_DF)
-				if po == nil {
-					fmt.Println("Received message on stage slot without required PO. Dropping.")
-					return
-				}
-
-				var schedule types.ThermostatSchedule
-				if err := po.(bw2.MsgPackPayloadObject).ValueInto(&schedule); err != nil {
-					fmt.Println("Received malformed PO on stage slot. Dropping.", err)
-					return
-				}
-				if schedule.DaySchedules == nil {
-					fmt.Println("Received message on stage slot with no content. Dropping.")
-					return
-				}
-
-				if err := pelican.SetSchedule(&schedule); err != nil {
-					fmt.Println(err)
-				} else {
-					fmt.Printf("Set pelican schedule to: %v", schedule)
 				}
 			})
 		}
