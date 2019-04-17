@@ -61,6 +61,7 @@ func main() {
 	password := confData["password"].(string)
 	sitename := confData["sitename"].(string)
 	namespace := confData["namespace"].(string)
+	baseURI := confData["base_uri"].(string)
 	namespaceBytes, namespaceErr := base64.URLEncoding.DecodeString(namespace)
 	if namespaceErr != nil {
 		fmt.Printf("Failed to convert namespace to bytes: %v", namespaceErr)
@@ -109,8 +110,10 @@ func main() {
 		fmt.Printf("could not connect to the site router: %v\n", err)
 		os.Exit(1)
 	}
-
 	client := pb.NewWAVEMQClient(conn)
+
+	// Go Channel for communicating errors
+	done := make(chan bool)
 
 	for _, pelican := range pelicans {
 		pelican := pelican
@@ -135,7 +138,7 @@ func main() {
 					DER: perspective,
 				},
 			},
-			Uri:        "temp", // TODO(john-b-yang): Replace w/ appropriate URI
+			Uri:        baseURI + "/" + pelican.Name, // TODO(john-b-yang): Replace w/ appropriate URI
 			Namespace:  namespaceBytes,
 			Identifier: "setpoints",
 			Expiry:     60, // TODO(john-b-yang): Set appropriate amount of time here (currently 1 minute)
@@ -152,7 +155,7 @@ func main() {
 					DER: perspective,
 				},
 			},
-			Uri:        "temp", // TODO(john-b-yang): Replace w/ appropriate URI
+			Uri:        baseURI + "/" + pelican.Name, // TODO(john-b-yang): Replace w/ appropriate URI
 			Namespace:  namespaceBytes,
 			Identifier: "schedule",
 			Expiry:     60, // TODO(john-b-yang): Set appropriate amount of time here (currently 1 minute)
@@ -163,82 +166,80 @@ func main() {
 			os.Exit(1)
 		}
 
-		// TODO(john-b-yang)
-		for {
-			msg, err := subscribeSetpoints.Recv()
-			if err != nil {
-				fmt.Println("Received malformed PO on setpoints slot. Dropping, ", err)
-				os.Exit(1)
-			}
-			if msg.Error != nil {
-				fmt.Println("Received malformed PO on setpoints slot. Dropping, ", msg.Error.Message)
-				os.Exit(1)
-			}
+		go func() {
+			for {
+				msg, err := subscribeSetpoints.Recv()
+				if err != nil {
+					fmt.Println("Received malformed PO on setpoints slot. Dropping, ", err)
+					os.Exit(1)
+				}
+				if msg.Error != nil {
+					fmt.Println("Received malformed PO on setpoints slot. Dropping, ", msg.Error.Message)
+					os.Exit(1)
+				}
 
-			content := []byte{}
-			for _, po := range msg.Message.Tbs.Payload {
-				content = append(content, po.Content...)
+				content := []byte{}
+				for _, po := range msg.Message.Tbs.Payload {
+					content = append(content, po.Content...)
+				}
+
+				// Replace bw2 "ValueInto" with conversion method for byte slice -> struct (HINT: proto.Unmarshal)
+
+				var setpoints setpointsMsg
+
+				params := types.PelicanSetpointParams{
+					HeatingSetpoint: setpoints.HeatingSetpoint,
+					CoolingSetpoint: setpoints.CoolingSetpoint,
+				}
+				if err := pelican.ModifySetpoints(&params); err != nil {
+					fmt.Println(err)
+				} else {
+					fmt.Printf("Set heating setpoint to %v and cooling setpoint to %v\n",
+						setpoints.HeatingSetpoint, setpoints.CoolingSetpoint)
+				}
 			}
-
-			// Replace bw2 "ValueInto" with conversion method for byte slice -> struct (HINT: proto.Unmarshal)
-
-			var setpoints setpointsMsg
-
-			params := types.PelicanSetpointParams{
-				HeatingSetpoint: setpoints.HeatingSetpoint,
-				CoolingSetpoint: setpoints.CoolingSetpoint,
-			}
-			if err := pelican.ModifySetpoints(&params); err != nil {
-				fmt.Println(err)
-			} else {
-				fmt.Printf("Set heating setpoint to %v and cooling setpoint to %v\n",
-					setpoints.HeatingSetpoint, setpoints.CoolingSetpoint)
-			}
-		}
-
-		for {
-			msg, err := subscribeSchedule.Recv()
-			if err != nil {
-				fmt.Println("Received malformed PO on schedule slot. Dropping, ", err)
-				os.Exit(1)
-			}
-			if msg.Error != nil {
-				fmt.Println("Received malformed PO on schedule slot. Dropping, ", msg.Error.Message)
-				os.Exit(1)
-			}
-
-			content := []byte{}
-			for _, po := range msg.Message.Tbs.Payload {
-				content = append(content, po.Content...)
-			}
-
-			// Replace bw2 "ValueInto" with conversion method for byte slice -> struct
-
-			var schedule types.ThermostatSchedule
-			if schedule.DaySchedules == nil {
-				fmt.Println("Received message on stage slot with no content. Dropping.")
-				return
-			}
-
-			if err := pelican.SetSchedule(&schedule); err != nil {
-				fmt.Println(err)
-			} else {
-				fmt.Printf("Set pelican schedule to: %v", schedule)
-			}
-		}
-	}
-
-	done := make(chan bool)
-	for _, pelican := range pelicans {
-		currentPelican := pelican
+		}()
 
 		go func() {
 			for {
-				if status, err := currentPelican.GetStatus(); err != nil {
+				msg, err := subscribeSchedule.Recv()
+				if err != nil {
+					fmt.Println("Received malformed PO on schedule slot. Dropping, ", err)
+					os.Exit(1)
+				}
+				if msg.Error != nil {
+					fmt.Println("Received malformed PO on schedule slot. Dropping, ", msg.Error.Message)
+					os.Exit(1)
+				}
+
+				content := []byte{}
+				for _, po := range msg.Message.Tbs.Payload {
+					content = append(content, po.Content...)
+				}
+
+				// Replace bw2 "ValueInto" with conversion method for byte slice -> struct
+
+				var schedule types.ThermostatSchedule
+				if schedule.DaySchedules == nil {
+					fmt.Println("Received message on stage slot with no content. Dropping.")
+					return
+				}
+
+				if err := pelican.SetSchedule(&schedule); err != nil {
+					fmt.Println(err)
+				} else {
+					fmt.Printf("Set pelican schedule to: %v", schedule)
+				}
+			}
+		}()
+
+		go func() {
+			for {
+				if status, err := pelican.GetStatus(); err != nil {
 					fmt.Printf("Failed to retrieve Pelican status: %v\n", err)
 					done <- true
 				} else if status != nil {
-					fmt.Printf("%s %+v\n", currentPelican.Name, status)
+					fmt.Printf("%s %+v\n", pelican.Name, status)
 					statusMsg := &pb2.XBOSIoTDeviceState{
 						Time: uint64(status.Time),
 						Thermostat: &pb2.Thermostat{
@@ -276,10 +277,10 @@ func main() {
 
 		go func() {
 			for {
-				if schedStatus, schedErr := currentPelican.GetSchedule(); schedErr != nil {
+				if schedStatus, schedErr := pelican.GetSchedule(); schedErr != nil {
 					fmt.Printf("Failed to retrieve Pelican's Schedule: %v\n", schedErr)
 				} else {
-					fmt.Printf("%s Schedule: %+v\n", currentPelican.Name, schedStatus)
+					fmt.Printf("%s Schedule: %+v\n", pelican.Name, schedStatus)
 
 					// Convert Go Struct to Proto Message
 					schedule := &pb2.ThermostatSchedule{}
@@ -325,17 +326,17 @@ func main() {
 		// TODO(john-b-yang): No Corresponding Proto Message
 		go func() {
 			for {
-				if drStatus, drErr := currentPelican.TrackDREvent(); drErr != nil {
+				if drStatus, drErr := pelican.TrackDREvent(); drErr != nil {
 					fmt.Printf("Failed to retrieve Pelican's DR status: %v\n", drErr)
 				} else if drStatus != nil {
-					fmt.Printf("%s DR Status: %+v\n", currentPelican.Name, drStatus)
+					fmt.Printf("%s DR Status: %+v\n", pelican.Name, drStatus)
 					// TODO(john-b-yang): Implement DR Status Publishing
 				}
 				time.Sleep(pollDr)
 			}
 		}()
 
-		occupancy, err := currentPelican.GetOccupancy()
+		occupancy, err := pelican.GetOccupancy()
 		if err != nil {
 			fmt.Printf("Failed to retrieve initial occupancy reading: %s\n", err)
 			return
@@ -345,7 +346,7 @@ func main() {
 		if occupancy != types.OCCUPANCY_UNKNOWN {
 			go func() {
 				for {
-					occupancy, err := currentPelican.GetOccupancy()
+					occupancy, err := pelican.GetOccupancy()
 					if err != nil {
 						fmt.Printf("Failed to read thermostat occupancy: %s\n", err)
 					} else {
@@ -353,7 +354,7 @@ func main() {
 							Occupancy: (occupancy == types.OCCUPANCY_OCCUPIED),
 							Time:      time.Now().UnixNano(),
 						}
-						fmt.Printf("%s Occupancy Status: %+v\n", currentPelican.Name, occupancyMsg)
+						fmt.Printf("%s Occupancy Status: %+v\n", pelican.Name, occupancyMsg)
 						// TODO(john-b-yang): Implement Occupancy Msg Publishing
 					}
 					time.Sleep(pollInt)
