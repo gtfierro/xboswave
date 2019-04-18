@@ -41,6 +41,27 @@ enum HVACState {
     HVACStateCoolStage2 = 4;
 }
 
+enum DREventStatus {
+    DREventStatusNotConfigured = 0;
+    DREventStatusUnusable =  1;
+    DREventStatusInactive = 2;
+    DREventStatusActive = 3;
+}
+
+enum DREventType {
+    DREventTypeNoEvent = 0;
+    DREventTypeNormal = 1;
+    DREventTypeModerate = 2;
+    DREventTypeHigh = 3;
+    DREventTypeSpecial = 4;
+}
+
+enum OccupancyType {
+    OccupancyTypeUnknown = 0;
+    OccupancyTypeOccupied = 1;
+    OccupancyTypeUnoccupied = 2;
+}
+
 message XBOSIoTDeviceState {
     // current time at device/service
     //unit:ns
@@ -142,6 +163,32 @@ message ThermostatScheduleBlock {
     //Time when schedule block takes effect
     //format: RRule
     string time = 4;
+}
+
+message ThermostatADREvent {
+    //End of History Date Range
+    //unit: seconds
+    Int64 event_end = 1;
+    //Start of History Date Range
+    //unit: seconds
+    Int64 event_start = 2;
+    //Current event type of DR Event
+    //unit: xbos/iot/DREventType
+    DREventType event_type = 3;
+    //Current system status of DR event
+    //unit: xbos/iot/DREventStatus
+    DREventStatus dr_status = 4;
+    //Time when event takes effect
+    //unit: seconds
+    Int64 time = 5;
+}
+
+message ThermostatOccupancy {
+    //Whether Thermostat is Occupied
+    Bool occupancy = 1;
+    //Time when occupancy status was recorded
+    //unit:seconds
+    Int64 time = 2;
 }
 
 message Meter {
