@@ -164,12 +164,97 @@ func main() {
 			errorChan <- true
 		}
 
+		subscribeParams.Identifier = "state"
+		stateStream, stateErr := client.Subscribe(context.Background(), subscribeParams)
+		if stateErr != nil {
+			fmt.Printf("Failed to subscribe to state slot: %v\n", stateErr)
+			errorChan <- true
+		}
+
+		subscribeParams.Identifier = "stages"
+		stageStream, stageErr := client.Subscribe(context.Background(), subscribeParams)
+		if stageErr != nil {
+			fmt.Printf("Failed to subscribe to stage slot: %v\n", stageStream)
+		}
+
+		go func() {
+			for {
+				msg, err := stageStream.Recv()
+				stageBytes, err := subscribeWrapper(*msg, err)
+				if err != nil {
+					fmt.Println("Pelican Stage Subscription: ", err)
+					errorChan <- true
+				}
+				var stageMsg pb2.Thermostat
+				if unmarshalErr := proto.Unmarshal(stageBytes, &stageMsg); unmarshalErr != nil {
+					fmt.Println("Failed to unmarshal status message into correct format. Dropping, ", unmarshalErr)
+				}
+				if stageMsg.EnabledHeatStages == nil && stageMsg.EnabledCoolStages == nil {
+					fmt.Println("Received message on stage slot with no content. Dropping.")
+					return
+				}
+				params := types.PelicanStageParams{
+					HeatingStages: &stageMsg.EnabledHeatStages.Value,
+					CoolingStages: &stageMsg.EnabledCoolStages.Value,
+				}
+				if err := pelican.ModifyStages(&params); err != nil {
+					fmt.Println(err)
+				} else {
+					if stageMsg.EnabledHeatStages != nil {
+						fmt.Printf("Set pelican heating stages to: %d\n", &stageMsg.EnabledHeatStages.Value)
+					}
+					if stageMsg.EnabledCoolStages != nil {
+						fmt.Printf("Set pelican cooling stages to: %d\n", &stageMsg.EnabledCoolStages.Value)
+					}
+				}
+			}
+		}()
+
+		go func() {
+			for {
+				msg, err := stateStream.Recv()
+				setpointsBytes, err := subscribeWrapper(*msg, err)
+				if err != nil {
+					fmt.Println("Pelican State Subscription: ", err)
+					errorChan <- true
+				}
+				var stateMsg pb2.Thermostat
+				if unmarshalErr := proto.Unmarshal(setpointsBytes, &stateMsg); unmarshalErr != nil {
+					fmt.Println("Failed to unmarshal status message into correct format. Dropping, ", unmarshalErr)
+				}
+
+				mode := float64(int32(stateMsg.Mode))
+				override := float64(0)
+				fan := float64(64)
+				if stateMsg.Override.Value {
+					override = float64(1)
+				}
+				if stateMsg.FanState.Value {
+					fan = float64(1)
+				}
+				params := types.PelicanStateParams{
+					HeatingSetpoint: &stateMsg.HeatingSetpoint.Value,
+					CoolingSetpoint: &stateMsg.CoolingSetpoint.Value,
+					Mode:            &mode,
+					Override:        &override,
+					Fan:             &fan,
+				}
+				fmt.Printf("%+v", stateMsg)
+
+				if err := pelican.ModifyState(&params); err != nil {
+					fmt.Println(err)
+				} else {
+					fmt.Printf("Set Pelican state to: %+v\n", params)
+				}
+			}
+		}()
+
 		go func() {
 			for {
 				msg, err := setpointsStream.Recv()
 				setpointsBytes, err := subscribeWrapper(*msg, err)
 				if err != nil {
-					fmt.Println("Pelican Status Subscription: ", err)
+					fmt.Println("Pelican Setpoints Subscription: ", err)
 					errorChan <- true
 				}
 				setpointsMsg := &pb2.Thermostat{}
@@ -382,87 +467,3 @@ func publishWrapper(message proto.Message, perspective []byte, namespaceBytes []
 	client.Publish(context.Background(), publishParams)
 	return nil
 }
-
-/*
-	for i, pelican := range pelicans {
-
-		tstatIfaces[i].SubscribeSlot("state", func(msg *bw2.SimpleMessage) {
-			po := msg.GetOnePODF(TSTAT_PO_DF)
-			if po == nil {
-				fmt.Println("Received message on state slot without required PO. Dropping.")
-				return
-			}
-
-			var state stateMsg
-			if err := po.(bw2.MsgPackPayloadObject).ValueInto(&state); err != nil {
-				fmt.Println("Received malformed PO on state slot. Dropping.", err)
-				return
-			}
-
-			params := types.PelicanStateParams{
-				HeatingSetpoint: state.HeatingSetpoint,
-				CoolingSetpoint: state.CoolingSetpoint,
-			}
-			fmt.Printf("%+v", state)
-			if state.Mode != nil {
-				m := float64(*state.Mode)
-				params.Mode = &m
-			}
-
-			if state.Override != nil && *state.Override {
-				f := float64(1)
-				params.Override = &f
-			} else {
-				f := float64(0)
-				params.Override = &f
-			}
-
-			if state.Fan != nil && *state.Fan {
-				f := float64(1)
-				params.Fan = &f
-			} else {
-				f := float64(0)
-				params.Fan = &f
-			}
-
-			if err := pelican.ModifyState(&params); err != nil {
-				fmt.Println(err)
-			} else {
-				fmt.Printf("Set Pelican state to: %+v\n", params)
-			}
-		})
-
-		tstatIfaces[i].SubscribeSlot("stages", func(msg *bw2.SimpleMessage) {
-			po := msg.GetOnePODF(TSTAT_PO_DF)
-			if po == nil {
-				fmt.Println("Received message on stage slot without required PO. Dropping.")
-				return
-			}
-
-			var stages stageMsg
-			if err := po.(bw2.MsgPackPayloadObject).ValueInto(&stages); err != nil {
-				fmt.Println("Received malformed PO on stage slot. Dropping.", err)
-				return
-			}
-			if stages.HeatingStages == nil && stages.CoolingStages == nil {
-				fmt.Println("Received message on stage slot with no content. Dropping.")
-				return
-			}
-
-			params := types.PelicanStageParams{
-				HeatingStages: stages.HeatingStages,
-				CoolingStages: stages.CoolingStages,
-			}
-			if err := pelican.ModifyStages(&params); err != nil {
-				fmt.Println(err)
-			} else {
-				if stages.HeatingStages != nil {
-					fmt.Printf("Set pelican heating stages to: %d\n", *stages.HeatingStages)
-				}
-				if stages.CoolingStages != nil {
-					fmt.Printf("Set pelican cooling stages to: %d\n", *stages.CoolingStages)
-				}
-			}
-		})
-	}
-*/
