@@ -167,29 +167,20 @@ func main() {
 		go func() {
 			for {
 				msg, err := setpointsStream.Recv()
+				setpointsBytes, err := subscribeWrapper(*msg, err)
 				if err != nil {
-					fmt.Println("Received malformed PO on setpoints slot. Dropping, ", err)
+					fmt.Println("Pelican Status Subscription: ", err)
 					errorChan <- true
 				}
-				if msg.Error != nil {
-					fmt.Println("Received malformed PO on setpoints slot. Dropping, ", msg.Error.Message)
-					errorChan <- true
+				setpointsMsg := &pb2.Thermostat{}
+				if unmarshalErr := proto.Unmarshal(setpointsBytes, setpointsMsg); unmarshalErr != nil {
+					fmt.Println("Failed to unmarshal status message into correct format. Dropping, ", unmarshalErr)
 				}
-
-				content := []byte{}
-				for _, po := range msg.Message.Tbs.Payload {
-					content = append(content, po.Content...)
+				setpoints := types.PelicanSetpointParams{
+					HeatingSetpoint: &setpointsMsg.HeatingSetpoint.Value,
+					CoolingSetpoint: &setpointsMsg.CoolingSetpoint.Value,
 				}
-
-				// TODO(john-b-yang): bw2 "ValueInto" with conversion method for byte slice -> struct (HINT: proto.Unmarshal)
-
-				var setpoints setpointsMsg
-
-				params := types.PelicanSetpointParams{
-					HeatingSetpoint: setpoints.HeatingSetpoint,
-					CoolingSetpoint: setpoints.CoolingSetpoint,
-				}
-				if err := pelican.ModifySetpoints(&params); err != nil {
+				if err := pelican.ModifySetpoints(&setpoints); err != nil {
 					fmt.Println(err)
 				} else {
 					fmt.Printf("Set heating setpoint to %v and cooling setpoint to %v\n",
@@ -201,29 +192,29 @@ func main() {
 		go func() {
 			for {
 				msg, err := scheduleStream.Recv()
+				scheduleBytes, err := subscribeWrapper(*msg, err)
 				if err != nil {
-					fmt.Println("Received malformed PO on schedule slot. Dropping, ", err)
+					fmt.Println("Pelican Schedule Subscription: ", err)
 					errorChan <- true
-				}
-				if msg.Error != nil {
-					fmt.Println("Received malformed PO on schedule slot. Dropping, ", msg.Error.Message)
-					errorChan <- true
-				}
-
-				content := []byte{}
-				for _, po := range msg.Message.Tbs.Payload {
-					content = append(content, po.Content...)
 				}
 
 				scheduleMsg := &pb2.ThermostatSchedule{}
-				if unmarshalErr := proto.Unmarshal(content, scheduleMsg); unmarshalErr != nil {
-					fmt.Println("Failed to unmarshal schedule message into correct format properly. Dropping, ", unmarshalErr)
+				if unmarshalErr := proto.Unmarshal(scheduleBytes, scheduleMsg); unmarshalErr != nil {
+					fmt.Println("Failed to unmarshal schedule message into correct format. Dropping, ", unmarshalErr)
 				}
 
-				var schedule types.ThermostatSchedule
-				if schedule.DaySchedules == nil {
-					fmt.Println("Received message on stage slot with no content. Dropping.")
-					return
+				schedule := types.ThermostatSchedule{}
+				for day, daySchedule := range scheduleMsg.ScheduleMap {
+					blockList := []types.ThermostatBlockSchedule{}
+					for _, block := range daySchedule.Blocks {
+						blockMsg := types.ThermostatBlockSchedule{
+							HeatSetting: block.HeatingSetpoint.Value,
+							CoolSetting: block.CoolingSetpoint.Value,
+							Time:        block.Time,
+						}
+						blockList = append(blockList, blockMsg)
+					}
+					schedule.DaySchedules[day] = blockList
 				}
 
 				if err := pelican.SetSchedule(&schedule); err != nil {
@@ -271,10 +262,10 @@ func main() {
 				} else {
 					fmt.Printf("%s Schedule: %+v\n", pelican.Name, schedStatus)
 
-					// Convert Go Struct to Proto Message
+					// Convert Thermostat Go Struct to Proto Message
 					schedule := &pb2.ThermostatSchedule{}
 					for day, blockSchedules := range schedStatus.DaySchedules {
-						var blockList []*pb2.ThermostatScheduleBlock
+						blockList := []*pb2.ThermostatScheduleBlock{}
 						for _, block := range blockSchedules {
 							blockMsg := &pb2.ThermostatScheduleBlock{
 								HeatingSetpoint: &pb2.Double{Value: block.HeatSetting},
@@ -342,6 +333,33 @@ func main() {
 	<-errorChan
 }
 
+// Given the stream output, this method extracts and returns the content bytes
+func subscribeWrapper(msg pb.SubscriptionMessage, err error) ([]byte, error) {
+	if err != nil {
+		return nil, fmt.Errorf("Received malformed PO. Dropping, %v", err)
+	}
+	if msg.Error != nil {
+		return nil, fmt.Errorf("Received malformed PO. Dropping, %v", msg.Error.Message)
+	}
+
+	content := []byte{}
+	for _, po := range msg.Message.Tbs.Payload {
+		content = append(content, po.Content...)
+	}
+
+	params := &pb.PublishParams{}
+	if unmarshalErr := proto.Unmarshal(content, params); unmarshalErr != nil {
+		return nil, fmt.Errorf("Failed to unmarshal message into correct format. Dropping, %v", unmarshalErr)
+	}
+
+	returnBytes := []byte{}
+	for _, content := range params.Content {
+		returnBytes = append(returnBytes, content.Content...)
+	}
+	return returnBytes, nil
+}
+
+// Given the parameters, this method first constructs the appropriate series of structs, then publishes them
 func publishWrapper(message proto.Message, perspective []byte, namespaceBytes []byte, client pb.WAVEMQClient, schema string) error {
 	scheduleBytes, scheduleErr := proto.Marshal(message)
 	if scheduleErr != nil {
