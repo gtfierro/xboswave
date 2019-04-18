@@ -41,13 +41,14 @@ type occupancyMsg struct {
 	Time      int64 `msgpack:"time"`
 }
 
-// WAVE 3 Entity File
+// Entity File (WAVE 3)
 const EntityFile = "entity.ent"
 
-// Required Fields for Publishing and Subscribing to WAVEMQ site router
+// SiteRouter: Location of WAVEMQ site router to Publish and Subscribe to
 const SiteRouter = "127.0.0.1:4516"
 
 func main() {
+	// Loading Settings Configuration File
 	var confBytes []byte
 	confBytes, confReadErr := ioutil.ReadFile("config.json")
 	if confReadErr != nil {
@@ -68,12 +69,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	pelicans, err := storage.ReadPelicans(username, password, sitename)
-	if err != nil {
-		fmt.Printf("Failed to read thermostat info: %v\n", err)
-		os.Exit(1)
-	}
-
+	// Loading Polling Interval Configuration File
 	var paramBytes []byte
 	paramBytes, paramReadErr := ioutil.ReadFile("params.json")
 	if paramReadErr != nil {
@@ -109,7 +105,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Establish a GRPC connection to the site router.
+	// Establish a GRPC connection to the site router
 	conn, err := grpc.Dial(SiteRouter, grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
 	if err != nil {
 		fmt.Printf("Could not connect to the site router: %v\n", err)
@@ -118,7 +114,14 @@ func main() {
 	client := pb.NewWAVEMQClient(conn)
 
 	// Go Channel for communicating errors
-	done := make(chan bool)
+	errorChan := make(chan bool)
+
+	// Retrieving Pelicans
+	pelicans, err := storage.ReadPelicans(username, password, sitename)
+	if err != nil {
+		fmt.Printf("Failed to read thermostat info: %v\n", err)
+		os.Exit(1)
+	}
 
 	for _, pelican := range pelicans {
 		pelican := pelican
@@ -133,10 +136,10 @@ func main() {
 			CoolingStages: &pelican.CoolingStages,
 		}); err != nil {
 			fmt.Printf("Failed to configure heating/cooling stages for pelican %s: %s\n", pelican.Name, err)
-			done <- true
+			errorChan <- true
 		}
 
-		subscribeSetpoints, setpointsErr := client.Subscribe(context.Background(), &pb.SubscribeParams{
+		subscribeParams := &pb.SubscribeParams{
 			Perspective: &pb.Perspective{
 				EntitySecret: &pb.EntitySecret{
 					DER: perspective,
@@ -146,40 +149,31 @@ func main() {
 			Namespace:  namespaceBytes,
 			Identifier: "setpoints",
 			Expiry:     60, // TODO(john-b-yang): Set appropriate amount of time here (currently 1 minute)
-		})
-
-		if setpointsErr != nil {
-			fmt.Printf("Failed to subscribe to setpoints slot: %v\n", setpointsErr)
-			done <- true
 		}
 
-		subscribeSchedule, scheduleErr := client.Subscribe(context.Background(), &pb.SubscribeParams{
-			Perspective: &pb.Perspective{
-				EntitySecret: &pb.EntitySecret{
-					DER: perspective,
-				},
-			},
-			Uri:        baseURI + "/" + pelican.Name,
-			Namespace:  namespaceBytes,
-			Identifier: "schedule",
-			Expiry:     60, // TODO(john-b-yang): Set appropriate amount of time here (currently 1 minute)
-		})
+		setpointsStream, setpointsErr := client.Subscribe(context.Background(), subscribeParams)
+		if setpointsErr != nil {
+			fmt.Printf("Failed to subscribe to setpoints slot: %v\n", setpointsErr)
+			errorChan <- true
+		}
 
+		subscribeParams.Identifier = "schedule"
+		scheduleStream, scheduleErr := client.Subscribe(context.Background(), subscribeParams)
 		if scheduleErr != nil {
 			fmt.Printf("Failed to subscribe to schedule slot: %v\n", scheduleErr)
-			done <- true
+			errorChan <- true
 		}
 
 		go func() {
 			for {
-				msg, err := subscribeSetpoints.Recv()
+				msg, err := setpointsStream.Recv()
 				if err != nil {
 					fmt.Println("Received malformed PO on setpoints slot. Dropping, ", err)
-					done <- true
+					errorChan <- true
 				}
 				if msg.Error != nil {
 					fmt.Println("Received malformed PO on setpoints slot. Dropping, ", msg.Error.Message)
-					done <- true
+					errorChan <- true
 				}
 
 				content := []byte{}
@@ -206,14 +200,14 @@ func main() {
 
 		go func() {
 			for {
-				msg, err := subscribeSchedule.Recv()
+				msg, err := scheduleStream.Recv()
 				if err != nil {
 					fmt.Println("Received malformed PO on schedule slot. Dropping, ", err)
-					done <- true
+					errorChan <- true
 				}
 				if msg.Error != nil {
 					fmt.Println("Received malformed PO on schedule slot. Dropping, ", msg.Error.Message)
-					done <- true
+					errorChan <- true
 				}
 
 				content := []byte{}
@@ -244,10 +238,10 @@ func main() {
 			for {
 				if status, err := pelican.GetStatus(); err != nil {
 					fmt.Println("Failed to retrieve Pelican status: ", err)
-					done <- true
+					errorChan <- true
 				} else if status != nil {
 					fmt.Printf("%s %+v\n", pelican.Name, status)
-					statusMsg := &pb2.XBOSIoTDeviceState{
+					status := &pb2.XBOSIoTDeviceState{
 						Time: uint64(status.Time),
 						Thermostat: &pb2.Thermostat{
 							Temperature:      &pb2.Double{Value: status.Temperature},
@@ -258,26 +252,12 @@ func main() {
 							State:            pb2.HVACState(status.State),
 						},
 					}
-					statusBytes, statusErr := proto.Marshal(statusMsg)
-					if statusErr != nil {
-						fmt.Println("Failed to serialize Pelican status message: ", statusErr)
-						done <- true
+					// TODO(john-b-yang): "pelicanSchedule" may not be correct schema
+					// TODO(john-b-yang): context.Background() default may not be correct
+					if publishErr := publishWrapper(status, perspective, namespaceBytes, client, "pelicanStatus"); publishErr != nil {
+						fmt.Println(publishErr)
+						errorChan <- true
 					}
-					payload := &pb.PayloadObject{
-						Schema:  "PelicanStatus", // TODO(john-b-yang) Check what schema supposed to be
-						Content: statusBytes,
-					}
-					publishParams := &pb.PublishParams{
-						Perspective: &pb.Perspective{
-							EntitySecret: &pb.EntitySecret{
-								DER: perspective,
-							},
-						},
-						Content:   []*pb.PayloadObject{payload},
-						Namespace: namespaceBytes,
-					}
-
-					client.Publish(context.Background(), publishParams)
 				}
 				time.Sleep(pollInt)
 			}
@@ -287,7 +267,7 @@ func main() {
 			for {
 				if schedStatus, schedErr := pelican.GetSchedule(); schedErr != nil {
 					fmt.Println("Failed to retrieve Pelican's Schedule: ", schedErr)
-					done <- true
+					errorChan <- true
 				} else {
 					fmt.Printf("%s Schedule: %+v\n", pelican.Name, schedStatus)
 
@@ -307,27 +287,12 @@ func main() {
 							Blocks: blockList,
 						}
 					}
-
-					scheduleBytes, scheduleErr := proto.Marshal(schedule)
-					if scheduleErr != nil {
-						fmt.Println("Failed to serialized Pelican schedule message: ", scheduleErr)
-						done <- true
+					// TODO(john-b-yang): "pelicanSchedule" may not be correct schema
+					// TODO(john-b-yang): context.Background() default may not be correct
+					if publishErr := publishWrapper(schedule, perspective, namespaceBytes, client, "pelicanSchedule"); publishErr != nil {
+						fmt.Println(publishErr)
+						errorChan <- true
 					}
-					payload := &pb.PayloadObject{
-						Schema:  "PelicanScheduleStatus", // TODO(john-b-yang) Check what schema supposed to be
-						Content: scheduleBytes,
-					}
-					publishParams := &pb.PublishParams{
-						Perspective: &pb.Perspective{
-							EntitySecret: &pb.EntitySecret{
-								DER: perspective,
-							},
-						},
-						Content:   []*pb.PayloadObject{payload},
-						Namespace: namespaceBytes,
-					}
-
-					client.Publish(context.Background(), publishParams)
 				}
 				time.Sleep(pollSched)
 			}
@@ -338,7 +303,7 @@ func main() {
 			for {
 				if drStatus, drErr := pelican.TrackDREvent(); drErr != nil {
 					fmt.Println("Failed to retrieve Pelican's DR status: ", drErr)
-					done <- true
+					errorChan <- true
 				} else if drStatus != nil {
 					fmt.Printf("%s DR Status: %+v\n", pelican.Name, drStatus)
 					// TODO(john-b-yang): Implement DR Status Publishing
@@ -350,7 +315,7 @@ func main() {
 		occupancy, err := pelican.GetOccupancy()
 		if err != nil {
 			fmt.Println("Failed to retrieve initial occupancy reading: ", err)
-			done <- true
+			errorChan <- true
 		}
 
 		// Start occupancy tracking loop only if thermostat has the necessary sensor
@@ -360,7 +325,7 @@ func main() {
 					occupancy, err := pelican.GetOccupancy()
 					if err != nil {
 						fmt.Println("Failed to read thermostat occupancy: ", err)
-						done <- true
+						errorChan <- true
 					} else {
 						occupancyMsg := occupancyMsg{
 							Occupancy: (occupancy == types.OCCUPANCY_OCCUPIED),
@@ -374,89 +339,112 @@ func main() {
 			}()
 		}
 	}
-	<-done
-
-	/*
-		for i, pelican := range pelicans {
-
-			tstatIfaces[i].SubscribeSlot("state", func(msg *bw2.SimpleMessage) {
-				po := msg.GetOnePODF(TSTAT_PO_DF)
-				if po == nil {
-					fmt.Println("Received message on state slot without required PO. Dropping.")
-					return
-				}
-
-				var state stateMsg
-				if err := po.(bw2.MsgPackPayloadObject).ValueInto(&state); err != nil {
-					fmt.Println("Received malformed PO on state slot. Dropping.", err)
-					return
-				}
-
-				params := types.PelicanStateParams{
-					HeatingSetpoint: state.HeatingSetpoint,
-					CoolingSetpoint: state.CoolingSetpoint,
-				}
-				fmt.Printf("%+v", state)
-				if state.Mode != nil {
-					m := float64(*state.Mode)
-					params.Mode = &m
-				}
-
-				if state.Override != nil && *state.Override {
-					f := float64(1)
-					params.Override = &f
-				} else {
-					f := float64(0)
-					params.Override = &f
-				}
-
-				if state.Fan != nil && *state.Fan {
-					f := float64(1)
-					params.Fan = &f
-				} else {
-					f := float64(0)
-					params.Fan = &f
-				}
-
-				if err := pelican.ModifyState(&params); err != nil {
-					fmt.Println(err)
-				} else {
-					fmt.Printf("Set Pelican state to: %+v\n", params)
-				}
-			})
-
-			tstatIfaces[i].SubscribeSlot("stages", func(msg *bw2.SimpleMessage) {
-				po := msg.GetOnePODF(TSTAT_PO_DF)
-				if po == nil {
-					fmt.Println("Received message on stage slot without required PO. Dropping.")
-					return
-				}
-
-				var stages stageMsg
-				if err := po.(bw2.MsgPackPayloadObject).ValueInto(&stages); err != nil {
-					fmt.Println("Received malformed PO on stage slot. Dropping.", err)
-					return
-				}
-				if stages.HeatingStages == nil && stages.CoolingStages == nil {
-					fmt.Println("Received message on stage slot with no content. Dropping.")
-					return
-				}
-
-				params := types.PelicanStageParams{
-					HeatingStages: stages.HeatingStages,
-					CoolingStages: stages.CoolingStages,
-				}
-				if err := pelican.ModifyStages(&params); err != nil {
-					fmt.Println(err)
-				} else {
-					if stages.HeatingStages != nil {
-						fmt.Printf("Set pelican heating stages to: %d\n", *stages.HeatingStages)
-					}
-					if stages.CoolingStages != nil {
-						fmt.Printf("Set pelican cooling stages to: %d\n", *stages.CoolingStages)
-					}
-				}
-			})
-		}
-	*/
+	<-errorChan
 }
+
+func publishWrapper(message proto.Message, perspective []byte, namespaceBytes []byte, client pb.WAVEMQClient, schema string) error {
+	scheduleBytes, scheduleErr := proto.Marshal(message)
+	if scheduleErr != nil {
+		return fmt.Errorf("Failed to serialized Pelican message: %v", scheduleErr)
+	}
+	payload := &pb.PayloadObject{
+		Schema:  schema,
+		Content: scheduleBytes,
+	}
+	publishParams := &pb.PublishParams{
+		Perspective: &pb.Perspective{
+			EntitySecret: &pb.EntitySecret{
+				DER: perspective,
+			},
+		},
+		Content:   []*pb.PayloadObject{payload},
+		Namespace: namespaceBytes,
+	}
+
+	client.Publish(context.Background(), publishParams)
+	return nil
+}
+
+/*
+	for i, pelican := range pelicans {
+
+		tstatIfaces[i].SubscribeSlot("state", func(msg *bw2.SimpleMessage) {
+			po := msg.GetOnePODF(TSTAT_PO_DF)
+			if po == nil {
+				fmt.Println("Received message on state slot without required PO. Dropping.")
+				return
+			}
+
+			var state stateMsg
+			if err := po.(bw2.MsgPackPayloadObject).ValueInto(&state); err != nil {
+				fmt.Println("Received malformed PO on state slot. Dropping.", err)
+				return
+			}
+
+			params := types.PelicanStateParams{
+				HeatingSetpoint: state.HeatingSetpoint,
+				CoolingSetpoint: state.CoolingSetpoint,
+			}
+			fmt.Printf("%+v", state)
+			if state.Mode != nil {
+				m := float64(*state.Mode)
+				params.Mode = &m
+			}
+
+			if state.Override != nil && *state.Override {
+				f := float64(1)
+				params.Override = &f
+			} else {
+				f := float64(0)
+				params.Override = &f
+			}
+
+			if state.Fan != nil && *state.Fan {
+				f := float64(1)
+				params.Fan = &f
+			} else {
+				f := float64(0)
+				params.Fan = &f
+			}
+
+			if err := pelican.ModifyState(&params); err != nil {
+				fmt.Println(err)
+			} else {
+				fmt.Printf("Set Pelican state to: %+v\n", params)
+			}
+		})
+
+		tstatIfaces[i].SubscribeSlot("stages", func(msg *bw2.SimpleMessage) {
+			po := msg.GetOnePODF(TSTAT_PO_DF)
+			if po == nil {
+				fmt.Println("Received message on stage slot without required PO. Dropping.")
+				return
+			}
+
+			var stages stageMsg
+			if err := po.(bw2.MsgPackPayloadObject).ValueInto(&stages); err != nil {
+				fmt.Println("Received malformed PO on stage slot. Dropping.", err)
+				return
+			}
+			if stages.HeatingStages == nil && stages.CoolingStages == nil {
+				fmt.Println("Received message on stage slot with no content. Dropping.")
+				return
+			}
+
+			params := types.PelicanStageParams{
+				HeatingStages: stages.HeatingStages,
+				CoolingStages: stages.CoolingStages,
+			}
+			if err := pelican.ModifyStages(&params); err != nil {
+				fmt.Println(err)
+			} else {
+				if stages.HeatingStages != nil {
+					fmt.Printf("Set pelican heating stages to: %d\n", *stages.HeatingStages)
+				}
+				if stages.CoolingStages != nil {
+					fmt.Printf("Set pelican cooling stages to: %d\n", *stages.CoolingStages)
+				}
+			}
+		})
+	}
+*/
