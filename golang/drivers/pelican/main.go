@@ -432,13 +432,13 @@ func subscribeWrapper(msg pb.SubscriptionMessage, err error) ([]byte, error) {
 		content = append(content, po.Content...)
 	}
 
-	params := &pb.PublishParams{} // TODO(john-b-yang) USE MESSAGE MESSAGE, NOT PUBLISH PARAMS
+	params := &pb.SubscriptionMessage{} // TODO(john-b-yang) USE MESSAGE MESSAGE, NOT PUBLISH PARAMS
 	if unmarshalErr := proto.Unmarshal(content, params); unmarshalErr != nil {
 		return nil, fmt.Errorf("Failed to unmarshal message into correct format. Dropping, %v", unmarshalErr)
 	}
 
 	returnBytes := []byte{}
-	for _, content := range params.Content {
+	for _, content := range params.Message.Tbs.Payload {
 		returnBytes = append(returnBytes, content.Content...)
 	}
 	return returnBytes, nil
