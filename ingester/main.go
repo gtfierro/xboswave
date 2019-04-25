@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"encoding/base64"
-	//"fmt"
+	"flag"
 	"io/ioutil"
 	"os"
 	"os/signal"
@@ -28,6 +28,8 @@ const EntityFile = "wavemqingester.ent"
 const Namespace = "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w=="
 const SiteRouter = "127.0.0.1:4516"
 
+var configfile = flag.String("config", "ingester.yml", "Path to ingester.yml file")
+
 var IngesterName = "testingester3"
 var IngestSubscriptionExpiry = int64(48 * 60 * 60) // 48 hours
 var MaxInMemoryTimeseriesBuffer = 1000             // # of time/reading pairs
@@ -36,8 +38,9 @@ var TimeseriesOperationTimeout = 1 * time.Minute
 var namespaceBytes []byte
 
 func main() {
+	flag.Parse()
 
-	cfg, err := ReadConfig("ingester.yml")
+	cfg, err := ReadConfig(*configfile)
 	if err != nil {
 		logrus.Fatal(err)
 	}
