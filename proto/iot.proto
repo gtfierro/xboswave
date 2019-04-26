@@ -8,6 +8,9 @@ syntax = "proto3";
 package xbospb;
 
 import "nullabletypes.proto";
+import "parker.proto";
+import "weather_current.proto";
+import "weather_prediction.proto";
 
 message URI {
     string namespace = 1;
