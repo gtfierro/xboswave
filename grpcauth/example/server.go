@@ -5,7 +5,6 @@ import (
 	"encoding/pem"
 	"io/ioutil"
 	"net"
-	"time"
 
 	"github.com/cloudflare/cfssl/log"
 	"github.com/gtfierro/xboswave/grpcauth"
@@ -77,26 +76,5 @@ func main() {
 	xbospb.RegisterTestServer(grpcServer, testserver{})
 	serverwavecreds.AddServiceInfo(grpcServer)
 	serverwavecreds.AddGRPCProofFile("serviceproof.pem")
-	go grpcServer.Serve(l)
-
-	client_perspective := loadPerspective("client.ent")
-	clientcred, err := grpcauth.NewClientCredentials(client_perspective, "localhost:410", "GyBHxjkpzmGxXk9qgJW6AJHCXleNifvhgusCs0v1MLFWJg==", "xbospb/Test/*")
-	if err != nil {
-		log.Fatal(err)
-	}
-	clientcred.AddGRPCProofFile("clientproof.pem")
-
-	//setup client
-	clientconn, err := grpc.Dial("localhost:7373", grpc.WithTransportCredentials(clientcred), grpc.FailOnNonTempDialError(true), grpc.WithBlock(), grpc.WithTimeout(30*time.Second))
-	if err != nil {
-		log.Fatal(err)
-	}
-	testclient := xbospb.NewTestClient(clientconn)
-	resp, err := testclient.TestUnary(context.Background(), &xbospb.TestParams{
-		X: "hello1",
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Infof("%+v\n", resp)
+	grpcServer.Serve(l)
 }
