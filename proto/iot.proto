@@ -165,7 +165,7 @@ message ThermostatScheduleBlock {
     string time = 4;
 }
 
-message ThermostatADREvent {
+message DREvent {
     //End of History Date Range
     //unit: seconds
     Int64 event_end = 1;
