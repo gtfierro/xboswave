@@ -1,0 +1,3 @@
+FROM xbos/pybase
+
+CMD ["python", "system_monitor.py"]

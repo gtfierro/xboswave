@@ -20,10 +20,11 @@ type BTrDBConfig struct {
 	Address string
 }
 type InfluxDBConfig struct {
-	Address  string
-	Database string
-	Username string
-	Password string
+	Address    string
+	Database   string
+	Collection string
+	Username   string
+	Password   string
 }
 
 type Database struct {
@@ -113,10 +114,11 @@ func getCfg() *Config {
 		}
 	} else if viper.IsSet("Database.InfluxDB") {
 		cfg.Database.InfluxDB = &InfluxDBConfig{
-			Address:  viper.GetString("Database.InfluxDB.Address"),
-			Database: viper.GetString("Database.InfluxDB.Database"),
-			Username: viper.GetString("Database.InfluxDB.Username"),
-			Password: viper.GetString("Database.InfluxDB.Password"),
+			Address:    viper.GetString("Database.InfluxDB.Address"),
+			Database:   viper.GetString("Database.InfluxDB.Database"),
+			Collection: viper.GetString("Database.InfluxDB.Collection"),
+			Username:   viper.GetString("Database.InfluxDB.Username"),
+			Password:   viper.GetString("Database.InfluxDB.Password"),
 		}
 	}
 

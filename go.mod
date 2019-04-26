@@ -14,12 +14,14 @@ require (
 	github.com/ethereum/go-ethereum v1.8.19 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
+	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gliderlabs/ssh v0.1.1
 	github.com/golang/lint v0.0.0-20180702182130-06c8688daad7 // indirect
 	github.com/golang/protobuf v1.2.0
 	github.com/google/certificate-transparency-go v1.0.21 // indirect
 	github.com/google/trillian v1.2.1 // indirect
 	github.com/gxed/hashland v0.0.0-20180221191214-d9f6b97f8db2 // indirect
+	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
 	github.com/huichen/murmur v0.0.0-20130808212358-e0489551cf51 // indirect
 	github.com/immesys/asn1 v0.0.0-20180925212538-00c41edb4634 // indirect
 	github.com/immesys/wave v0.4.1
@@ -27,10 +29,7 @@ require (
 	github.com/influxdata/influxdb v1.7.1
 	github.com/influxdata/platform v0.0.0-20181127170649-402760d6f359 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0
-	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
-	github.com/minio/sha256-simd v0.0.0-20181005183134-51976451ce19 // indirect
-	github.com/mr-tron/base58 v1.1.0 // indirect
-	github.com/multiformats/go-multihash v1.0.8 // indirect
+	github.com/multiformats/go-multihash v0.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 // indirect
 	github.com/pborman/uuid v1.2.0
@@ -44,6 +43,7 @@ require (
 	github.com/ucbrise/vuvuzelacrypto v0.0.0-20180723204325-fccab9b96bef // indirect
 	github.com/urfave/cli v1.20.0 // indirect
 	go.opencensus.io v0.19.0 // indirect
+	golang.org/x/net v0.0.0-20181217023233-e147a9138326
 	google.golang.org/grpc v1.17.0
 	gopkg.in/BTrDB/btrdb.v4 v4.0.0-20180821183339-596e21fb2a6f // indirect
 	gopkg.in/btrdb.v4 v4.0.0-20180821183339-596e21fb2a6f

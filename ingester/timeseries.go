@@ -232,6 +232,7 @@ type influxClient struct {
 	conn influx.Client
 
 	dbname              string
+	collection          string
 	writebuffer         map[[16]byte]*types.ExtractedTimeseries
 	lastwrite           map[[16]byte]time.Time
 	outstandingReadings int64
@@ -250,9 +251,19 @@ func newInfluxDB(c *InfluxDBConfig) *influxClient {
 	}
 	logrus.Info("Connected to InfluxDB!")
 
+	q := influx.Query{
+		Command: "create database xbos",
+	}
+	if response, err := conn.Query(q); err == nil && response.Error() == nil {
+		logrus.Info(response.Results)
+	} else if err != nil {
+		logrus.Fatal(errors.Wrap(err, "could not create xbos db in influx"))
+	}
+
 	i := &influxClient{
 		conn:        conn,
 		dbname:      c.Database,
+		collection:  c.Collection,
 		writebuffer: make(map[[16]byte]*types.ExtractedTimeseries),
 		lastwrite:   make(map[[16]byte]time.Time),
 	}
@@ -274,8 +285,9 @@ func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
 	for idx, t := range extracted.Times {
 		val := extracted.Values[idx]
 		tags := map[string]string{
-			"unit": extracted.Unit,
-			"uuid": extracted.UUID.String(),
+			"unit":       extracted.Unit,
+			"uuid":       extracted.UUID.String(),
+			"collection": extracted.Collection,
 		}
 		for k, v := range extracted.Annotations {
 			tags[k] = v
@@ -290,7 +302,7 @@ func (inf *influxClient) write(extracted types.ExtractedTimeseries) error {
 			fields[k] = v
 		}
 
-		pt, err := influx.NewPoint(extracted.Collection, tags, fields, time.Unix(0, t))
+		pt, err := influx.NewPoint(inf.collection, tags, fields, time.Unix(0, t))
 		if err != nil {
 			return errors.Wrap(err, "could not create new point")
 		}

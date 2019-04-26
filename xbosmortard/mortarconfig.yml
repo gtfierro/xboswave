@@ -1,0 +1,15 @@
+WAVEMQ:
+    SiteRouter: "localhost:4516"
+    EntityFile: "myentity.ent"
+    Namespace: "GyBzLC-FCBTB7cO8SzRCD-t2uI-RykjxgXy5s2t06Ddi4Q=="
+    BaseURI: "mortar"
+    ServerName: "mortarserver"
+
+# service is on GyBzLC-FCBTB7cO8SzRCD-t2uI-RykjxgXy5s2t06Ddi4Q== mortar/s.grpcserver/mortarserver/i.grpc
+
+HodConfig: "hodconfig.yml"
+InfluxDBAddr: "http://127.0.0.1:8086"
+InfluxDBUser: ""
+InfluxDBPass: ""
+ListenAddr: "127.0.0.1:4587"
+PrometheusAddr: "127.0.0.1:9091"

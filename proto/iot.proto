@@ -119,6 +119,31 @@ message Thermostat {
     Double cooling_setpoint = 11;
 }
 
+message ThermostatSchedule {
+    //Map day of week to daily schedule
+    map<string, ThermostatScheduleDay> scheduleMap = 1;
+}
+
+message ThermostatScheduleDay {
+    //Daily schedule is Multiple Blocks
+    repeated ThermostatScheduleBlock blocks = 1;
+}
+
+message ThermostatScheduleBlock {
+    //heating setpoint
+    //unit: celsius
+    Double heating_setpoint = 1;
+    //cooling setpoint
+    //unit: celsius
+    Double cooling_setpoint = 2;
+    //Current system mode of thermostat
+    //unit: xbos/iot/HVACMode
+    HVACMode mode = 3;
+    //Time when schedule block takes effect
+    //format: RRule
+    string time = 4;
+}
+
 message Meter {
     //unit: kW
     Double power = 1;

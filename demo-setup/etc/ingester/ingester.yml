@@ -1,0 +1,19 @@
+database:
+   influxdb:
+       address: "http://127.0.0.1:8086"
+       database: "xbos"
+       collection: "timeseries"
+       username: ""
+       password: ""
+
+wavemq:
+    entityfile: "wavemqingester.ent"
+    siterouter: "127.0.0.1:4516"
+    subscriptionexpiry: 10
+    clientid: "testme124"
+
+ingestershell:
+    # uses server logins
+    passwordlogin: true
+    password: "demo"
+    sshhostkey: "/etc/ingester/sshkey"
