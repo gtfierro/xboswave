@@ -3,9 +3,12 @@ import pymortar
 import time
 
 client = MortarClient({
-    'id': 'testclientid3',
-    'namespace':  "GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==",
-    'base_resource': 'mortar/s.grpcserver/mortar/i.grpc',
+    'namespace':  "GyCetklhSNcgsCKVKXxSuCUZP4M80z9NRxU1pwfb2XwGhg==",
+    'wave': 'localhost:410',
+    'entity': 'mortarclienttest.ent',
+    'prooffile': 'clientproof.pem',
+    'grpcservice': 'mortar/Mortar/*',
+    'address': 'localhost:4587',
 })
 # client.qualify
 resp = client.qualify([
