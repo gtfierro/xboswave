@@ -16,6 +16,7 @@ from tlslite import TLSConnection
 
 class WAVEGRPCClient:
     def __init__(self, address_tuple, namespace, entityfile, proof_file='clientproof.pem', waved='localhost:410'):
+        self.address_tuple = address_tuple
         self.ns = namespace
         self.nsbytes = base64.urlsafe_b64decode(self.ns)
         self.entityfile = open(entityfile, 'rb').read()
@@ -42,20 +43,22 @@ class WAVEGRPCClient:
             content=self.proof_file,
         ))
 
-        # setup connection
+        # setup server
+        server_thread = threading.Thread(target=self.get_client_connection)
+        server_thread.start()
+
+    def setup_connection(self):
         hdr = self.generate_peer_header()
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(address_tuple)
+        sock.connect(self.address_tuple)
         self.upstream_connection = TLSConnection(sock)
         hs = self.upstream_connection.handshakeClientCert()
         self.upstream_connection.write(self.nsbytes)
         self.upstream_connection.write(hdr)
         invalid = self.read_peer_header(self.upstream_connection)
-        print('invalid', invalid)
-
-        server_thread = threading.Thread(target=self.get_client_connection)
-        server_thread.start()
+        if invalid.message != '':
+            raise Exception("GRPC Server sent invalid header or proof {0}".format(invalid))
 
 
     def get_client_connection(self):
@@ -69,21 +72,21 @@ class WAVEGRPCClient:
         print("Listening on {0}".format(listen_address))
         server.listen(10)
 
-        # TODO: only one client (stop listening after first connection)?
-        #while True:
-        client_socket, addr = server.accept()
- 
-        # print out the local connection information
-        print(f"[==>] Received incoming connection from {addr[0]}:{addr[1]}")
- 
-        # start a thread to talk to the remote host
-        proxy_thread = threading.Thread(target=self.handle_client,
-                                        args=(client_socket,))
- 
-        proxy_thread.start()
+        while True:
+            client_socket, addr = server.accept()
+            # reconnect to the GRPC server on each call
+            self.setup_connection()
+
+            # print out the local connection information
+            print("new client call")
+
+            # start a thread to talk to the remote host
+            proxy_thread = threading.Thread(target=self.handle_client,
+                                            args=(client_socket,))
+
+            proxy_thread.start()
 
     def handle_client(self, client_socket):
-        print("handling client")
         while True:
             try:
                 local_buffer = receive_from(client_socket)
@@ -96,8 +99,7 @@ class WAVEGRPCClient:
                     client_socket.send(remote_buffer)
                 # if no more data on the either side, close the connections
                 if not len(local_buffer) or not len(remote_buffer):
-                    print("BREAK IT UP")
-                    print("Closing connections")
+                    print("Done with call")
                     break
             finally:
                 client_socket.close()
@@ -129,19 +131,13 @@ class WAVEGRPCClient:
             signature=signature,
             content=c.signature,
         ))
-        return vresp
+        return vresp.error
 
 def receive_from(connection):
     buffer = b""
     try:
-        # we set a 2 second timeout; depending on your
-        # target, this may need to be adjusted
-        connection.settimeout(2)
-        # keep reading into the buffer until
-        # there's no more data or we timeout
-        count = 0
+        connection.settimeout(1)
         while True:
-            count += 1
             data = connection.recv(4096)
             if not data:
                 break
@@ -151,9 +147,11 @@ def receive_from(connection):
     return buffer
 
 client = WAVEGRPCClient( ('localhost', 7373),  "GyBHxjkpzmGxXk9qgJW6AJHCXleNifvhgusCs0v1MLFWJg==", "client.ent")
-print(client)
 
 channel = grpc.insecure_channel('localhost:5005')
 stub = grpcserver_pb2_grpc.TestStub(channel)
 resp = stub.TestUnary(grpcserver_pb2.TestParams(x="hello 123456"))
 print(resp)
+resp = stub.TestStream(grpcserver_pb2.TestParams(x="hello 123456"))
+for x in resp:
+    print(x)
