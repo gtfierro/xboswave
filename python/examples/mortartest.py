@@ -1,4 +1,4 @@
-from pyxbos import MortarClient
+from pyxbos.mortard import MortarClient
 import pymortar
 import time
 
