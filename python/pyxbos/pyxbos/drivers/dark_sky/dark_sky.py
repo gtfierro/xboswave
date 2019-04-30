@@ -1,4 +1,4 @@
-from pyxbos import *
+from pyxbos.driver import *
 import os,sys
 import json
 import requests
