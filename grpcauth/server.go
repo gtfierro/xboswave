@@ -104,6 +104,7 @@ func (wc *WaveCredentials) AddServiceInfo(server *grpc.Server) {
 	var uris []string
 
 	// form a list of <package name>/<service name>/<method name> URIs
+	log.Infof("Info %+v", wc.info)
 	for pkg_svc_name, svc_info := range wc.info {
 		uri_pkg_svc_name := strings.Replace(pkg_svc_name, ".", "/", -1)
 		for _, method_info := range svc_info.Methods {
