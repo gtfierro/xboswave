@@ -66,7 +66,7 @@ You should of course configure the rest of the file to point to whatever db you 
 
 ### Client Configuration
 
-Install/upgrade the `pyxbos` package
+Install/upgrade the `pyxbos` package (requires >= 0.2.0)
 
 ```python
 client = MortarClient({
