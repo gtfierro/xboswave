@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyxbos"
-version = "0.1.8"
+version = "0.2.0"
 description = "Python bindings for XBOS-flavored WAVEMQ and related services"
 authors = ["Gabe Fierro <gtfierro@cs.berkeley.edu>"]
 
