@@ -14,6 +14,8 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from tlslite import TLSConnection
 
+XBOS_PERMSET = base64.urlsafe_b64decode("GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==")
+
 class WAVEGRPCClient:
     def __init__(self, address_tuple, namespace, entityfile, proof_file='clientproof.pem', waved='localhost:410'):
         self.address_tuple = address_tuple
@@ -25,6 +27,8 @@ class WAVEGRPCClient:
                 DER=self.entityfile
             )
         )
+        self._listen_address = None
+        self._ready = threading.Event()
 
         self.wave_channel = grpc.insecure_channel(waved)
         self.wave_client = eapi_pb2_grpc.WAVEStub(self.wave_channel)
@@ -51,6 +55,7 @@ class WAVEGRPCClient:
         hdr = self.generate_peer_header()
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.connect(self.address_tuple)
         self.upstream_connection = TLSConnection(sock)
         hs = self.upstream_connection.handshakeClientCert()
@@ -60,15 +65,25 @@ class WAVEGRPCClient:
         if invalid.message != '':
             raise Exception("GRPC Server sent invalid header or proof {0}".format(invalid))
 
+    @property
+    def listen_address(self):
+        self._ready.wait()
+        return "{0}:{1}".format(*self._listen_address)
 
     def get_client_connection(self):
-        listen_address = ('localhost', 5005)
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            server.bind(listen_address)
-        except:
-            print("Failed to listen on {0}".format(listen_address))
-            sys.exit(0)
+        listen_port = 5005
+        while True:
+            listen_address = ('localhost', listen_port)
+            server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                server.bind(listen_address)
+                self._listen_address = listen_address
+                self._ready.set()
+                break
+            except Exception as e:
+                print("Failed to listen on {0}".format(listen_address), e)
+                time.sleep(1)
+                listen_port += 1
         print("Listening on {0}".format(listen_address))
         server.listen(10)
 
@@ -131,7 +146,26 @@ class WAVEGRPCClient:
             signature=signature,
             content=c.signature,
         ))
-        return vresp.error
+        if vresp.error.message != "":
+            return vresp.error
+
+        proofresp = self.wave_client.VerifyProof(eapi_pb2.VerifyProofParams(
+            proofDER=proof,
+            subject=entityhash,
+            requiredRTreePolicy=eapi_pb2.RTreePolicy(
+                namespace=self.nsbytes,
+                statements=[
+                    eapi_pb2.RTreePolicyStatement(
+                        permissionSet=XBOS_PERMSET,
+                        permissions=["serve_grpc"],
+                        resource="xbospb/Test/*"
+                    ),
+                ],
+            )
+        ))
+        if proofresp.result == None:
+            return "no proof"
+        return proofresp.error
 
 def receive_from(connection):
     buffer = b""
@@ -148,10 +182,10 @@ def receive_from(connection):
 
 client = WAVEGRPCClient( ('localhost', 7373),  "GyBHxjkpzmGxXk9qgJW6AJHCXleNifvhgusCs0v1MLFWJg==", "client.ent")
 
-channel = grpc.insecure_channel('localhost:5005')
+channel = grpc.insecure_channel(client.listen_address)
 stub = grpcserver_pb2_grpc.TestStub(channel)
-resp = stub.TestUnary(grpcserver_pb2.TestParams(x="hello 123456"))
-print(resp)
-resp = stub.TestStream(grpcserver_pb2.TestParams(x="hello 123456"))
-for x in resp:
-    print(x)
+while True:
+    t = time.time()
+    resp = stub.TestUnary(grpcserver_pb2.TestParams(x="hello 123456"))
+    t2 = time.time()
+    print("Elapsed: {0}. Threads active: {1}. Got Response {2}".format(t2-t, threading.active_count(), resp))
