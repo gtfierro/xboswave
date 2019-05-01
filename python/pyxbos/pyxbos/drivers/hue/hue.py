@@ -1,4 +1,4 @@
-from pyxbos import *
+from pyxbos.driver import *
 import logging
 import time
 from phue import Bridge
