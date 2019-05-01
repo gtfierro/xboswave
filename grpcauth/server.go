@@ -104,6 +104,7 @@ func (wc *WaveCredentials) AddServiceInfo(server *grpc.Server) {
 	var uris []string
 
 	// form a list of <package name>/<service name>/<method name> URIs
+	log.Infof("Info %+v", wc.info)
 	for pkg_svc_name, svc_info := range wc.info {
 		uri_pkg_svc_name := strings.Replace(pkg_svc_name, ".", "/", -1)
 		for _, method_info := range svc_info.Methods {
@@ -142,8 +143,10 @@ func (wc *WaveCredentials) AddGRPCProofFile(filename string) (ns string, proof [
 	found := false
 outer:
 	for _, s := range resp.Result.Policy.RTreePolicy.Statements {
+		log.Info("matches resource? ", s.Resource == wc.grpcservice, " ", s.Resource, " ", wc.grpcservice, " matches permset? ", bytes.Equal(s.GetPermissionSet(), []byte(XBOSPermissionSet)))
 		if s.Resource == wc.grpcservice && bytes.Equal(s.GetPermissionSet(), []byte(XBOSPermissionSet)) {
 			for _, perm := range s.Permissions {
+				log.Info("match perm? ", perm == GRPCServePermission, " ", perm, " ", GRPCServePermission)
 				//TODO: need to MATCH the uri here for each of the uris, make sure we prove it
 				if perm == GRPCServePermission {
 					found = true

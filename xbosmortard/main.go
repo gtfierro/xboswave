@@ -56,15 +56,14 @@ func main() {
 		}
 	}()
 
-	frontend_stage_cfg := &stages.WAVEMQFrontendStageConfig{
-		SiteRouter: cfg.WAVEMQ.SiteRouter,
-		EntityFile: cfg.WAVEMQ.EntityFile,
-		Namespace:  cfg.WAVEMQ.Namespace,
-		BaseURI:    cfg.WAVEMQ.BaseURI,
-		ServerName: cfg.WAVEMQ.ServerName,
+	frontend_stage_cfg := &stages.ApiFrontendWAVEAuthStageConfig{
+		StageContext: maincontext,
+		ListenAddr:   cfg.ListenAddr,
+		Agent:        cfg.WAVE.Agent,
+		EntityFile:   cfg.WAVE.EntityFile,
+		ProofFile:    cfg.WAVE.ProofFile,
 	}
-
-	frontend_stage, err := stages.NewWAVEMQFrontendStage(frontend_stage_cfg)
+	frontend_stage, err := stages.NewApiFrontendWAVEAuthStage(frontend_stage_cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
