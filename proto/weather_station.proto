@@ -1,0 +1,69 @@
+syntax = "proto3";
+package xbospb;
+import "nullabletypes.proto";
+message WeatherStation {
+	//epoch time
+	//unit: seconds
+	Int64 time = 1;
+	//clear-day/clear-night/rain/snow/sleet/wind/fog/cloudy/partly-cloudy-day/partly-cloudy-night
+	string icon = 2;
+	//the approximate distance to the nearest storm
+	//unit: miles
+	Double nearestStormDistance = 3;
+	//direction of the nearest storm with true north at 0 and progressing clockwise; if nearestStormDistance=0 then this value will not be defined
+	//unit: degrees
+	Double nearestStormBearing = 4;
+	//intensity of precipitation occurring at the given time; this value is conditional on probability
+	//unit: inches per hour
+	Double precipIntensity = 5;
+	//the standard deviation of the distribution of precipIntensity
+	Double precipIntensityError = 6;
+	//the probability of precipitation occurring; 0-1
+	Double precipProbability = 7;
+	//rain/snow/sleet; if precipIntensity is zero then this property will not be defined; due to the lack of data historical precipType information is usually estimated rather than observed
+	string precipType = 8;
+	//air temperature
+	//unit: F
+	Double temperature = 9;
+	//feels-like temperature
+	//unit: F
+	Double apparentTemperature = 10;
+	//dew point temperature
+	//unit: F
+	Double dewPoint = 11;
+	//relative humidity; 0-1
+	Double humidity = 12;
+	//sea-level air pressure
+	//unit: millibars
+	Double pressure = 13;
+	//wind speed
+	//unit: miles per hour
+	Double windSpeed = 14;
+	//wind gust speed
+	//unit: miles per hour
+	Double windGust = 15;
+	//the direction that the wind is coming from with true north at 0 and progressing clockwise; if windSpeed=0 then this value will not be defined
+	//unit: degree
+	Double windBearing = 16;
+	//the percentage of sky occluded by clouds; 0-1
+	Double cloudCover = 17;
+	//uv index
+	//unit: miles
+	Double uvIndex = 18;
+	//average visibility capped at 10 miles
+	Double visibility = 19;
+	//the columnar density of total atmospheric ozone
+	//unit: Dobson
+	Double ozone = 20;
+}
+
+message WeatherStationPrediction {
+    // time of the prediction (leave empty
+    // unit: ns
+
+    message Prediction {
+        uint64 prediction_time = 1;
+        WeatherStation prediction = 2;
+    }
+    repeated Prediction predictions = 1;
+}
