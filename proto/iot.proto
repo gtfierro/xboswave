@@ -58,8 +58,11 @@ message XBOSIoTDeviceState {
     Meter meter = 5;
     Light light = 6;
     EVSE evse = 7;
-    WeatherStation weather_station = 8;
-    WeatherStationPrediction weather_station_prediction = 9;
+    //WeatherStation weather_station = 8;
+    //WeatherStationPrediction weather_station_prediction = 9;
+    ParkerState parker_state = 8;
+    WeatherStation weather_current = 9;
+    WeatherStationPrediction weather_prediction = 10;
 }
 
 

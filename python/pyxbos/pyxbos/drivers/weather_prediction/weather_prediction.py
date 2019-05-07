@@ -1,4 +1,5 @@
-from pyxbos import *
+from pyxbos.driver import *
+from pyxbos import weather_station_pb2
 import os,sys
 import json
 import requests
@@ -10,6 +11,7 @@ import json
 import requests
 import yaml
 import argparse
+import logging
 
 
 class WeatherPredictionDriver(Driver):
@@ -37,9 +39,9 @@ class WeatherPredictionDriver(Driver):
                 output['humidity'] *= 100 # change from decimal to percent
             #print(hour)
             timestamp = int(hour.get('time') * 1e9) # nanoseconds
-            predictions.append(weather_prediction_pb2.Weather_Prediction_State.Prediction(
+            predictions.append(weather_station_pb2.WeatherStationPrediction.Prediction(
                 prediction_time=timestamp,
-                prediction=weather_current_pb2.Weather_Current_State(
+                prediction=weather_station_pb2.WeatherStation(
                     time  =   types.Int64(value=output.get('time',None)),
                     icon  =  output.get('icon',None),
                     nearestStormDistance  =   types.Double(value=output.get('nearestStormDistance',None)),
@@ -67,7 +69,7 @@ class WeatherPredictionDriver(Driver):
         msg = xbos_pb2.XBOS(
             XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
                 time = int(time.time()*1e9),
-                weather_prediction = weather_prediction_pb2.Weather_Prediction_State(
+                weather_prediction = weather_station_pb2.WeatherStation(
                     predictions=predictions
                 )
             )
@@ -77,7 +79,15 @@ class WeatherPredictionDriver(Driver):
 
 
 if __name__ == '__main__':
-    with open('dark_sky.yaml') as f:
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config_file", help="config file with api key as well as namespace")
+    parser.add_argument("ent_file", help="entity file")
+    args = parser.parse_args()
+    config_file = args.config_file
+    ent_file = args.ent_file
+
+    with open(config_file) as f:
         # use safe_load instead load for security reasons
         driverConfig = yaml.safe_load(f)
 
@@ -92,7 +102,7 @@ if __name__ == '__main__':
         'wavemq': 'localhost:4516',
         'namespace': namespace,
         'base_resource': 'weather_prediction',
-        'entity': 'weather_prediction.ent',
+        'entity': ent_file,
         'id': 'pyxbos-driver-prediction-1',
         #'rate': 1800, # half hour
         'rate': 20, # 15 min

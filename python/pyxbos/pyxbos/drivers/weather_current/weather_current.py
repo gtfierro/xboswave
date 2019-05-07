@@ -1,10 +1,11 @@
-from pyxbos import *
+from pyxbos.driver import *
+from pyxbos import weather_station_pb2
 import os,sys
 import json
 import requests
 import yaml
 import argparse
-
+import logging
 
 class WeatherCurrentDriver(Driver):
     def setup(self, cfg):
@@ -31,7 +32,7 @@ class WeatherCurrentDriver(Driver):
         msg = xbos_pb2.XBOS(
             XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
                 time = int(time.time()*1e9),
-                weather_current = weather_current_pb2.Weather_Current_State(
+                weather_current = weather_station_pb2.WeatherStation(
                     time  =   types.Int64(value=output.get('time',None)),
                     icon  =  output.get('icon',None),
                     nearestStormDistance  =   types.Double(value=output.get('nearestStormDistance',None)),
@@ -59,7 +60,14 @@ class WeatherCurrentDriver(Driver):
 
 
 if __name__ == '__main__':
-    with open('dark_sky.yaml') as f:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config_file", help="config file with api key as well as namespace")
+    parser.add_argument("ent_file", help="entity file")
+    args = parser.parse_args()
+    config_file = args.config_file
+    ent_file = args.ent_file
+
+    with open(config_file) as f:
         # use safe_load instead load for security reasons
         driverConfig = yaml.safe_load(f)
 
@@ -74,7 +82,7 @@ if __name__ == '__main__':
         'wavemq': 'localhost:4516',
         'namespace': namespace,
         'base_resource': 'weather_current',
-        'entity': 'weather_current.ent',
+        'entity': ent_file,
         'id': 'pyxbos-driver-current-1',
         #'rate': 1800, # half hour
         'rate': 20, # 15 min
