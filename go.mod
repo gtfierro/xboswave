@@ -17,7 +17,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gliderlabs/ssh v0.1.1
 	github.com/golang/lint v0.0.0-20180702182130-06c8688daad7 // indirect
-	github.com/golang/protobuf v1.2.0
+	github.com/golang/protobuf v1.3.1
 	github.com/google/certificate-transparency-go v1.0.21 // indirect
 	github.com/google/trillian v1.2.1 // indirect
 	github.com/gxed/hashland v0.0.0-20180221191214-d9f6b97f8db2 // indirect

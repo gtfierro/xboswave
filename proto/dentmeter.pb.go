@@ -18,10 +18,10 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type DentMeterState struct {
-	// unit:ns
+	//unit:ns
 	Time                 uint64        `protobuf:"varint,1,opt,name=time,proto3" json:"time,omitempty"`
 	Phases               []*PhaseState `protobuf:"bytes,2,rep,name=phases,proto3" json:"phases,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
@@ -35,6 +35,7 @@ func (*DentMeterState) ProtoMessage()    {}
 func (*DentMeterState) Descriptor() ([]byte, []int) {
 	return fileDescriptor_73ded010fafc5f24, []int{0}
 }
+
 func (m *DentMeterState) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DentMeterState.Unmarshal(m, b)
 }
@@ -70,29 +71,29 @@ func (m *DentMeterState) GetPhases() []*PhaseState {
 type PhaseState struct {
 	Phase      string `protobuf:"bytes,1,opt,name=phase,proto3" json:"phase,omitempty"`
 	Annotation string `protobuf:"bytes,14,opt,name=annotation,proto3" json:"annotation,omitempty"`
-	// unit: kWh
+	//unit: kWh
 	TrueEnergy float64 `protobuf:"fixed64,2,opt,name=true_energy,json=trueEnergy,proto3" json:"true_energy,omitempty"`
-	// unit: kVARh
+	//unit: kVARh
 	ReactiveEnergy float64 `protobuf:"fixed64,3,opt,name=reactive_energy,json=reactiveEnergy,proto3" json:"reactive_energy,omitempty"`
-	// unit: kVAh
+	//unit: kVAh
 	ApparentEnergy float64 `protobuf:"fixed64,4,opt,name=apparent_energy,json=apparentEnergy,proto3" json:"apparent_energy,omitempty"`
-	// unit: kW
+	//unit: kW
 	TruePower float64 `protobuf:"fixed64,5,opt,name=true_power,json=truePower,proto3" json:"true_power,omitempty"`
-	// unit: kVAR
+	//unit: kVAR
 	ReactivePower float64 `protobuf:"fixed64,6,opt,name=reactive_power,json=reactivePower,proto3" json:"reactive_power,omitempty"`
-	// unit: kVA
+	//unit: kVA
 	ApparentPower float64 `protobuf:"fixed64,7,opt,name=apparent_power,json=apparentPower,proto3" json:"apparent_power,omitempty"`
-	// unit: PF
+	//unit: PF
 	DisplacementPf float64 `protobuf:"fixed64,8,opt,name=displacement_pf,json=displacementPf,proto3" json:"displacement_pf,omitempty"`
-	// unit: PF
+	//unit: PF
 	ApparentPf float64 `protobuf:"fixed64,9,opt,name=apparent_pf,json=apparentPf,proto3" json:"apparent_pf,omitempty"`
-	// unit: A
+	//unit: A
 	Current float64 `protobuf:"fixed64,10,opt,name=current,proto3" json:"current,omitempty"`
-	// unit: HZ
+	//unit: HZ
 	LineFrequency float64 `protobuf:"fixed64,11,opt,name=line_frequency,json=lineFrequency,proto3" json:"line_frequency,omitempty"`
-	// unit: V
+	//unit: V
 	Volts float64 `protobuf:"fixed64,12,opt,name=volts,proto3" json:"volts,omitempty"`
-	// unit: V
+	//unit: V
 	PhaseNeutralVoltage  float64  `protobuf:"fixed64,13,opt,name=phase_neutral_voltage,json=phaseNeutralVoltage,proto3" json:"phase_neutral_voltage,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -105,6 +106,7 @@ func (*PhaseState) ProtoMessage()    {}
 func (*PhaseState) Descriptor() ([]byte, []int) {
 	return fileDescriptor_73ded010fafc5f24, []int{1}
 }
+
 func (m *PhaseState) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PhaseState.Unmarshal(m, b)
 }
