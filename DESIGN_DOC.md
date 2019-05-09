@@ -51,7 +51,7 @@ This incorporates elements of both GRPC URL structure and BW2-style service+inte
 
 | XBOS | BW2 | GRPC |
 | --- | --- | --- |
-| `location` | namespace + base URI | IP address + port |
+| `location` -- possibly remove this? | namespace + base URI | n/a |
 | `namespace` | namespace | n/a |
 | `service` | `s.servicename` | pkg name + service name |
 | `instance ID` | `instance id` | n/a |
@@ -63,7 +63,7 @@ For permissions, this structure will "compile down" into the following WAVE URI 
 
 ```
 Namespace: namespace
-Resource: <location>/<service>/<instance ID>/<signal/slot>/<method>
+Resource: xbos/<location>/<service>/<instance ID>/<signal/slot>/<method>
 ```
 
 This should make it easier to develop "templates" for more easily determining what permissions are needed to interact with a service/device/etc.
@@ -134,6 +134,20 @@ which of these is to be used:
             - not as performant, likely a bit buggy at first
             - requires altering servers
                 - unless we do it as a proxy
+
+## Service Discovery
+
+- services + drivers publish little descriptions of themselves
+    - these get persisted on the message bus?
+        - form of multicast e.g. upnp
+        - do we want to periodically announce these? heartbeats?
+        - this is in contrast to a database that holds all known services
+    - these describe how to access the service:
+        - WAVEMQ URIs or IP address (for GRPC service)
+        - GRPC/protobuf links, files
+        - other information?
+    - would we need to negotiate anything between the client, or is this
+      just a consumable service description?
 
 ## Composeable Service Definitions
 
