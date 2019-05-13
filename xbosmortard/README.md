@@ -20,12 +20,12 @@ Example of granting the proof
 ```bash
 # namespace.ent can be some other authorized entity
 $ wv rtgrant --attester namespace.ent \
-           --subject myserver.ent.ent \
+           --subject myserver.ent \
            GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==:serve_grpc@namespace.ent/\
            mortar/Mortar/*
 
 $ wv rtgrant --attester namespace.ent \
-           --subject myclient.ent.ent \
+           --subject myclient.ent \
            GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==:call_grpc@namespace.ent/\
            mortar/Mortar/*
 ```
@@ -36,7 +36,7 @@ Example of creating the proof file
 $ wv rtprove --subject myserver.ent -o serverproof.pem GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==:serve_grpc@namespace.ent/mortar/Mortar/*
 $ wv verify serverproof.pem
 
-$ wv rtprove --subject myclient.ent -o clientproof.pem GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==:client_grpc@namespace.ent/mortar/Mortar/*
+$ wv rtprove --subject myclient.ent -o clientproof.pem GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==:call_grpc@namespace.ent/mortar/Mortar/*
 $ wv verify clientproof.pem
 ```
 
