@@ -22,6 +22,7 @@ import pyxbos.wave.eapi_pb2_grpc as eapi_pb2_grpc
 #from pyxbos.wavemq_pb2 import *
 #from pyxbos.wavemq_pb2_grpc import *
 from pyxbos.grpcserver_pb2 import *
+from pyxbos.exceptions import *
 import asyncio
 
 XBOS_PERMSET = base64.urlsafe_b64decode("GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==")
