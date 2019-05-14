@@ -20,44 +20,50 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			"station_name": msg.C37DataFrame.StationName,
 			"id_code":      fmt.Sprintf("%d", msg.C37DataFrame.IdCode),
 		}
-		extracted.Collection = fmt.Sprintf("xbos/%s", uri.Resource)
-
 		// handle angles
 		for _, phasor := range phasor_channel.Data {
 			extracted.Tags["unit"] = "degrees"
 			extracted.Tags["channel_name"] = phasor_channel.ChannelName
-			name := fmt.Sprintf("phasor/%s/%s/%s/angle", extracted.Tags["station_name"], extracted.Tags["id_code"], extracted.Tags["channel_name"])
-			extracted.Tags["name"] = name
+			extracted.Collection = fmt.Sprintf("xbos/%s/%s/%s/%s", uri.Resource, extracted.Tags["station_name"], extracted.Tags["id_code"], extracted.Tags["channel_name"])
+			extracted.Tags["name"] = "angle"
 
 			time := phasor.Time
 			angle := phasor.Angle
 			extracted.Values = append(extracted.Values, angle)
 			extracted.Times = append(extracted.Times, time)
-			extracted.UUID = types.GenerateUUID(uri, []byte(name))
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"angle"))
 		}
 
 		if !extracted.Empty() {
 			if err := add(extracted); err != nil {
+				fmt.Println(err)
 				return err
 			}
+		}
+
+		extracted = types.ExtractedTimeseries{}
+		extracted.Tags = map[string]string{
+			"station_name": msg.C37DataFrame.StationName,
+			"id_code":      fmt.Sprintf("%d", msg.C37DataFrame.IdCode),
 		}
 
 		// handle magnitudes
 		for _, phasor := range phasor_channel.Data {
 			extracted.Tags["unit"] = phasor_channel.Unit
 			extracted.Tags["channel_name"] = phasor_channel.ChannelName
-			name := fmt.Sprintf("phasor/%s/%s/%s/magnitude", extracted.Tags["station_name"], extracted.Tags["id_code"], extracted.Tags["channel_name"])
-			extracted.Tags["name"] = name
+			extracted.Collection = fmt.Sprintf("xbos/%s/%s/%s/%s", uri.Resource, extracted.Tags["station_name"], extracted.Tags["id_code"], extracted.Tags["channel_name"])
+			extracted.Tags["name"] = "magnitude"
 
 			time := phasor.Time
 			magnitude := phasor.Magnitude
 			extracted.Values = append(extracted.Values, magnitude)
 			extracted.Times = append(extracted.Times, time)
-			extracted.UUID = types.GenerateUUID(uri, []byte(name))
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"magnitude"))
 		}
 
 		if !extracted.Empty() {
 			if err := add(extracted); err != nil {
+				fmt.Println(err)
 				return err
 			}
 		}
