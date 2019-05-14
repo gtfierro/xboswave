@@ -16,6 +16,7 @@ from . import hamilton_pb2 as hamilton__pb2
 from . import iot_pb2 as iot__pb2
 from . import dentmeter_pb2 as dentmeter__pb2
 from . import system_monitor_pb2 as system__monitor__pb2
+from . import parker_pb2 as parker__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -23,9 +24,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='xbospb',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\nxbos.proto\x12\x06xbospb\x1a\x0ehamilton.proto\x1a\tiot.proto\x1a\x0f\x64\x65ntmeter.proto\x1a\x14system_monitor.proto\"\xb2\x03\n\x04XBOS\x12*\n\x0cHamiltonData\x18\x32 \x01(\x0b\x32\x14.xbospb.HamiltonData\x12\x38\n\x13HamiltonBRLinkStats\x18\x33 \x01(\x0b\x32\x1b.xbospb.HamiltonBRLinkStats\x12\x34\n\x11HamiltonBRMessage\x18\x34 \x01(\x0b\x32\x19.xbospb.HamiltonBRMessage\x12\x36\n\x12XBOSIoTDeviceState\x18\x64 \x01(\x0b\x32\x1a.xbospb.XBOSIoTDeviceState\x12>\n\x16XBOSIoTDeviceActuation\x18\x65 \x01(\x0b\x32\x1e.xbospb.XBOSIoTDeviceActuation\x12.\n\x0eXBOSIoTContext\x18\x66 \x01(\x0b\x32\x16.xbospb.XBOSIoTContext\x12/\n\x0e\x44\x65ntMeterState\x18\x96\x01 \x01(\x0b\x32\x16.xbospb.DentMeterState\x12\x35\n\x11\x42\x61sicServerStatus\x18\xc8\x01 \x01(\x0b\x32\x19.xbospb.BasicServerStatusb\x06proto3')
+  serialized_pb=_b('\n\nxbos.proto\x12\x06xbospb\x1a\x0ehamilton.proto\x1a\tiot.proto\x1a\x0f\x64\x65ntmeter.proto\x1a\x14system_monitor.proto\x1a\x0cparker.proto\"\xde\x03\n\x04XBOS\x12*\n\x0cHamiltonData\x18\x32 \x01(\x0b\x32\x14.xbospb.HamiltonData\x12\x38\n\x13HamiltonBRLinkStats\x18\x33 \x01(\x0b\x32\x1b.xbospb.HamiltonBRLinkStats\x12\x34\n\x11HamiltonBRMessage\x18\x34 \x01(\x0b\x32\x19.xbospb.HamiltonBRMessage\x12\x36\n\x12XBOSIoTDeviceState\x18\x64 \x01(\x0b\x32\x1a.xbospb.XBOSIoTDeviceState\x12>\n\x16XBOSIoTDeviceActuation\x18\x65 \x01(\x0b\x32\x1e.xbospb.XBOSIoTDeviceActuation\x12.\n\x0eXBOSIoTContext\x18\x66 \x01(\x0b\x32\x16.xbospb.XBOSIoTContext\x12/\n\x0e\x44\x65ntMeterState\x18\x96\x01 \x01(\x0b\x32\x16.xbospb.DentMeterState\x12*\n\x0cparker_state\x18\x97\x01 \x01(\x0b\x32\x13.xbospb.ParkerState\x12\x35\n\x11\x42\x61sicServerStatus\x18\xc8\x01 \x01(\x0b\x32\x19.xbospb.BasicServerStatusb\x06proto3')
   ,
-  dependencies=[hamilton__pb2.DESCRIPTOR,iot__pb2.DESCRIPTOR,dentmeter__pb2.DESCRIPTOR,system__monitor__pb2.DESCRIPTOR,])
+  dependencies=[hamilton__pb2.DESCRIPTOR,iot__pb2.DESCRIPTOR,dentmeter__pb2.DESCRIPTOR,system__monitor__pb2.DESCRIPTOR,parker__pb2.DESCRIPTOR,])
 
 
 
@@ -87,7 +88,14 @@ _XBOS = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='BasicServerStatus', full_name='xbospb.XBOS.BasicServerStatus', index=7,
+      name='parker_state', full_name='xbospb.XBOS.parker_state', index=7,
+      number=151, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='BasicServerStatus', full_name='xbospb.XBOS.BasicServerStatus', index=8,
       number=200, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -105,8 +113,8 @@ _XBOS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=89,
-  serialized_end=523,
+  serialized_start=103,
+  serialized_end=581,
 )
 
 _XBOS.fields_by_name['HamiltonData'].message_type = hamilton__pb2._HAMILTONDATA
@@ -116,6 +124,7 @@ _XBOS.fields_by_name['XBOSIoTDeviceState'].message_type = iot__pb2._XBOSIOTDEVIC
 _XBOS.fields_by_name['XBOSIoTDeviceActuation'].message_type = iot__pb2._XBOSIOTDEVICEACTUATION
 _XBOS.fields_by_name['XBOSIoTContext'].message_type = iot__pb2._XBOSIOTCONTEXT
 _XBOS.fields_by_name['DentMeterState'].message_type = dentmeter__pb2._DENTMETERSTATE
+_XBOS.fields_by_name['parker_state'].message_type = parker__pb2._PARKERSTATE
 _XBOS.fields_by_name['BasicServerStatus'].message_type = system__monitor__pb2._BASICSERVERSTATUS
 DESCRIPTOR.message_types_by_name['XBOS'] = _XBOS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
