@@ -10,3 +10,15 @@ ansible/*.retry
 
 # ingester shared objects
 *.so
+
+# container binaries
+containers/ingester/ingester
+containers/waved/waved
+containers/wavemq/wavemq
+
+# demo setup
+*.db
+*.sqlite3
+_hod_
+demo-setup/influxdata
+demo-setup/k3s
