@@ -1,4 +1,3 @@
-GOPATH = /home/gabe/go
 PLUGINS=$(wildcard plugins/*.go)
 
 .PHONY: proto

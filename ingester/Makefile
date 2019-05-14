@@ -1,4 +1,3 @@
-GOPATH = /home/gabe/go
 PLUGINSRC=$(wildcard plugins/*.go)
 PLUGINCOMP=$(PLUGINSRC:.go=.so)
 
