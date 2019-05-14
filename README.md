@@ -1,5 +1,7 @@
 # XBOS(2) 
 
+[![Build Status](https://travis-ci.org/gtfierro/xboswave.svg?branch=master)](https://travis-ci.org/gtfierro/xboswave)
+
 ## Looking for a Quick Start?
 
 Take a gander at the [demo installation](https://github.com/gtfierro/xboswave/tree/master/demo-setup)
