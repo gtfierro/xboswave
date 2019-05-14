@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+// from https://github.com/PingThingsIO/c37-wavemq-adapter
+package xbospb;
+
+message C37DataFrame {
+  string stationName = 1;
+  uint32 idCode = 2;
+  repeated PhasorChannel phasorChannels = 3;
+  repeated ScalarChannel scalarChannels = 4;
+}
+message PhasorChannel {
+  string channelName = 1;
+  string unit = 2;
+  repeated Phasor data = 3;
+}
+message Phasor {
+  int64 time = 1;
+  double angle = 2;
+  double magnitude = 3;
+}
+message ScalarChannel {
+  string channelName = 1;
+  string unit = 2;
+  repeated Scalar data = 3;
+}
+message Scalar {
+  int64 time = 1;
+  double value = 2;
+}
