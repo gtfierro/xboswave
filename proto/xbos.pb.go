@@ -37,7 +37,7 @@ type XBOS struct {
 	XBOSIoTDeviceState     *XBOSIoTDeviceState     `protobuf:"bytes,100,opt,name=XBOSIoTDeviceState,proto3" json:"XBOSIoTDeviceState,omitempty"`
 	XBOSIoTDeviceActuation *XBOSIoTDeviceActuation `protobuf:"bytes,101,opt,name=XBOSIoTDeviceActuation,proto3" json:"XBOSIoTDeviceActuation,omitempty"`
 	XBOSIoTContext         *XBOSIoTContext         `protobuf:"bytes,102,opt,name=XBOSIoTContext,proto3" json:"XBOSIoTContext,omitempty"`
-	//Specialized Device Fields
+	//Vendor-specific Device Fields
 	DentMeterState *DentMeterState `protobuf:"bytes,150,opt,name=DentMeterState,proto3" json:"DentMeterState,omitempty"`
 	ParkerState    *ParkerState    `protobuf:"bytes,151,opt,name=parker_state,json=parkerState,proto3" json:"parker_state,omitempty"`
 	//System Status Fields
