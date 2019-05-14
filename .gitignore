@@ -9,15 +9,12 @@ ansible/*.retry
 *.pyc
 
 # ingester shared objects
-ingester/plugins/*.so
+*.so
 
 # container binaries
 containers/ingester/ingester
 containers/waved/waved
 containers/wavemq/wavemq
-
-# container plugins
-*.so
 
 # demo setup
 *.db
