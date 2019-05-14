@@ -21,7 +21,6 @@ script:
   - bin/protoc --version
   - popd
   - make proto
-  - make py-proto
   - pushd ingester/
   - make build
   - popd
