@@ -9,4 +9,4 @@ ansible/*.retry
 *.pyc
 
 # ingester shared objects
-ingester/plugins/*.so
+*.so
