@@ -71,6 +71,8 @@ func StartProtocolAdapter(cfg *ProtocolAdapterConfig) {
 }
 
 const BatchSize = 120
+const Proportion = .1 // 10% of readings
+var _batchstep = int(Proportion * BatchSize)
 
 func makeDownstreams(entity []byte, namespace []byte, client mqpb.WAVEMQClient, outputs []ProtocolAdapterOutput) []chan *DataFrame {
 	perspective := &mqpb.Perspective{
@@ -111,7 +113,7 @@ func makeDownstreams(entity []byte, namespace []byte, client mqpb.WAVEMQClient, 
 							} else {
 								ch.Unit = "Amp"
 							}
-							for i := 0; i < len(batch); i++ {
+							for i := 0; i < len(batch); i += _batchstep {
 								ch.Data = append(ch.Data, &xbospb.Phasor{
 									Time:      batch[i].UTCUnixNanos,
 									Angle:     batch[i].Data[0].PHASOR_ANG[pi],
@@ -127,7 +129,7 @@ func makeDownstreams(entity []byte, namespace []byte, client mqpb.WAVEMQClient, 
 								ChannelName: an,
 								Unit:        "Analog",
 							}
-							for i := 0; i < len(batch); i++ {
+							for i := 0; i < len(batch); i += _batchstep {
 								ch.Data = append(ch.Data, &xbospb.Scalar{
 									Time:  batch[i].UTCUnixNanos,
 									Value: batch[i].Data[0].ANALOG[ai],
@@ -142,7 +144,7 @@ func makeDownstreams(entity []byte, namespace []byte, client mqpb.WAVEMQClient, 
 								ChannelName: dn,
 								Unit:        "Digital",
 							}
-							for i := 0; i < len(batch); i++ {
+							for i := 0; i < len(batch); i += _batchstep {
 								ch.Data = append(ch.Data, &xbospb.Scalar{
 									Time:  batch[i].UTCUnixNanos,
 									Value: float64(batch[i].Data[0].DIGITAL[di]),
@@ -156,7 +158,7 @@ func makeDownstreams(entity []byte, namespace []byte, client mqpb.WAVEMQClient, 
 							ChannelName: "FREQ",
 							Unit:        "Hz",
 						}
-						for i := 0; i < len(batch); i++ {
+						for i := 0; i < len(batch); i += _batchstep {
 							ch.Data = append(ch.Data, &xbospb.Scalar{
 								Time:  batch[i].UTCUnixNanos,
 								Value: batch[i].Data[0].FREQ,
@@ -169,7 +171,7 @@ func makeDownstreams(entity []byte, namespace []byte, client mqpb.WAVEMQClient, 
 							ChannelName: "DFREQ",
 							Unit:        "Hz/s",
 						}
-						for i := 0; i < len(batch); i++ {
+						for i := 0; i < len(batch); i += _batchstep {
 							ch.Data = append(ch.Data, &xbospb.Scalar{
 								Time:  batch[i].UTCUnixNanos,
 								Value: batch[i].Data[0].DFREQ,
