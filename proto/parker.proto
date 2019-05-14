@@ -186,4 +186,8 @@ message ParkerState {
 	//sixth real time defrost activation time; only if d8=3
 	//unit: hh:mm
 	Double Hd6 = 78;
+
+    // current UNIX epoch time
+    //unit:ns
+    uint64 time = 79;
 }
