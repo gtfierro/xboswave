@@ -78,7 +78,7 @@ class DarkSkyDriver(Driver):
         msg = xbos_pb2.XBOS(
             XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
                 time = int(time.time()*1e9),
-                weather_current = weather_station_pb2.WeatherStation(
+                weather_station = weather_station_pb2.WeatherStation(
                     nearestStormDistance  =   types.Double(value=nearestStormDistance),
                     nearestStormBearing   =   types.Double(value=nearestStormBearing),
                     precipIntensity        =   types.Double(value=precipIntensity),

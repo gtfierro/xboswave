@@ -9,7 +9,7 @@ import (
 type add_fn func(types.ExtractedTimeseries) error
 
 func has_device(msg xbospb.XBOS) bool {
-	return msg.XBOSIoTDeviceState.WeatherPrediction != nil
+	return msg.XBOSIoTDeviceState.WeatherStationPrediction != nil
 }
 
 // This contains the mapping of each field's value to the unit
@@ -63,7 +63,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			step := 1
 
 			//Iterate through each hour of prediction from current to 48 hours from current
-			for _, _prediction := range msg.XBOSIoTDeviceState.WeatherPrediction.Predictions {
+			for _, _prediction := range msg.XBOSIoTDeviceState.WeatherStationPrediction.Predictions {
 				//This prediction contains all of the fields that were present in WeatherCurrent message
 				//There is one for each hour that is retrieved from the DarkSky API
 				prediction := _prediction.Prediction
