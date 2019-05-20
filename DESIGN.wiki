@@ -24,7 +24,7 @@ The endpoint/location of a service is described by:
 - `instance ID`: a human-readable name used to distinguish multiple services
 - `signal`/`slot`
 - a `method` name
--
+
 This incorporates elements of both GRPC URL structure and BW2-style service+interface.
 
 | XBOS | BW2 | GRPC |
@@ -39,10 +39,9 @@ This incorporates elements of both GRPC URL structure and BW2-style service+inte
 Users will call + refer to services, drivers etc using this structure.
 For permissions, this structure will "compile down" into the following WAVE URI structure:
 
-{{{
-Namespace: namespace
-Resource: xbos/<location>/<service>/<instance ID>/<signal/slot>/<method>
-}}}
+    Namespace: namespace
+    Resource: xbos/<location>/<service>/<instance ID>/<signal/slot>/<method>
+
 
 This should make it easier to develop "templates" for more easily determining what permissions are needed to interact with a service/device/etc.
 When client libraries are interacting with these structures, they can determine if they need to dial the IP address to interact over GRPC or if they need to subscribe/publish on WAVEMQ.
