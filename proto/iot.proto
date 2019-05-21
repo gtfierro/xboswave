@@ -8,6 +8,7 @@ syntax = "proto3";
 package xbospb;
 
 import "nullabletypes.proto";
+import "weather_station.proto";
 
 message URI {
     string namespace = 1;
@@ -226,30 +227,4 @@ message EVSE {
     // charge state of the EVSE
     // unit: on/off
     Bool state = 5;
-}
-
-message WeatherStation {
-    // unit: celsius
-    Double temperature = 1;
-    // unit: unknown
-    Double humidity = 2;
-    // unit: km
-    Double nearest_storm_distance = 3;
-    // unit: degrees
-    Int32 nearest_storm_bearing = 4;
-    // precip intensity
-    // unit: unknown
-    Double precip_intensity = 5;
-}
-
-message WeatherStationPrediction {
-    // time of the prediction (leave empty
-    // unit: ns
-
-    message Prediction {
-        uint64 prediction_time = 1;
-        WeatherStation prediction = 2;
-    }
-
-    repeated Prediction predictions = 1;
 }

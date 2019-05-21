@@ -9,7 +9,16 @@ ansible/*.retry
 *.pyc
 
 # ingester shared objects
-ingester/plugins/*.so
+*.so
 
-# mac files
-*.DS_Store
+# container binaries
+containers/ingester/ingester
+containers/waved/waved
+containers/wavemq/wavemq
+
+# demo setup
+*.db
+*.sqlite3
+_hod_
+demo-setup/influxdata
+demo-setup/k3s

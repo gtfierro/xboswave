@@ -1,4 +1,5 @@
 from pyxbos.driver import *
+from pyxbos import weather_station_pb2
 import os,sys
 import json
 import requests
@@ -14,12 +15,13 @@ class DarkSkyPredictionDriver(Driver):
         self.url = self.baseurl + self.apikey + '/' + self.coords
 
     def read(self, requestid=None):
+        print("In prediction driver")
         response = requests.get(self.url)
         json_data = json.loads(response.text)
         if 'hourly' not in json_data: return
 
         hourly = json_data['hourly']
-
+        #print(json_data)
         predictions = []
 
         for hour in hourly.get('data',[]):
@@ -31,11 +33,11 @@ class DarkSkyPredictionDriver(Driver):
             if humidity is not None:
                 humidity *= 100 # change from decimal to percent
 
-            predictions.append(iot_pb2.WeatherStationPrediction.Prediction(
+            predictions.append(weather_station_pb2.WeatherStationPrediction.Prediction(
                 prediction_time=timestamp,
-                prediction=iot_pb2.WeatherStation(
+                prediction=weather_station_pb2.WeatherStation(
                     temperature=types.Double(value=temperature),
-                    precip_intensity=types.Double(value=precipIntensity),
+                    precipIntensity=types.Double(value=precipIntensity),
                     humidity=types.Double(value=humidity),
                 )
             ))
@@ -43,13 +45,13 @@ class DarkSkyPredictionDriver(Driver):
         msg = xbos_pb2.XBOS(
             XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
                 time = int(time.time()*1e9),
-                weather_station_prediction = iot_pb2.WeatherStationPrediction(
+                weather_prediction = weather_station_pb2.WeatherStationPrediction(
                     predictions=predictions
                 )
             )
         )
         self.report(self.coords+'/prediction', msg)
-        
+
 class DarkSkyDriver(Driver):
     def setup(self, cfg):
         self.baseurl = cfg['darksky']['url']
@@ -58,6 +60,7 @@ class DarkSkyDriver(Driver):
         self.url = self.baseurl + self.apikey + '/' + self.coords
 
     def read(self, requestid=None):
+        print("In current driver")
         response = requests.get(self.url)
         json_data = json.loads(response.text)
         if 'currently' not in json_data: return
@@ -68,16 +71,17 @@ class DarkSkyDriver(Driver):
         precipIntensity =       json_data['currently'].get('precipIntensity',None)
         apparentTemperature =   json_data['currently'].get('apparentTemperature',None)
         humidity =              json_data['currently'].get('humidity',None)
+        #print(json_data['currently'])
         if humidity is not None:
             humidity *= 100 # change from decimal to percent
 
         msg = xbos_pb2.XBOS(
             XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
                 time = int(time.time()*1e9),
-                weather_station = iot_pb2.WeatherStation(
-                    nearest_storm_distance  =   types.Double(value=nearestStormDistance),
-                    nearest_storm_bearing   =   types.Int32(value=nearestStormBearing),
-                    precip_intensity        =   types.Double(value=precipIntensity),
+                weather_station = weather_station_pb2.WeatherStation(
+                    nearestStormDistance  =   types.Double(value=nearestStormDistance),
+                    nearestStormBearing   =   types.Double(value=nearestStormBearing),
+                    precipIntensity        =   types.Double(value=precipIntensity),
                     temperature             =   types.Double(value=apparentTemperature),
                     humidity                =   types.Double(value=humidity),
                 )
@@ -87,21 +91,28 @@ class DarkSkyDriver(Driver):
 
 
 if __name__ == '__main__':
+    with open('dark_sky.yaml') as f:
+        # use safe_load instead load for security reasons
+        driverConfig = yaml.safe_load(f)
+
+    namespace = driverConfig['wavemq']['namespace']
+    api = driverConfig['dark_sky']['api']
     cfg = {
         'darksky': {
-            'apikey': 'api key here',
+            'apikey': api,
             'url': 'https://api.darksky.net/forecast/',
             'coordinates': '40.5301,-124.0000' # Should be near BLR
         },
         'wavemq': 'localhost:4516',
-        'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
-        'base_resource': 'test/darksky',
-        'entity': 'gabedarksky.ent',
+        'namespace': namespace,
+        'base_resource': 'dark_sky',
+        'entity': 'dark_sky.ent',
         'id': 'pyxbos-driver-darksky-1',
         #'rate': 1800, # half hour
-        'rate': 900, # 15 min
+        'rate': 20, # 15 min
     }
     logging.basicConfig(level="INFO", format='%(asctime)s - %(name)s - %(message)s')
-    #e = DarkSkyDriver(cfg)
-    e = DarkSkyPredictionDriver(cfg)
-    e.begin()
+    current_driver = DarkSkyDriver(cfg)
+    prediction_driver = DarkSkyPredictionDriver(cfg)
+    current_driver.begin()
+    prediction_driver.begin()

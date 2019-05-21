@@ -1,4 +1,3 @@
-GOPATH = /home/gabe/go
 PLUGINS=$(wildcard plugins/*.go)
 
 .PHONY: proto
@@ -14,7 +13,7 @@ proto-py: wavemq/mqpb/wavemq.proto
 	cd python/pyxbos; \
 	poetry run python3 -m grpc_tools.protoc -Ipyxbos/wavemq -I../../proto/googleapis --python_out=pyxbos --grpc_python_out=pyxbos pyxbos/wavemq/*.proto; \
 	poetry run python3 -m grpc_tools.protoc -Ipyxbos/wave -I../../proto/googleapis --python_out=pyxbos/wave --grpc_python_out=pyxbos/wave pyxbos/wave/*.proto; \
-	poetry run python3 -m grpc_tools.protoc -I../../proto -I../../proto/googleapis --python_out=pyxbos ../../proto/*.proto; \
+	poetry run python3 -m grpc_tools.protoc -I../../proto -I../../proto/googleapis --python_out=pyxbos --grpc_python_out=pyxbos ../../proto/*.proto; \
 	sed -i -e 's/^import \(.*_pb2\)/from . import \1/g' pyxbos/*pb2*.py; \
 	sed -i -e 's/^import \(.*_pb2\)/from . import \1/g' pyxbos/wave/*pb2*.py
 

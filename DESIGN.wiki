@@ -1,0 +1,171 @@
+== IDL ==
+
+All messages sent/received by XBOS procs are described + serialized using Protocol Buffers
+
+- the `.proto` files will be distributed as part of each XBOS release:
+    - TODO: should look into enabling GRPC reflection on servers
+- Protocol buffers allow for graceful extension and backwards compatibility
+- `xbos.proto` defines the top level message wrapper
+- Some `proto` definitions have additional meanings:
+    - all device messages in `XBOSIoTDeviceState` should correspond to Brick Equipment classes
+    - all fields in device messages should correspond to Brick Point classes
+    - TODO: achieve this through options/annotations?
+
+== Communication ==
+
+XBOS services make use of both publish-subscribe and request-response communication models.
+These models are implemented using WAVEMQ and GRPC, but will be described using a transport-agnostic scheme.
+
+The endpoint/location of a service is described by:
+
+- a `location` (IP address or WAVEMQ URI)
+- a `namespace` (root of authority)
+- a `service` (pkg name + service name)
+- `instance ID`: a human-readable name used to distinguish multiple services
+- `signal`/`slot`
+- a `method` name
+
+This incorporates elements of both GRPC URL structure and BW2-style service+interface.
+
+| XBOS | BW2 | GRPC |
+| --- | --- | --- |
+| `location` -- possibly remove this? | namespace + base URI | n/a |
+| `namespace` | namespace | n/a |
+| `service` | `s.servicename` | pkg name + service name |
+| `instance ID` | `instance id` | n/a |
+| `signal` / `slot` | `signal` / `slot` | call method / respond |
+| `method` | `signal`/`slot` name | method name |
+
+Users will call + refer to services, drivers etc using this structure.
+For permissions, this structure will "compile down" into the following WAVE URI structure:
+
+    Namespace: namespace
+    Resource: xbos/<location>/<service>/<instance ID>/<signal/slot>/<method>
+
+
+This should make it easier to develop "templates" for more easily determining what permissions are needed to interact with a service/device/etc.
+When client libraries are interacting with these structures, they can determine if they need to dial the IP address to interact over GRPC or if they need to subscribe/publish on WAVEMQ.
+
+== Context ==
+
+- cyberphysical resources represented in XBOS should be incorporated into a Brick model:
+    - devices and services can formulate a minimal Brick description of themselves:
+        - the device is an instance of `brick:Equipment`
+        - the fields it exposes are instances of `brick:Point`
+        - fields are related to the device via the `hasPoint` relationship
+        - *it is not immediately obvious if there are any other relationships we need to be able to capture here*
+    - this Brick description should be published/announced by the process representing the cyberphysical resources (the driver)
+- this contextual information can be consumed by databases listening to XBOS:
+    - these databases/services should reconcile this information with their existing models
+    - combine this context info with other sources?
+
+== Drivers ==
+
+Because drivers interact with XBOS via GRPC bindings, drivers can be implemented in any language.
+Drivers should adhere to the design principles here, where possible and appropriate.
+We will implement frameworks that facilitate driver development.
+
+=== Reporting ===
+
+A *Driver* is a persistent process providing a read/write interface to one or more physical devices, *typically* over a publish-subscribe interface.
+The current state of a device is usually published at a regular interval; for some devices, it may make more sense
+to publish opportunistically such as when a new reading is available.
+Drivers also publish device state in response to actuation/command messages (see below).
+
+A device's state is published as a message as defined in one of the XBOS `proto` files.
+For example, this is the message defining the standard fields for an electrical meter
+
+{{{proto
+message Meter {
+    //unit: kW
+    Double power = 1;
+    //unit: V
+    Double voltage = 2;
+    //unit: kVA
+    Double apparent_power = 3;
+    //unit: KWh
+    Double energy = 4;
+}
+}}}
+
+The types of the fields (`Double` and so on) are "nullable"; if a device does not expose a field, the driver
+simply omits that field from the messages that it publishes.
+
+Device messages are wrapped in the `XBOSIoTDeviceState` message (which is wrapped in the top-level `XBOS`
+message), which defines several fields necessary for the operation of the driver.
+
+{{{proto
+message XBOSIoTDeviceState {
+    // current time at device/service
+    //unit:ns
+    uint64 time = 1;
+    // unique identifier for this request; used to line up with device state requests
+    uint64 requestid = 2;
+    // any error that occured since the last device report. If requestid above is non-zero,
+    // then this error corresponds to the request with the given requestid
+    Error error = 3;
+
+    // XBOS IoT devices
+    Thermostat thermostat = 4;
+    Meter meter = 5;
+    Light light = 6;
+    EVSE evse = 7;
+    WeatherStation weather_station = 8;
+    WeatherStationPrediction weather_station_prediction = 9;
+}
+}}}
+
+Every `XBOSIoTDeviceState` message has a timestamp `time` defined in nanoseconds since the Unix epoch.
+The `error` field reports any errors that have occurred.
+
+=== Actuation ===
+
+Drivers can receive actuation messages indicating what state they should send to the devices they represent.
+An actuation message is very similar to a reporting message. The top-level `XBOS` message wraps a `XBOSIoTDeviceActuation` message, which in turn wraps the device messages.
+
+{{{proto
+message XBOSIoTDeviceActuation {
+    // current time at device/service
+    //unit:ns
+    uint64 time = 1;
+    // unique identifier for this request; used to line up with device state responses
+    uint64 requestid = 2;
+
+    // XBOS IoT devices
+    Thermostat thermostat = 3;
+    Meter meter = 4;
+    Light light = 5;
+    EVSE evse = 6;
+}
+}}}
+
+*Each* actuation message has both the time the actuation was sent and a request ID. A request ID is a sender-specific nonce that, together with the identity of the sender,
+uniquely identifies an actuation message. The request ID is included in the reporting messages to allow the association of a reporting message with the actuation message that
+"caused" it.
+
+Recall that drivers send reporting messages in response to an actuation message. The reporting message can either contain the state of the device after a successful
+actuation, or it may include an error message revealing why the actuation failed.
+
+These "response" messages should be sent as soon as possible after the actuation message is received and processed.
+
+=== Network Representation ===
+
+How do drivers represent themselves on the XBOS network?
+
+== Local Daemon ==
+
+Single binary that provides most of the functionality needed for the local network:
+
+- embedded `wave` API
+- embedded `wavemq` API
+- GRPC proxy that provides WAVE auth
+- allows libraries to use *both* WAVE and WAVEMQ without running into protobuf import issues
+- the API presented here should probably understand the agnostic scheme described in the table above
+
+Additional methods on the binary:
+
+- `xbos cmd`: runs a script with the proper environment variables set
+- `xbos daemon`: manages persistent services
+- `xbos update`: updates services, etc
+- `xbos att`: high level interface for managing attestations
+- maybe a self-hosted web interface?

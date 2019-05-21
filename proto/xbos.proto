@@ -20,6 +20,12 @@ import "dentmeter.proto";
 // System monitors
 import "system_monitor.proto";
 
+// parker refrigerator
+import "parker.proto";
+
+// c37 + other energise-related
+import "c37.proto";
+
 // Root union type
 // We reserve 50 fields per imported file
 message XBOS {
@@ -34,9 +40,13 @@ message XBOS {
   XBOSIoTDeviceActuation XBOSIoTDeviceActuation = 101;
   XBOSIoTContext XBOSIoTContext = 102;
 
-  //Dent Fields
+  //Vendor-specific Device Fields
   DentMeterState DentMeterState = 150;
+  ParkerState parker_state = 151;
 
   //System Status Fields
   BasicServerStatus BasicServerStatus = 200;
+
+  //External Protocols
+  C37DataFrame C37DataFrame = 250;
 }

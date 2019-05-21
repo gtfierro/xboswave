@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyxbos"
-version = "0.2.0"
+version = "0.2.4-alpha3"
 description = "Python bindings for XBOS-flavored WAVEMQ and related services"
 authors = ["Gabe Fierro <gtfierro@cs.berkeley.edu>"]
 
@@ -11,6 +11,7 @@ googleapis-common-protos = "^1.5"
 grpcio-tools = "^1.18"
 #pandas = "^0.23.4"
 
+tlslite-ng = "^0.7.5"
 [tool.poetry.dev-dependencies]
 phue = "^1.1"
 psutil = "^5.5"

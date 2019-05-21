@@ -22,6 +22,7 @@ import pyxbos.wave.eapi_pb2_grpc as eapi_pb2_grpc
 #from pyxbos.wavemq_pb2 import *
 #from pyxbos.wavemq_pb2_grpc import *
 from pyxbos.grpcserver_pb2 import *
+from pyxbos.exceptions import *
 import asyncio
 
 XBOS_PERMSET = base64.urlsafe_b64decode("GyC5wUUGKON6uC4gxuH6TpzU9vvuKHGeJa1jUr4G-j_NbA==")
@@ -59,8 +60,8 @@ class WAVEGRPCClient:
         ))
 
         # setup server
-        server_thread = threading.Thread(target=self.get_client_connection)
-        server_thread.start()
+        self._server_thread = threading.Thread(target=self.get_client_connection, daemon=True)
+        self._server_thread.start()
 
     def setup_connection(self):
         hdr = self.generate_peer_header()
@@ -103,13 +104,9 @@ class WAVEGRPCClient:
             # reconnect to the GRPC server on each call
             self.setup_connection()
 
-            # print out the local connection information
-            print("new client call")
-
             # start a thread to talk to the remote host
             proxy_thread = threading.Thread(target=self.handle_client,
-                                            args=(client_socket,))
-
+                                            args=(client_socket,), daemon=True)
             proxy_thread.start()
 
     def handle_client(self, client_socket):

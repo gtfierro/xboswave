@@ -1,12 +1,12 @@
-GOPATH = /home/gabe/go
 PLUGINSRC=$(wildcard plugins/*.go)
 PLUGINCOMP=$(PLUGINSRC:.go=.so)
+
+# this is a bit of a hack to make sure we always recompile the plugins
+FORCE: ;
 
 plugins/%.so: plugins/%.go FORCE
 	go build -buildmode=plugin -o $@ $<
 
-# this is a bit of a hack to make sure we always recompile the plugins
-FORCE:
 build: $(PLUGINCOMP) FORCE
 	go build
 
