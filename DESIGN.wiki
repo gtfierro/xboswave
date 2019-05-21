@@ -59,6 +59,49 @@ When client libraries are interacting with these structures, they can determine 
     - these databases/services should reconcile this information with their existing models
     - combine this context info with other sources?
 
+=== Implementation ===
+
+The `godriver` branch contains a prototype that uses Protobuf message extensions to define message-level and field-level options
+for devices + fields in `iot.proto` that associate a message or field with the corresponding Brick class.
+With some reflection magic, we can pull the Brick classes out of an arbitrary `XBOSIoTDeviceState` message.
+
+Two implementation details:
+
+Firstly, the reflection magic only works one-level deep. See the following:
+
+{{{proto
+message XBOSIoTDeviceState {
+    // ... snip ...
+
+    // XBOS IoT devices
+    Thermostat thermostat = 4;
+    Meter meter = 5;
+    Light light = 6;
+    EVSE evse = 7;
+    WeatherStation weather_station = 8;
+    WeatherStationPrediction weather_station_prediction = 9;
+}
+
+// Thermostat
+message Thermostat {
+    option (brick_equip_class).namespace = 'brick';
+    option (brick_equip_class).value = 'Thermostat';
+
+    //Current temperature recorded by thermostat
+    //unit:celsius
+    Double temperature = 1 [(brick_point_class).namespace='brick', (brick_point_class).value='Temperature_Sensor'] ;
+    //unit:% rh
+    Double relative_humidity = 2 [(brick_point_class).namespace='brick', (brick_point_class).value='Humidity_Sensor'];
+    
+    // ... snip ...
+}
+}}}
+    
+If the Thermostat contained nested messages, the magick would not find that.
+
+Secondly, the *driver* is the one doing the reflection and publishing it in an `XBOSIoTContext` message.
+A different design point we may want to consider is if an external service performs this reflection into a Brick model on messages published by the drivers.
+
 == Drivers ==
 
 Because drivers interact with XBOS via GRPC bindings, drivers can be implemented in any language.
@@ -151,6 +194,23 @@ These "response" messages should be sent as soon as possible after the actuation
 === Network Representation ===
 
 How do drivers represent themselves on the XBOS network?
+
+=== Liveness ===
+
+- extra service that determines liveness?
+- context messages are persisted and determine liveness?
+- how are different failure modes reflected?:
+    - site router goes down
+    - driver crashes
+    - driver loses connection to device
+    - driver changes the fields/devices it publishes
+
+== "Manta" for Data ==
+
+Data ownership is key:
+
+- if you want to work with data or local resources, you can spin up a remote container on the machine.
+- this allows the local server to control data exfiltration
 
 == Local Daemon ==
 
