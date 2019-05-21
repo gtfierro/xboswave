@@ -42,6 +42,21 @@ enum HVACState {
     HVACStateCoolStage2 = 4;
 }
 
+enum DemandResponseEventStatus {
+    DemandResponseEventStatusNotConfigured = 0;
+    DemandResponseEventStatusUnusable =  1;
+    DemandResponseEventStatusInactive = 2;
+    DemandResponseEventStatusActive = 3;
+}
+
+enum DemandResponseEventType {
+    DemandResponseEventTypeNoEvent = 0;
+    DemandResponseEventTypeNormal = 1;
+    DemandResponseEventTypeModerate = 2;
+    DemandResponseEventTypeHigh = 3;
+    DemandResponseEventTypeSpecial = 4;
+}
+
 message XBOSIoTDeviceState {
     // current time at device/service
     //unit:ns
@@ -143,6 +158,24 @@ message ThermostatScheduleBlock {
     //Time when schedule block takes effect
     //format: RRule
     string time = 4;
+}
+
+message DemandResponseEvent {
+    //End of History Date Range
+    //unit: seconds
+    Int64 event_end = 1;
+    //Start of History Date Range
+    //unit: seconds
+    Int64 event_start = 2;
+    //Current event type of DR Event
+    //unit: xbos/iot/DemandResponseEventType
+    DemandResponseEventType event_type = 3;
+    //Current system status of DR event
+    //unit: xbos/iot/DemandResponseEventStatus
+    DemandResponseEventStatus dr_status = 4;
+    //Time when event takes effect
+    //unit: seconds
+    Int64 time = 5;
 }
 
 message Meter {
