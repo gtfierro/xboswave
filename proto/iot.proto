@@ -184,14 +184,6 @@ message DemandResponseEvent {
     Int64 time = 5;
 }
 
-message ThermostatOccupancy {
-    //Whether Thermostat is Occupied
-    Bool occupancy = 1;
-    //Time when occupancy status was recorded
-    //unit:seconds
-    Int64 time = 2;
-}
-
 message Meter {
     // unit: kW
     Double power = 1;
