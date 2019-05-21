@@ -40,6 +40,7 @@ type Driver struct {
 	ctx          context.Context
 	brickContext map[Triple]time.Time
 	namespace    []byte
+	namespaceStr string
 	perspective  *mqpb.Perspective
 	client       mqpb.WAVEMQClient
 
@@ -66,6 +67,7 @@ func NewDriver(cfg Config) (*Driver, error) {
 			},
 		},
 		namespace:    namespace,
+		namespaceStr: cfg.Namespace,
 		brickContext: make(map[Triple]time.Time),
 	}
 
@@ -80,7 +82,7 @@ func NewDriver(cfg Config) (*Driver, error) {
 	return driver, nil
 }
 
-func (driver *Driver) addToContext(msg *xbospb.XBOSIoTDeviceState) {
+func (driver *Driver) addToContext(instance string, msg *xbospb.XBOSIoTDeviceState) {
 
 	dyn, err := dynamic.AsDynamicMessage(msg)
 	if err != nil {
@@ -90,6 +92,7 @@ func (driver *Driver) addToContext(msg *xbospb.XBOSIoTDeviceState) {
 	var triples []Triple
 	for _, field := range dyn.GetKnownFields() {
 		if isNilReflect(dyn.GetField(field)) {
+			continue
 		}
 		asmsg := field.GetMessageType()
 		if asmsg == nil {
@@ -103,6 +106,12 @@ func (driver *Driver) addToContext(msg *xbospb.XBOSIoTDeviceState) {
 		} else {
 			continue
 		}
+
+		triples = append(triples, Triple{
+			Subject:   URI{Namespace: driver.namespaceStr, Value: instance},
+			Predicate: URI{Namespace: "rdf", Value: "type"},
+			Object:    URI{Namespace: equipURI.Namespace, Value: equipURI.Value},
+		})
 
 		value := dyn.GetField(field)
 		t, e := dynamic.AsDynamicMessage(value.(proto.Message))
@@ -122,9 +131,13 @@ func (driver *Driver) addToContext(msg *xbospb.XBOSIoTDeviceState) {
 
 				//TODO: fix this so that it actually creates instances
 				triples = append(triples, Triple{
-					Subject:   URI{Namespace: equipURI.Namespace, Value: equipURI.Value},
-					Predicate: URI{Namespace: "brickframe", Value: "hasPoint"},
+					Subject:   URI{Namespace: driver.namespaceStr, Value: fmt.Sprintf("%s%s", instance, field.GetJSONName())},
+					Predicate: URI{Namespace: "rdf", Value: "type"},
 					Object:    URI{Namespace: uri.Namespace, Value: uri.Value},
+				}, Triple{
+					Subject:   URI{Namespace: driver.namespaceStr, Value: instance},
+					Predicate: URI{Namespace: "brickframe", Value: "hasPoint"},
+					Object:    URI{Namespace: driver.namespaceStr, Value: fmt.Sprintf("%s%s", instance, field.GetJSONName())},
 				})
 			}
 		}
@@ -192,7 +205,7 @@ func (driver *Driver) Report(service, instance string, msg *xbospb.XBOSIoTDevice
 		msg.Time = uint64(time.Now().UnixNano())
 	}
 
-	driver.addToContext(msg)
+	driver.addToContext(instance, msg)
 
 	xbosmsg := &xbospb.XBOS{
 		XBOSIoTDeviceState: msg,
