@@ -3,6 +3,7 @@ module github.com/gtfierro/xboswave
 require (
 	bitbucket.org/creachadair/cityhash v0.0.1
 	bou.ke/monkey v1.0.1
+	git.sr.ht/~gabe/hod v0.7.0
 	git.sr.ht/~gabe/mortar v1.0.11
 	github.com/BurntSushi/toml v0.3.1
 	github.com/abiosoft/ishell v2.0.0+incompatible
@@ -12,6 +13,8 @@ require (
 	github.com/btcsuite/btcd v0.0.0-20190427004231-96897255fd17 // indirect
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/cheekybits/is v0.0.0-20150225183255-68e9c0620927 // indirect
+	github.com/chzyer/logex v1.1.10 // indirect
+	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/cloudflare/cfssl v0.0.0-20181213083726-b94e044bb51e
 	github.com/coreos/etcd v3.3.13+incompatible // indirect
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
@@ -39,7 +42,7 @@ require (
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.8.5
+	github.com/grpc-ecosystem/grpc-gateway v1.8.6
 	github.com/gtfierro/go-ipfs-api v1.2.1
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
@@ -80,9 +83,9 @@ require (
 	github.com/robertkrimen/otto v0.0.0-20180617131154-15f95af6e78d // indirect
 	github.com/samkumar/embedded-pairing v0.0.0-20190222231333-af4d4c4b2cb9
 	github.com/samkumar/reqcache v0.0.0-20170216230359-664d78bf3ac1
-	github.com/sirupsen/logrus v1.3.0
+	github.com/sirupsen/logrus v1.4.1
 	github.com/soheilhy/cmux v0.1.4 // indirect
-	github.com/spf13/viper v1.3.1
+	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0
 	github.com/syndtr/goleveldb v1.0.0
 	github.com/tinylib/msgp v1.1.0
@@ -92,8 +95,8 @@ require (
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734
 	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
-	google.golang.org/genproto v0.0.0-20190215211957-bd968387e4aa
-	google.golang.org/grpc v1.19.0
+	google.golang.org/genproto v0.0.0-20190508193815-b515fa19cec8
+	google.golang.org/grpc v1.20.1
 	gopkg.in/btrdb.v4 v4.15.3
 	gopkg.in/ldap.v2 v2.5.1
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
