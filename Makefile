@@ -20,7 +20,10 @@ drivers: $(DRIVERDIRS)
 $(DRIVERDIRS):
 	cd $@ && go build
 
-.PHONY: proto proto-py drivers $(DRIVERDIRS)
+ingester:
+	cd ingester && make build
+
+.PHONY: proto proto-py drivers ingester $(DRIVERDIRS)
 
 
 #venv: python/requirements.txt
