@@ -137,7 +137,7 @@ func (driver *Driver) addToContext(msg *xbospb.XBOSIoTDeviceState) {
 	}
 }
 
-func (driver *Driver) ReportContext() error {
+func (driver *Driver) ReportContext(instance string) error {
 	driver.RLock()
 	defer driver.RUnlock()
 
@@ -169,7 +169,7 @@ func (driver *Driver) ReportContext() error {
 	resp, err := driver.client.Publish(ctx, &mqpb.PublishParams{
 		Perspective: driver.perspective,
 		Namespace:   driver.namespace,
-		Uri:         "context",
+		Uri:         fmt.Sprintf("context/%s/signal/state", instance),
 		Content: []*mqpb.PayloadObject{
 			{Schema: "xbosproto/XBOS", Content: po},
 		},
@@ -186,7 +186,7 @@ func (driver *Driver) ReportContext() error {
 // This is not called automatically. The device driver must choose when to call Report(). This is likely
 // either on a regular timer or in response to the receipt of an actuation message
 // If a time is not provided in msg, Report will add the current timestamp
-func (driver *Driver) Report(resource string, msg *xbospb.XBOSIoTDeviceState) error {
+func (driver *Driver) Report(service, instance string, msg *xbospb.XBOSIoTDeviceState) error {
 	// add the timestamp if it doesn't exist
 	if msg.Time == 0 {
 		msg.Time = uint64(time.Now().UnixNano())
@@ -207,8 +207,9 @@ func (driver *Driver) Report(resource string, msg *xbospb.XBOSIoTDeviceState) er
 
 	resp, err := driver.client.Publish(ctx, &mqpb.PublishParams{
 		Perspective: driver.perspective,
+		Persist:     true,
 		Namespace:   driver.namespace,
-		Uri:         resource,
+		Uri:         fmt.Sprintf("%s/%s/signal/state", service, instance),
 		Content: []*mqpb.PayloadObject{
 			{Schema: "xbosproto/XBOS", Content: po},
 		},
