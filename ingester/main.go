@@ -96,62 +96,7 @@ func main() {
 			DER: perspective,
 		},
 	}
-	//btrdbCfg := &btrdbConfig{
-	//	addresses: []string{"127.0.0.1:4410"},
-	//}
-	//influxCfg := &influxdbConfig{
-	//	address: "http://127.0.0.1:8086",
-	//}
 	ingest := NewIngester(client, persp, *cfg, cfgmgr, ctx)
-
-	//store := NewArchiveRequestStore(client, persp, extract)
-	//req := &ArchiveRequest{
-	//	Schema: "xbosproto/XBOS",
-	//	Plugin: "plugins/hamilton1.so",
-	//	URI: types.SubscriptionURI{
-	//		Namespace: "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==", // XBOS
-	//		Resource:  "*",
-	//	},
-	//}
-	//if err := ingest.addArchiveRequest(req); err != nil {
-	//	logrus.Fatal(err)
-	//}
-
-	//req2 := &ArchiveRequest{
-	//	Schema: "xbosproto/XBOS",
-	//	Plugin: "plugins/iot_plugin.so",
-	//	URI: types.SubscriptionURI{
-	//		Namespace: "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==", // XBOS
-	//		Resource:  "*",
-	//	},
-	//}
-	//if err := ingest.addArchiveRequest(req2); err != nil {
-	//	logrus.Fatal(err)
-	//}
-
-	//req3 := &ArchiveRequest{
-	//	Schema: "xbosproto/XBOS",
-	//	Plugin: "plugins/dent.so",
-	//	URI: types.SubscriptionURI{
-	//		Namespace: "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w==", // cory-hall
-	//		Resource:  "dentmeter/*",
-	//	},
-	//}
-	//if err := ingest.addArchiveRequest(req3); err != nil {
-	//	logrus.Fatal(err)
-	//}
-	//if err := cfgmgr.Add(*req3); err != nil {
-	//	logrus.Fatal(err)
-	//}
-	//x, e := cfgmgr.List(&RequestFilter{
-	//	Schema: &req3.Schema,
-	//})
-	//if e != nil {
-	//	logrus.Fatal(e)
-	//}
-	//for _, xx := range x {
-	//	logrus.Printf("%+v", xx)
-	//}
 
 	<-done
 	logrus.Info(ingest.Finish())
