@@ -50,3 +50,10 @@ message XBOS {
   //External Protocols
   C37DataFrame C37DataFrame = 250;
 }
+
+message Resource {
+    string location = 1;
+    string namespace = 2;
+    string service = 3;
+    string instance = 4;
+}

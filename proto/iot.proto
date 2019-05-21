@@ -9,6 +9,14 @@ package xbospb;
 
 import "nullabletypes.proto";
 import "weather_station.proto";
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.MessageOptions {
+    URI brick_equip_class = 10000;
+}
+extend google.protobuf.FieldOptions {
+    URI brick_point_class = 50000;
+}
 
 message URI {
     string namespace = 1;
@@ -21,25 +29,8 @@ message Triple {
     URI object = 3;
 }
 
-enum FanMode {
-    FanAuto = 0;
-    FanOn = 1;
-    FanOff = 2;
-}
-
-enum HVACMode {
-    HVACModeOff = 0;
-    HVACModeHeatOnly = 1;
-    HVACModeCoolOnly = 2;
-    HVACModeAuto = 3;
-}
-
-enum HVACState {
-    HVACStateOff = 0;
-    HVACStateHeatStage1 = 1;
-    HVACStateCoolStage1 = 2;
-    HVACStateHeatStage2 = 3;
-    HVACStateCoolStage2 = 4;
+message Error {
+    string msg = 1;
 }
 
 message XBOSIoTDeviceState {
@@ -50,7 +41,7 @@ message XBOSIoTDeviceState {
     int64 requestid = 2;
     // any error that occured since the last device report. If requestid above is non-zero,
     // then this error corresponds to the request with the given requestid
-    string error = 3;
+    Error error = 3;
 
     // XBOS IoT devices
     Thermostat thermostat = 4;
@@ -88,20 +79,23 @@ message XBOSIoTContext {
 
 // Thermostat
 message Thermostat {
+    option (brick_equip_class).namespace = 'brick';
+    option (brick_equip_class).value = 'Thermostat';
+
     //Current temperature recorded by thermostat
     //unit:celsius
-    Double temperature = 1;
+    Double temperature = 1 [(brick_point_class).namespace='brick', (brick_point_class).value='Temperature_Sensor'] ;
     //unit:% rh
-    Double relative_humidity = 2;
+    Double relative_humidity = 2 [(brick_point_class).namespace='brick', (brick_point_class).value='Humidity_Sensor'];
     //If true, then the thermostat is in override mode
     //unit: t/f
     Bool override = 3;
     //If true, the fan is on; else it is off
     //unit: t/f
-    Bool fan_state = 4;
+    Bool fan_state = 4 [(brick_point_class).namespace='brick', (brick_point_class).value='Fan_Status'];
     //Current operating mode of the fan
     //unit: xbos/iot/FanMode
-    FanMode fan_mode = 5;
+    FanMode fan_mode = 5 [(brick_point_class).namespace='brick', (brick_point_class).value='Fan_Mode'];
     //Current operating mode of the HVAC
     //unit: xbos/iot/HVACMode
     HVACMode mode = 6;
@@ -114,10 +108,10 @@ message Thermostat {
     Int32 enabled_cool_stages = 9;
     //heating setpoint
     //unit: celsius
-    Double heating_setpoint = 10;
+    Double heating_setpoint = 10 [(brick_point_class).namespace='brick', (brick_point_class).value='Heating_Temperature_Setpoint'];
     //cooling setpoint
     //unit: celsius
-    Double cooling_setpoint = 11;
+    Double cooling_setpoint = 11 [(brick_point_class).namespace='brick', (brick_point_class).value='Cooling_Temperature_Setpoint'];
 }
 
 message ThermostatSchedule {
