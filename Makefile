@@ -1,5 +1,7 @@
 PLUGINS=$(wildcard plugins/*.go)
 
+all: proto proto-py drivers ingester
+
 proto: proto/xbos.proto
 	protoc -Iproto/ -Iproto/googleapis --go_out=plugins=grpc:proto proto/*.proto
 
@@ -24,7 +26,6 @@ ingester:
 	cd ingester && make build
 
 .PHONY: proto proto-py drivers ingester $(DRIVERDIRS)
-
 
 #venv: python/requirements.txt
 #	python3 -m venv venv; \
