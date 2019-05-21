@@ -89,19 +89,19 @@ message Thermostat {
     Double relative_humidity = 2 [(brick_point_class).namespace='brick', (brick_point_class).value='Humidity_Sensor'];
     //If true, then the thermostat is in override mode
     //unit: t/f
-    Bool override = 3;
+    Bool override = 3 [(brick_point_class).namespace='brick', (brick_point_class).value='Override_Command'];
     //If true, the fan is on; else it is off
     //unit: t/f
     Bool fan_state = 4 [(brick_point_class).namespace='brick', (brick_point_class).value='Fan_Status'];
     //Current operating mode of the fan
     //unit: xbos/iot/FanMode
-    FanMode fan_mode = 5 [(brick_point_class).namespace='brick', (brick_point_class).value='Fan_Mode'];
+    FanMode fan_mode = 5 [(brick_point_class).namespace='brick', (brick_point_class).value='Fan_Command'];
     //Current operating mode of the HVAC
     //unit: xbos/iot/HVACMode
-    HVACMode mode = 6;
+    HVACMode mode = 6 [(brick_point_class).namespace='brick', (brick_point_class).value='Mode_Command'];
     //Current HVAC state
     //unit: xbos/iot/HVACState
-    HVACState state = 7;
+    HVACState state = 7 [(brick_point_class).namespace='brick', (brick_point_class).value='Thermostat_Status'];
     //number of heat stages enabled
     Int32 enabled_heat_stages = 8;
     //number of cool stages enabled
@@ -140,22 +140,26 @@ message ThermostatScheduleBlock {
 }
 
 message Meter {
+    option (brick_equip_class).namespace = 'brick';
+    option (brick_equip_class).value = 'Meter';
     //unit: kW
-    Double power = 1;
+    Double power = 1 [(brick_point_class).namespace='brick', (brick_point_class).value='Power_Sensor'];
     //unit: V
-    Double voltage = 2;
+    Double voltage = 2 [(brick_point_class).namespace='brick', (brick_point_class).value='Voltage_Sensor'];
     //unit: kVA
-    Double apparent_power = 3;
+    Double apparent_power = 3 [(brick_point_class).namespace='brick', (brick_point_class).value='Apparent_Power_Sensor'];
     //unit: KWh
-    Double energy = 4;
+    Double energy = 4 [(brick_point_class).namespace='brick', (brick_point_class).value='Energy_Sensor'];
 }
 
 message Light {
+    option (brick_equip_class).namespace = 'brick';
+    option (brick_equip_class).value = 'Luminaire';
     // True if the light is on
     //unit: on/off
-    Bool state = 1;
+    Bool state = 1 [(brick_point_class).namespace='brick', (brick_point_class).value='Lighting_State'];
     // 100 is maximum brightness
-    Int64 brightness = 2;
+    Int64 brightness = 2 [(brick_point_class).namespace='brick', (brick_point_class).value='Luminance_Command'];
 }
 
 message EVSE {
