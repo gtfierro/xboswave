@@ -13,8 +13,9 @@ Version 1.0
 
 import (
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
 	math "math"
+
+	proto "github.com/golang/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -26,7 +27,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type FanMode int32
 
@@ -135,6 +136,7 @@ func (*URI) ProtoMessage()    {}
 func (*URI) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{0}
 }
+
 func (m *URI) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_URI.Unmarshal(m, b)
 }
@@ -182,6 +184,7 @@ func (*Triple) ProtoMessage()    {}
 func (*Triple) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{1}
 }
+
 func (m *Triple) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Triple.Unmarshal(m, b)
 }
@@ -248,6 +251,7 @@ func (*XBOSIoTDeviceState) ProtoMessage()    {}
 func (*XBOSIoTDeviceState) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{2}
 }
+
 func (m *XBOSIoTDeviceState) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_XBOSIoTDeviceState.Unmarshal(m, b)
 }
@@ -351,6 +355,7 @@ func (*XBOSIoTDeviceActuation) ProtoMessage()    {}
 func (*XBOSIoTDeviceActuation) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{3}
 }
+
 func (m *XBOSIoTDeviceActuation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_XBOSIoTDeviceActuation.Unmarshal(m, b)
 }
@@ -430,6 +435,7 @@ func (*XBOSIoTContext) ProtoMessage()    {}
 func (*XBOSIoTContext) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{4}
 }
+
 func (m *XBOSIoTContext) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_XBOSIoTContext.Unmarshal(m, b)
 }
@@ -505,6 +511,7 @@ func (*Thermostat) ProtoMessage()    {}
 func (*Thermostat) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{5}
 }
+
 func (m *Thermostat) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Thermostat.Unmarshal(m, b)
 }
@@ -768,6 +775,7 @@ func (*Meter) ProtoMessage()    {}
 func (*Meter) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{9}
 }
+
 func (m *Meter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Meter.Unmarshal(m, b)
 }
@@ -831,6 +839,7 @@ func (*Light) ProtoMessage()    {}
 func (*Light) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{10}
 }
+
 func (m *Light) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Light.Unmarshal(m, b)
 }
@@ -890,6 +899,7 @@ func (*EVSE) ProtoMessage()    {}
 func (*EVSE) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{11}
 }
+
 func (m *EVSE) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_EVSE.Unmarshal(m, b)
 }
@@ -966,6 +976,7 @@ func (*WeatherStation) ProtoMessage()    {}
 func (*WeatherStation) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{12}
 }
+
 func (m *WeatherStation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WeatherStation.Unmarshal(m, b)
 }
@@ -1032,6 +1043,7 @@ func (*WeatherStationPrediction) ProtoMessage()    {}
 func (*WeatherStationPrediction) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{13}
 }
+
 func (m *WeatherStationPrediction) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WeatherStationPrediction.Unmarshal(m, b)
 }
@@ -1071,6 +1083,7 @@ func (*WeatherStationPrediction_Prediction) ProtoMessage()    {}
 func (*WeatherStationPrediction_Prediction) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1804728d01c3c43d, []int{13, 0}
 }
+
 func (m *WeatherStationPrediction_Prediction) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WeatherStationPrediction_Prediction.Unmarshal(m, b)
 }
@@ -1104,6 +1117,9 @@ func (m *WeatherStationPrediction_Prediction) GetPrediction() *WeatherStation {
 }
 
 func init() {
+	proto.RegisterEnum("xbospb.FanMode", FanMode_name, FanMode_value)
+	proto.RegisterEnum("xbospb.HVACMode", HVACMode_name, HVACMode_value)
+	proto.RegisterEnum("xbospb.HVACState", HVACState_name, HVACState_value)
 	proto.RegisterType((*URI)(nil), "xbospb.URI")
 	proto.RegisterType((*Triple)(nil), "xbospb.Triple")
 	proto.RegisterType((*XBOSIoTDeviceState)(nil), "xbospb.XBOSIoTDeviceState")
@@ -1120,9 +1136,6 @@ func init() {
 	proto.RegisterType((*WeatherStation)(nil), "xbospb.WeatherStation")
 	proto.RegisterType((*WeatherStationPrediction)(nil), "xbospb.WeatherStationPrediction")
 	proto.RegisterType((*WeatherStationPrediction_Prediction)(nil), "xbospb.WeatherStationPrediction.Prediction")
-	proto.RegisterEnum("xbospb.FanMode", FanMode_name, FanMode_value)
-	proto.RegisterEnum("xbospb.HVACMode", HVACMode_name, HVACMode_value)
-	proto.RegisterEnum("xbospb.HVACState", HVACState_name, HVACState_value)
 }
 
 func init() { proto.RegisterFile("iot.proto", fileDescriptor_1804728d01c3c43d) }

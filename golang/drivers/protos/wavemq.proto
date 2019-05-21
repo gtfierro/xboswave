@@ -1,0 +1,149 @@
+syntax = "proto3";
+//Version 1.0
+package mqpb;
+
+import "eapi.proto";
+
+service WAVEMQ {
+  rpc Publish(PublishParams) returns (PublishResponse);
+  rpc Subscribe(SubscribeParams) returns (stream SubscriptionMessage);
+  rpc Query(QueryParams) returns (stream QueryMessage);
+  rpc ConnectionStatus(ConnectionStatusParams) returns (ConnectionStatusResponse);
+}
+
+service WAVEMQPeering {
+  rpc PeerPublish(PeerPublishParams) returns (PeerPublishResponse);
+  rpc PeerSubscribe(PeerSubscribeParams) returns (stream SubscriptionMessage);
+  rpc PeerUnsubscribe(PeerUnsubscribeParams) returns (PeerUnsubscribeResponse);
+  rpc PeerQueryRequest(PeerQueryParams) returns (stream QueryMessage);
+}
+
+message ConnectionStatusParams {
+
+}
+
+message ConnectionStatusResponse {
+  int32 totalPeers = 1;
+  int32 connectedPeers = 2;
+}
+
+message QueryParams {
+  Perspective perspective = 1;
+  bytes namespace = 2;
+  string uri = 3;
+  //If specified, this proof will be used instead of building one
+  bytes customProofDER = 4;
+}
+
+message QueryMessage {
+  Error error = 1;
+  Message message = 2;
+}
+
+message PeerQueryParams {
+  bytes sourceEntity = 1;
+  bytes namespace = 2;
+  string uri = 3;
+  bytes signature = 4;
+  bytes proofDER = 5;
+}
+
+message PeerUnsubscribeParams {
+  bytes sourceEntity = 1;
+  string id = 2;
+}
+message PeerUnsubscribeResponse {
+  Error error = 1;
+}
+message PeerPublishParams {
+  Message msg = 1;
+}
+message PeerPublishResponse {
+  Error error = 1;
+}
+message PeerSubscriptionTBS {
+  bytes sourceEntity = 1;
+  bytes namespace = 2;
+  string uri = 3;
+  string id = 4;
+  //This is the router that formed the subscription message
+  string routerID = 5;
+  //How long should this queue last if not actively drained
+  //Should be > 1 minute to prevent disconnect of live queues
+  //This is in seconds
+  int64 expiry = 6;
+}
+
+message PeerSubscribeParams {
+  PeerSubscriptionTBS tbs = 1;
+  bytes signature = 2;
+  bytes proofDER = 3;
+  //This is a unix timestamp in nanoseconds that this subscription should
+  //expire at
+  int64 absoluteExpiry = 4;
+}
+
+message PublishParams{
+  Perspective perspective = 1;
+  bytes namespace = 2;
+  string uri = 3;
+  repeated PayloadObject content = 4;
+  //If specified, the message will be encrypted
+  repeated bytes encryptionPartition = 5;
+  //Should this message be persisted
+  bool persist = 6;
+  //If specified, this proof will be used instead of building one
+  bytes customProofDER = 7;
+
+}
+message PublishResponse{
+  Error error = 1;
+}
+message MessageTBS {
+  bytes sourceEntity = 1;
+  LocationURI sourceLocation = 2;
+  bytes namespace = 3;
+  string uri = 4;
+  repeated PayloadObject payload = 5;
+  //The ID of the router/agent that formed this message
+  string originRouter = 6;
+}
+message Message {
+  Proof proof = 1;
+  bytes proofDER = 2;
+  MessageTBS tbs = 3;
+  bytes signature = 4;
+  repeated bytes encryptionPartition = 5;
+  repeated int64 timestamps = 6;
+  repeated int64 drops = 7;
+  bool persist = 8;
+  bytes proofHash = 9;
+}
+message PayloadObject {
+  string schema = 1;
+  bytes content = 2;
+}
+
+message SubscribeParams {
+  Perspective perspective = 1;
+  bytes namespace = 2;
+  string uri = 3;
+  //If specified, this proof will be used instead of building one for the
+  //subscribe
+  bytes customProofDER = 4;
+  //The unique identifier for the subscription. This enables you to resume
+  //a previous subscription
+  string identifier = 5;
+  //How long should this queue last if not actively drained
+  //Should be > 1 minute to prevent disconnect of live queues
+  //This is in seconds
+  int64 expiry = 6;
+  //What absolute time (nanoseconds UTC) should this subscription expire at
+  //This is not normally used
+  int64 absoluteExpiry = 7;
+}
+
+message SubscriptionMessage {
+  Error error = 1;
+  Message message = 2;
+}

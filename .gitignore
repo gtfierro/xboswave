@@ -10,3 +10,6 @@ ansible/*.retry
 
 # ingester shared objects
 ingester/plugins/*.so
+
+# mac files
+*.DS_Store
