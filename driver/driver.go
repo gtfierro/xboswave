@@ -202,17 +202,19 @@ func (driver *Driver) report(service, instance string, requestid uint64, msg *xb
 
 // Call the given function at config.ReportRate and publish the returned device state
 func (driver *Driver) AddReport(service, instance string, cb func() (*xbospb.XBOSIoTDeviceState, error)) error {
+	doread := func() {
+		if msg, err := cb(); err != nil {
+			fmt.Println("Report err", err)
+		} else if err := driver.Report(service, instance, msg); err != nil {
+			fmt.Println("Report err", err)
+		} else {
+			log.Println("Reporting", service, instance, msg)
+		}
+	}
 	go func() {
+		doread()
 		for range time.Tick(driver.report_rate) {
-			if msg, err := cb(); err != nil {
-				fmt.Println("Report err", err)
-				continue
-			} else if err := driver.Report(service, instance, msg); err != nil {
-				fmt.Println("Report err", err)
-				continue
-			} else {
-				log.Println("Reporting", service, instance, msg)
-			}
+			doread()
 		}
 	}()
 	return nil
