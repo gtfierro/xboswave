@@ -5,7 +5,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"reflect"
 	"sync"
 	"time"
@@ -129,7 +131,7 @@ func (driver *Driver) addToContext(instance string, msg *xbospb.XBOSIoTDeviceSta
 			if e == nil {
 				uri := f.(*xbospb.URI)
 
-				//TODO: fix this so that it actually creates instances
+				//TODO: add the URI to the context
 				triples = append(triples, Triple{
 					Subject:   URI{Namespace: driver.namespaceStr, Value: fmt.Sprintf("%s%s", instance, field.GetJSONName())},
 					Predicate: URI{Namespace: "rdf", Value: "type"},
@@ -156,8 +158,7 @@ func (driver *Driver) ReportContext(instance string) error {
 
 	var triples []*xbospb.Triple
 
-	for triple, announced := range driver.brickContext {
-		fmt.Printf("Triple %v announced %s\n", triple, announced)
+	for triple := range driver.brickContext {
 		triples = append(triples, &xbospb.Triple{
 			Subject:   &xbospb.URI{Namespace: triple.Subject.Namespace, Value: triple.Subject.Value},
 			Predicate: &xbospb.URI{Namespace: triple.Predicate.Namespace, Value: triple.Predicate.Value},
@@ -195,17 +196,26 @@ func (driver *Driver) ReportContext(instance string) error {
 	return nil
 }
 
+func (driver *Driver) Respond(service, instance string, requestid uint64, msg *xbospb.XBOSIoTDeviceState) error {
+	return driver.report(service, instance, requestid, msg)
+}
+
+func (driver *Driver) Report(service, instance string, msg *xbospb.XBOSIoTDeviceState) error {
+	return driver.report(service, instance, 0, msg)
+}
+
 // This method is called by device drivers to publish a reading, encapsulated in an XBOSIoTDeviceState message.
 // This is not called automatically. The device driver must choose when to call Report(). This is likely
 // either on a regular timer or in response to the receipt of an actuation message
 // If a time is not provided in msg, Report will add the current timestamp
-func (driver *Driver) Report(service, instance string, msg *xbospb.XBOSIoTDeviceState) error {
+func (driver *Driver) report(service, instance string, requestid uint64, msg *xbospb.XBOSIoTDeviceState) error {
 	// add the timestamp if it doesn't exist
 	if msg.Time == 0 {
 		msg.Time = uint64(time.Now().UnixNano())
 	}
 
 	driver.addToContext(instance, msg)
+	msg.Requestid = int64(requestid)
 
 	xbosmsg := &xbospb.XBOS{
 		XBOSIoTDeviceState: msg,
@@ -227,10 +237,57 @@ func (driver *Driver) Report(service, instance string, msg *xbospb.XBOSIoTDevice
 			{Schema: "xbosproto/XBOS", Content: po},
 		},
 	})
+	if err != nil {
+		return err
+	}
 	if resp.Error != nil {
 		return fmt.Errorf("Error publishing: %s", resp.Error.Message)
 	}
-	return err
+	return nil
+}
+
+func (driver *Driver) AddActuationCallback(service, instance string, cb func(msg *xbospb.XBOSIoTDeviceActuation, received time.Time) error) error {
+	//TODO: handle mutiple callbacks?
+	fmt.Println("Subscribing to", fmt.Sprintf("%s/%s/slot/cmd", service, instance))
+	sub, err := driver.client.Subscribe(context.Background(), &mqpb.SubscribeParams{
+		Perspective: driver.perspective,
+		Namespace:   driver.namespace,
+		Uri:         fmt.Sprintf("%s/%s/slot/cmd", service, instance),
+		Identifier:  fmt.Sprintf("%s|%s", service, instance),
+		Expiry:      60,
+	})
+	if err != nil {
+		return err
+	}
+	go func() {
+		for {
+			m, err := sub.Recv()
+			if err != nil && err != io.EOF {
+				log.Println(err)
+				continue
+			}
+			if m.Error != nil {
+				log.Println(m.Error)
+				continue
+			}
+			for _, po := range m.Message.Tbs.Payload {
+				var msg xbospb.XBOS
+				err := proto.Unmarshal(po.Content, &msg)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				received := time.Unix(0, m.Message.Timestamps[len(m.Message.Timestamps)-1])
+				if msg.XBOSIoTDeviceActuation != nil {
+					if err := cb(msg.XBOSIoTDeviceActuation, received); err != nil {
+						log.Println(err)
+						continue
+					}
+				}
+			}
+		}
+	}()
+	return nil
 }
 
 func msg2json(msg proto.Message) (map[string]interface{}, error) {
