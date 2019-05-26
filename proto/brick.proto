@@ -1,0 +1,22 @@
+syntax = "proto3";
+package xbospb;
+
+import "google/protobuf/descriptor.proto";
+extend google.protobuf.MessageOptions {
+    URI brick_equip_class = 10000;
+}
+extend google.protobuf.FieldOptions {
+    URI brick_point_class = 50000;
+}
+
+message URI {
+    string namespace = 1;
+    string value = 2;
+}
+
+message Triple {
+    URI subject = 1;
+    URI predicate = 2;
+    URI object = 3;
+}
+
