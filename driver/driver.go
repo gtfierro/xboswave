@@ -31,13 +31,20 @@ type Triple struct {
 	Object    URI
 }
 
+// Driver configuration struct
 type Config struct {
-	Namespace  string
+	// base64 encoded namespace
+	Namespace string
+	// path to the entity file for this driver
 	EntityFile string
+	// local site router address
 	SiteRouter string
+	// default report rate
 	ReportRate time.Duration
 }
 
+// A Driver is a persistent process that handles the reporting+actuation to and from
+// one or more devices
 type Driver struct {
 	ctx          context.Context
 	brickContext map[Triple]time.Time
@@ -50,8 +57,8 @@ type Driver struct {
 	sync.RWMutex
 }
 
+// creates a new driver with the given configuration
 func NewDriver(cfg Config) (*Driver, error) {
-
 	namespace, err := base64.URLEncoding.DecodeString(cfg.Namespace)
 	if err != nil {
 		return nil, err
@@ -86,6 +93,9 @@ func NewDriver(cfg Config) (*Driver, error) {
 	return driver, nil
 }
 
+// add triples to the driver's context. These will be deduped automatically so
+// adding triples is idempotent. This method does *not* report any triples; use ReportContext()
+// to do this.
 func (driver *Driver) AddToContext(triples []Triple) {
 	driver.Lock()
 	defer driver.Unlock()
@@ -94,6 +104,8 @@ func (driver *Driver) AddToContext(triples []Triple) {
 	}
 }
 
+// publishes the driver's device context
+// TODO: where is good URI to publish this?
 func (driver *Driver) ReportContext(instance string) error {
 	driver.RLock()
 	defer driver.RUnlock()
@@ -138,18 +150,19 @@ func (driver *Driver) ReportContext(instance string) error {
 	return nil
 }
 
+// publishes a device's state in response to a Request
 func (driver *Driver) Respond(service, instance string, requestid uint64, msg *xbospb.XBOSIoTDeviceState) error {
 	return driver.report(service, instance, requestid, msg)
 }
 
+// This method is called by device drivers to publish a reading, encapsulated in an XBOSIoTDeviceState message.
+// This is called automatically by AddReport(), which uses a regular timer.
+// Respond() is used when publishing in response to the receipt of an actuation message
+// If a time is not provided in msg, Report will add the current timestamp.
 func (driver *Driver) Report(service, instance string, msg *xbospb.XBOSIoTDeviceState) error {
 	return driver.report(service, instance, 0, msg)
 }
 
-// This method is called by device drivers to publish a reading, encapsulated in an XBOSIoTDeviceState message.
-// This is not called automatically. The device driver must choose when to call Report(). This is likely
-// either on a regular timer or in response to the receipt of an actuation message
-// If a time is not provided in msg, Report will add the current timestamp
 func (driver *Driver) report(service, instance string, requestid uint64, msg *xbospb.XBOSIoTDeviceState) error {
 	// add the timestamp if it doesn't exist
 	if msg.Time == 0 {
@@ -187,6 +200,7 @@ func (driver *Driver) report(service, instance string, requestid uint64, msg *xb
 	return nil
 }
 
+// Call the given function at config.ReportRate and publish the returned device state
 func (driver *Driver) AddReport(service, instance string, cb func() (*xbospb.XBOSIoTDeviceState, error)) error {
 	go func() {
 		for range time.Tick(driver.report_rate) {
@@ -204,6 +218,7 @@ func (driver *Driver) AddReport(service, instance string, cb func() (*xbospb.XBO
 	return nil
 }
 
+// Call the given function whenever the driver receives an actuation request for a given device
 func (driver *Driver) AddActuationCallback(service, instance string, cb func(msg *xbospb.XBOSIoTDeviceActuation, received time.Time) error) error {
 	//TODO: handle mutiple callbacks?
 	fmt.Println("Subscribing to", fmt.Sprintf("%s/%s/slot/cmd", service, instance))
