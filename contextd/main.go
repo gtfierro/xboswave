@@ -9,15 +9,109 @@ import (
 	"github.com/golang/protobuf/proto"
 	xbospb "github.com/gtfierro/xboswave/proto"
 	"github.com/immesys/wavemq/mqpb"
+	"github.com/jhump/protoreflect/dynamic"
 	"github.com/pborman/uuid"
 	"google.golang.org/grpc"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
+	"reflect"
 	"sync"
 	"time"
 )
+
+type URI struct {
+	Namespace string
+	Value     string
+}
+
+type Triple struct {
+	Subject   URI
+	Predicate URI
+	Object    URI
+}
+
+type contextd struct {
+	brickContext map[Triple]time.Time
+	sync.RWMutex
+}
+
+func newContextd() *contextd {
+	return &contextd{
+		brickContext: make(map[Triple]time.Time),
+	}
+}
+
+func (cd *contextd) addtoContext(namespace string, resource string, msg *xbospb.XBOSIoTDeviceState) {
+	dyn, err := dynamic.AsDynamicMessage(msg)
+	if err != nil {
+		fmt.Println("ERROR", err)
+		return
+	}
+	var triples []Triple
+	for _, field := range dyn.GetKnownFields() {
+		if isNilReflect(dyn.GetField(field)) {
+			continue
+		}
+		asmsg := field.GetMessageType()
+		if asmsg == nil {
+			continue
+		}
+		opts := asmsg.GetOptions()
+		c, e := proto.GetExtension(opts, xbospb.E_BrickEquipClass)
+		var equipURI *xbospb.URI
+		if e == nil {
+			equipURI = c.(*xbospb.URI)
+		} else {
+			continue
+		}
+
+		fmt.Println(resource)
+		//TODO: extract instance from URI
+		instance := "TODO"
+		triples = append(triples, Triple{
+			Subject:   URI{Namespace: namespace, Value: instance},
+			Predicate: URI{Namespace: "rdf", Value: "type"},
+			Object:    URI{Namespace: equipURI.Namespace, Value: equipURI.Value},
+		})
+
+		value := dyn.GetField(field)
+		t, e := dynamic.AsDynamicMessage(value.(proto.Message))
+		if e != nil {
+			fmt.Println("ERROR", err)
+			return
+		}
+
+		for _, field := range asmsg.GetFields() {
+			if isNilReflect(t.GetField(field)) {
+				continue
+			}
+			opts := field.GetOptions()
+			f, e := proto.GetExtension(opts, xbospb.E_BrickPointClass)
+			if e == nil {
+				uri := f.(*xbospb.URI)
+
+				//TODO: add the URI to the context
+				triples = append(triples, Triple{
+					Subject:   URI{Namespace: namespace, Value: fmt.Sprintf("%s%s", instance, field.GetJSONName())},
+					Predicate: URI{Namespace: "rdf", Value: "type"},
+					Object:    URI{Namespace: uri.Namespace, Value: uri.Value},
+				}, Triple{
+					Subject:   URI{Namespace: namespace, Value: instance},
+					Predicate: URI{Namespace: "brickframe", Value: "hasPoint"},
+					Object:    URI{Namespace: namespace, Value: fmt.Sprintf("%s%s", instance, field.GetJSONName())},
+				})
+			}
+		}
+	}
+
+	cd.Lock()
+	defer cd.Unlock()
+	for _, triple := range triples {
+		cd.brickContext[triple] = time.Now()
+	}
+}
 
 func main() {
 
@@ -39,6 +133,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	cd := newContextd()
 
 	// Create the WAVEMQ client
 	client := mqpb.NewWAVEMQClient(conn)
@@ -120,6 +216,8 @@ func main() {
 					triples[t] = time.Now()
 				}
 				l.Unlock()
+			} else if msg.XBOSIoTDeviceState != nil {
+				cd.addtoContext(base64.URLEncoding.EncodeToString(m.Message.Tbs.Namespace), m.Message.Tbs.Uri, msg.XBOSIoTDeviceState)
 			}
 		}
 	}
@@ -144,4 +242,12 @@ func convertTriple(t turtle.Triple) (rdf.Triple, error) {
 		Pred: pred,
 		Obj:  obj,
 	}, nil
+}
+
+func isNilReflect(v interface{}) bool {
+	if v == nil {
+		return true
+	}
+	value := reflect.ValueOf(v)
+	return (value.Kind() == reflect.Ptr && value.IsNil())
 }
