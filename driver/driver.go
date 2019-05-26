@@ -17,7 +17,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	xbospb "github.com/gtfierro/xboswave/proto"
 	"github.com/immesys/wavemq/mqpb"
-	"github.com/jhump/protoreflect/dynamic"
 	"google.golang.org/grpc"
 )
 
@@ -36,6 +35,7 @@ type Config struct {
 	Namespace  string
 	EntityFile string
 	SiteRouter string
+	ReportRate time.Duration
 }
 
 type Driver struct {
@@ -43,6 +43,7 @@ type Driver struct {
 	brickContext map[Triple]time.Time
 	namespace    []byte
 	namespaceStr string
+	report_rate  time.Duration
 	perspective  *mqpb.Perspective
 	client       mqpb.WAVEMQClient
 
@@ -71,6 +72,7 @@ func NewDriver(cfg Config) (*Driver, error) {
 		namespace:    namespace,
 		namespaceStr: cfg.Namespace,
 		brickContext: make(map[Triple]time.Time),
+		report_rate:  cfg.ReportRate,
 	}
 
 	conn, err := grpc.Dial(cfg.SiteRouter, grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
@@ -84,67 +86,7 @@ func NewDriver(cfg Config) (*Driver, error) {
 	return driver, nil
 }
 
-func (driver *Driver) addToContext(instance string, msg *xbospb.XBOSIoTDeviceState) {
-
-	dyn, err := dynamic.AsDynamicMessage(msg)
-	if err != nil {
-		fmt.Println("ERROR", err)
-		return
-	}
-	var triples []Triple
-	for _, field := range dyn.GetKnownFields() {
-		if isNilReflect(dyn.GetField(field)) {
-			continue
-		}
-		asmsg := field.GetMessageType()
-		if asmsg == nil {
-			continue
-		}
-		opts := asmsg.GetOptions()
-		c, e := proto.GetExtension(opts, xbospb.E_BrickEquipClass)
-		var equipURI *xbospb.URI
-		if e == nil {
-			equipURI = c.(*xbospb.URI)
-		} else {
-			continue
-		}
-
-		triples = append(triples, Triple{
-			Subject:   URI{Namespace: driver.namespaceStr, Value: instance},
-			Predicate: URI{Namespace: "rdf", Value: "type"},
-			Object:    URI{Namespace: equipURI.Namespace, Value: equipURI.Value},
-		})
-
-		value := dyn.GetField(field)
-		t, e := dynamic.AsDynamicMessage(value.(proto.Message))
-		if e != nil {
-			fmt.Println("ERROR", err)
-			return
-		}
-
-		for _, field := range asmsg.GetFields() {
-			if isNilReflect(t.GetField(field)) {
-				continue
-			}
-			opts := field.GetOptions()
-			f, e := proto.GetExtension(opts, xbospb.E_BrickPointClass)
-			if e == nil {
-				uri := f.(*xbospb.URI)
-
-				//TODO: add the URI to the context
-				triples = append(triples, Triple{
-					Subject:   URI{Namespace: driver.namespaceStr, Value: fmt.Sprintf("%s%s", instance, field.GetJSONName())},
-					Predicate: URI{Namespace: "rdf", Value: "type"},
-					Object:    URI{Namespace: uri.Namespace, Value: uri.Value},
-				}, Triple{
-					Subject:   URI{Namespace: driver.namespaceStr, Value: instance},
-					Predicate: URI{Namespace: "brickframe", Value: "hasPoint"},
-					Object:    URI{Namespace: driver.namespaceStr, Value: fmt.Sprintf("%s%s", instance, field.GetJSONName())},
-				})
-			}
-		}
-	}
-
+func (driver *Driver) AddToContext(triples []Triple) {
 	driver.Lock()
 	defer driver.Unlock()
 	for _, triple := range triples {
@@ -214,7 +156,6 @@ func (driver *Driver) report(service, instance string, requestid uint64, msg *xb
 		msg.Time = uint64(time.Now().UnixNano())
 	}
 
-	driver.addToContext(instance, msg)
 	msg.Requestid = int64(requestid)
 
 	xbosmsg := &xbospb.XBOS{
@@ -243,6 +184,23 @@ func (driver *Driver) report(service, instance string, requestid uint64, msg *xb
 	if resp.Error != nil {
 		return fmt.Errorf("Error publishing: %s", resp.Error.Message)
 	}
+	return nil
+}
+
+func (driver *Driver) AddReport(service, instance string, cb func() (*xbospb.XBOSIoTDeviceState, error)) error {
+	go func() {
+		for range time.Tick(driver.report_rate) {
+			if msg, err := cb(); err != nil {
+				fmt.Println("Report err", err)
+				continue
+			} else if err := driver.Report(service, instance, msg); err != nil {
+				fmt.Println("Report err", err)
+				continue
+			} else {
+				log.Println("Reporting", service, instance, msg)
+			}
+		}
+	}()
 	return nil
 }
 
