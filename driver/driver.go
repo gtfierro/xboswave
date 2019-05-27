@@ -24,10 +24,27 @@ import (
 func ParseResource(namespace, uri string) *xbospb.Resource {
 	parts := strings.Split(uri, "/")
 	return &xbospb.Resource{
-		Location:  "",
+		Transport: xbospb.Transport_WAVEMQ,
 		Namespace: namespace,
 		Service:   parts[0],
 		Instance:  parts[1],
+	}
+}
+
+func MakeResource(namespace, service, instance string) *xbospb.Resource {
+	return &xbospb.Resource{
+		Transport: xbospb.Transport_WAVEMQ,
+		Namespace: namespace,
+		Service:   service,
+		Instance:  instance,
+	}
+}
+
+func ResourceToString(res *xbospb.Resource) string {
+	if res.Transport == xbospb.Transport_WAVEMQ {
+		return fmt.Sprintf("%s/%s/%s", res.Namespace, res.Service, res.Instance)
+	} else {
+		return fmt.Sprintf("%s/%s/%s/%s", res.Location, res.Namespace, res.Service, res.Instance)
 	}
 }
 

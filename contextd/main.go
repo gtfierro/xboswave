@@ -125,7 +125,6 @@ func (cd *contextd) extractContextFromState(namespace string, resource string, m
 }
 
 func (cd *contextd) addtoContext(triples ...turtle.Triple) {
-	fmt.Println("adding", triples)
 	cd.Lock()
 	defer cd.Unlock()
 	for _, triple := range triples {
