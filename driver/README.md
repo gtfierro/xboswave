@@ -74,6 +74,9 @@ func (vl *virtual_light) Start() error {
 		}
 
 		// pull the device configuration out of the actuation message
+		if msg == nil || msg.Light == nil {
+			return nil
+		}
 		newconfiguration := msg.Light
 
 		// perform the "backend" actuation you need
