@@ -51,9 +51,15 @@ message XBOS {
   C37DataFrame C37DataFrame = 250;
 }
 
+enum Transport {
+    WAVEMQ = 0;
+    GRPC = 1;
+}
+
 message Resource {
-    string location = 1;
+    Transport transport = 1;
     string namespace = 2;
     string service = 3;
     string instance = 4;
+    string location = 5;
 }
