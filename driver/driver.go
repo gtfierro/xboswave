@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
+	"os"
 	"reflect"
 	"strings"
 	"sync"
 	"time"
 
+	logrus "github.com/sirupsen/logrus"
 	//"github.com/golang/protobuf/descriptor"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
@@ -20,6 +21,14 @@ import (
 	"github.com/immesys/wavemq/mqpb"
 	"google.golang.org/grpc"
 )
+
+var log = logrus.New()
+
+func init() {
+	log.SetFormatter(&logrus.TextFormatter{FullTimestamp: true, ForceColors: true})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(logrus.DebugLevel)
+}
 
 func ParseResource(namespace, uri string) *xbospb.Resource {
 	parts := strings.Split(uri, "/")
@@ -59,6 +68,11 @@ type Triple struct {
 	Object    URI
 }
 
+type XBOSDriver interface {
+	Init(Config) error
+	Start() error
+}
+
 // Driver configuration struct
 type Config struct {
 	// base64 encoded namespace
@@ -81,6 +95,7 @@ type Driver struct {
 	report_rate  time.Duration
 	perspective  *mqpb.Perspective
 	client       mqpb.WAVEMQClient
+	errors       chan error
 
 	sync.RWMutex
 }
@@ -108,6 +123,7 @@ func NewDriver(cfg Config) (*Driver, error) {
 		namespaceStr: cfg.Namespace,
 		brickContext: make(map[Triple]time.Time),
 		report_rate:  cfg.ReportRate,
+		errors:       make(chan error),
 	}
 
 	conn, err := grpc.Dial(cfg.SiteRouter, grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
@@ -119,6 +135,14 @@ func NewDriver(cfg Config) (*Driver, error) {
 	driver.client = mqpb.NewWAVEMQClient(conn)
 
 	return driver, nil
+}
+
+func (driver *Driver) BlockUntilError() error {
+	return <-driver.errors
+}
+
+func (driver *Driver) ExitWithError(err error) {
+	driver.errors <- err
 }
 
 // add triples to the driver's context. These will be deduped automatically so
@@ -232,11 +256,11 @@ func (driver *Driver) report(service, instance string, requestid uint64, msg *xb
 func (driver *Driver) AddReport(service, instance string, cb func() (*xbospb.XBOSIoTDeviceState, error)) error {
 	doread := func() {
 		if msg, err := cb(); err != nil {
-			fmt.Println("Report err", err)
+			log.Error("Report err", err)
 		} else if err := driver.Report(service, instance, msg); err != nil {
-			fmt.Println("Report err", err)
+			driver.ExitWithError(err)
 		} else {
-			log.Println("Reporting", service, instance, msg)
+			log.Info("Reporting", service, instance, msg)
 		}
 	}
 	go func() {
@@ -266,24 +290,24 @@ func (driver *Driver) AddActuationCallback(service, instance string, cb func(msg
 		for {
 			m, err := sub.Recv()
 			if err != nil && err != io.EOF {
-				log.Println(err)
+				driver.ExitWithError(err)
 				continue
 			}
 			if m.Error != nil {
-				log.Println(m.Error)
+				driver.ExitWithError(fmt.Errorf("%s", m.Error))
 				continue
 			}
 			for _, po := range m.Message.Tbs.Payload {
 				var msg xbospb.XBOS
 				err := proto.Unmarshal(po.Content, &msg)
 				if err != nil {
-					log.Println(err)
+					driver.ExitWithError(err)
 					continue
 				}
 				received := time.Unix(0, m.Message.Timestamps[len(m.Message.Timestamps)-1])
 				if msg.XBOSIoTDeviceActuation != nil {
 					if err := cb(msg.XBOSIoTDeviceActuation, received); err != nil {
-						log.Println(err)
+						log.Error(err)
 						continue
 					}
 				}
@@ -315,4 +339,23 @@ func isNilReflect(v interface{}) bool {
 	}
 	value := reflect.ValueOf(v)
 	return (value.Kind() == reflect.Ptr && value.IsNil())
+}
+
+func Manage(cfg Config, drivers ...XBOSDriver) error {
+	for _, driver := range drivers {
+		driver := driver
+		go func() {
+			for {
+				if err := driver.Init(cfg); err != nil {
+					log.Errorf("Driver %v init failed with config %v and error %v\nRestarting in 30 seconds...", driver, cfg, err)
+				} else if err := driver.Start(); err != nil {
+					log.Errorf("Driver %v exited with config %v and error %v\nRestarting in 30 seconds...", driver, cfg, err)
+				} else {
+					log.Warningf("Driver %v with config %v exited without an error\nRestarting in 30 seconds...")
+				}
+				time.Sleep(30 * time.Second)
+			}
+		}()
+	}
+	select {}
 }
