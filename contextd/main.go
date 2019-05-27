@@ -7,6 +7,7 @@ import (
 	"git.sr.ht/~gabe/hod/turtle"
 	rdf "git.sr.ht/~gabe/hod/turtle/rdfparser"
 	"github.com/golang/protobuf/proto"
+	"github.com/gtfierro/xboswave/driver"
 	xbospb "github.com/gtfierro/xboswave/proto"
 	"github.com/immesys/wavemq/mqpb"
 	"github.com/jhump/protoreflect/dynamic"
@@ -21,35 +22,46 @@ import (
 	"time"
 )
 
-type URI struct {
-	Namespace string
-	Value     string
-}
-
-type Triple struct {
-	Subject   URI
-	Predicate URI
-	Object    URI
-}
-
 type contextd struct {
-	brickContext map[Triple]time.Time
+	brickContext map[turtle.Triple]time.Time
 	sync.RWMutex
 }
 
 func newContextd() *contextd {
 	return &contextd{
-		brickContext: make(map[Triple]time.Time),
+		brickContext: make(map[turtle.Triple]time.Time),
 	}
 }
 
-func (cd *contextd) addtoContext(namespace string, resource string, msg *xbospb.XBOSIoTDeviceState) {
+func (cd *contextd) readContextMessage(msg *xbospb.XBOS) {
+	var triples []turtle.Triple
+	if msg.XBOSIoTContext == nil {
+		return
+	}
+	for _, triple := range msg.XBOSIoTContext.Context {
+		t := turtle.Triple{
+			Subject:   turtle.URI{triple.Subject.Namespace, triple.Subject.Value},
+			Predicate: turtle.URI{triple.Predicate.Namespace, triple.Predicate.Value},
+			Object:    turtle.URI{triple.Object.Namespace, triple.Object.Value},
+		}
+		triples = append(triples, t)
+	}
+	cd.addtoContext(triples...)
+}
+
+func (cd *contextd) extractContextFromState(namespace string, resource string, m *xbospb.XBOS) {
+
+	if m.XBOSIoTDeviceState == nil {
+		return
+	}
+	msg := m.XBOSIoTDeviceState
+
 	dyn, err := dynamic.AsDynamicMessage(msg)
 	if err != nil {
 		fmt.Println("ERROR", err)
 		return
 	}
-	var triples []Triple
+	var triples []turtle.Triple
 	for _, field := range dyn.GetKnownFields() {
 		if isNilReflect(dyn.GetField(field)) {
 			continue
@@ -68,19 +80,23 @@ func (cd *contextd) addtoContext(namespace string, resource string, msg *xbospb.
 		}
 
 		fmt.Println(resource)
-		//TODO: extract instance from URI
-		instance := "TODO"
-		triples = append(triples, Triple{
-			Subject:   URI{Namespace: namespace, Value: instance},
-			Predicate: URI{Namespace: "rdf", Value: "type"},
-			Object:    URI{Namespace: equipURI.Namespace, Value: equipURI.Value},
+		res := driver.ParseResource(namespace, resource)
+
+		triples = append(triples, turtle.Triple{
+			Subject:   turtle.URI{Namespace: namespace, Value: res.Instance},
+			Predicate: turtle.URI{Namespace: turtle.RDF_NAMESPACE, Value: "type"},
+			Object:    turtle.URI{Namespace: equipURI.Namespace, Value: equipURI.Value},
+		}, turtle.Triple{
+			Subject:   turtle.URI{Namespace: namespace, Value: res.Instance},
+			Predicate: turtle.URI{Namespace: turtle.BRICK_NAMESPACE, Value: "uri"},
+			Object:    turtle.URI{Value: fmt.Sprintf("%s/%s", namespace, resource)},
 		})
 
 		value := dyn.GetField(field)
 		t, e := dynamic.AsDynamicMessage(value.(proto.Message))
 		if e != nil {
 			fmt.Println("ERROR", err)
-			return
+			continue
 		}
 
 		for _, field := range asmsg.GetFields() {
@@ -93,19 +109,23 @@ func (cd *contextd) addtoContext(namespace string, resource string, msg *xbospb.
 				uri := f.(*xbospb.URI)
 
 				//TODO: add the URI to the context
-				triples = append(triples, Triple{
-					Subject:   URI{Namespace: namespace, Value: fmt.Sprintf("%s%s", instance, field.GetJSONName())},
-					Predicate: URI{Namespace: "rdf", Value: "type"},
-					Object:    URI{Namespace: uri.Namespace, Value: uri.Value},
-				}, Triple{
-					Subject:   URI{Namespace: namespace, Value: instance},
-					Predicate: URI{Namespace: "brickframe", Value: "hasPoint"},
-					Object:    URI{Namespace: namespace, Value: fmt.Sprintf("%s%s", instance, field.GetJSONName())},
+				triples = append(triples, turtle.Triple{
+					Subject:   turtle.URI{Namespace: namespace, Value: fmt.Sprintf("%s%s", res.Instance, field.GetJSONName())},
+					Predicate: turtle.URI{Namespace: turtle.RDF_NAMESPACE, Value: "type"},
+					Object:    turtle.URI{Namespace: uri.Namespace, Value: uri.Value},
+				}, turtle.Triple{
+					Subject:   turtle.URI{Namespace: namespace, Value: res.Instance},
+					Predicate: turtle.URI{Namespace: turtle.BRICK_NAMESPACE, Value: "hasPoint"},
+					Object:    turtle.URI{Namespace: namespace, Value: fmt.Sprintf("%s%s", res.Instance, field.GetJSONName())},
 				})
 			}
 		}
 	}
+	cd.addtoContext(triples...)
+}
 
+func (cd *contextd) addtoContext(triples ...turtle.Triple) {
+	fmt.Println("adding", triples)
 	cd.Lock()
 	defer cd.Unlock()
 	for _, triple := range triples {
@@ -115,8 +135,8 @@ func (cd *contextd) addtoContext(namespace string, resource string, msg *xbospb.
 
 func main() {
 
-	if len(os.Args) < 4 {
-		fmt.Println("contextd <base64 namespace> <entity> <resource>")
+	if len(os.Args) < 3 {
+		fmt.Println("contextd <base64 namespace> <entity>")
 		os.Exit(1)
 	}
 
@@ -144,9 +164,6 @@ func main() {
 		},
 	}
 
-	var l sync.Mutex
-	triples := make(map[turtle.Triple]time.Time)
-
 	go func() {
 		for range time.Tick(30 * time.Second) {
 			f, err := os.Create("dump.ttl")
@@ -154,8 +171,8 @@ func main() {
 				log.Println(err)
 			}
 			enc := rdf.NewTripleEncoder(f, rdf.Turtle)
-			l.Lock()
-			for triple := range triples {
+			cd.RLock()
+			for triple := range cd.brickContext {
 				newt, err := convertTriple(triple)
 				if err != nil {
 					log.Println(err)
@@ -166,7 +183,7 @@ func main() {
 					break
 				}
 			}
-			l.Unlock()
+			cd.RUnlock()
 			if err := enc.Close(); err != nil {
 				log.Println(err)
 			}
@@ -180,7 +197,7 @@ func main() {
 	sub, err := client.Subscribe(context.Background(), &mqpb.SubscribeParams{
 		Perspective: perspective,
 		Namespace:   namespace,
-		Uri:         os.Args[3],
+		Uri:         "*",
 		Identifier:  uuid.NewRandom().String(),
 		Expiry:      10,
 	})
@@ -204,44 +221,34 @@ func main() {
 				log.Println(err)
 				continue
 			}
-			if msg.XBOSIoTContext != nil {
-				log.Println(base64.URLEncoding.EncodeToString(m.Message.Tbs.Namespace), m.Message.Tbs.Uri)
-				l.Lock()
-				for _, triple := range msg.XBOSIoTContext.Context {
-					t := turtle.Triple{
-						Subject:   turtle.URI{triple.Subject.Namespace, triple.Subject.Value},
-						Predicate: turtle.URI{triple.Predicate.Namespace, triple.Predicate.Value},
-						Object:    turtle.URI{triple.Object.Namespace, triple.Object.Value},
-					}
-					triples[t] = time.Now()
-				}
-				l.Unlock()
-			} else if msg.XBOSIoTDeviceState != nil {
-				cd.addtoContext(base64.URLEncoding.EncodeToString(m.Message.Tbs.Namespace), m.Message.Tbs.Uri, msg.XBOSIoTDeviceState)
-			}
+			namespace := base64.URLEncoding.EncodeToString(m.Message.Tbs.Namespace)
+			resource := m.Message.Tbs.Uri
+			cd.readContextMessage(&msg)
+			cd.extractContextFromState(namespace, resource, &msg)
 		}
 	}
 }
 
 func convertTriple(t turtle.Triple) (rdf.Triple, error) {
-	new := rdf.Triple{}
-	subj, err := rdf.NewIRI(t.Subject.String())
+	var err error
+	newtriple := rdf.Triple{}
+	newtriple.Subj, err = rdf.NewIRI(t.Subject.String())
 	if err != nil {
-		return new, err
+		return newtriple, err
 	}
-	pred, err := rdf.NewIRI(t.Predicate.String())
+
+	newtriple.Pred, err = rdf.NewIRI(t.Predicate.String())
 	if err != nil {
-		return new, err
+		return newtriple, err
 	}
-	obj, err := rdf.NewIRI(t.Object.String())
-	if err != nil {
-		return new, err
+
+	if len(t.Object.Namespace) == 0 {
+		newtriple.Obj, err = rdf.NewLiteral(t.Object.Value)
+	} else {
+		newtriple.Obj, err = rdf.NewIRI(t.Object.String())
 	}
-	return rdf.Triple{
-		Subj: subj,
-		Pred: pred,
-		Obj:  obj,
-	}, nil
+	return newtriple, err
+
 }
 
 func isNilReflect(v interface{}) bool {
