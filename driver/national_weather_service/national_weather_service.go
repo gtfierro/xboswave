@@ -52,18 +52,12 @@ type NationalWeatherServiceDriver struct {
 	req      *gorequest.SuperAgent
 }
 
-func newDriver(stations []string, contact string, cfg driver.Config) *NationalWeatherServiceDriver {
-	driver, err := driver.NewDriver(cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func newDriver(stations []string, contact string) *NationalWeatherServiceDriver {
 	if len(stations) == 0 {
 		log.Fatal("No weather stations added!")
 	}
 
 	return &NationalWeatherServiceDriver{
-		Driver:   driver,
 		stations: stations,
 		contact:  contact,
 		url:      "https://api.weather.gov/stations/%s/observations/current",
@@ -71,13 +65,17 @@ func newDriver(stations []string, contact string, cfg driver.Config) *NationalWe
 	}
 }
 
-func (driver *NationalWeatherServiceDriver) start() {
+func (nws *NationalWeatherServiceDriver) Init(cfg driver.Config) error {
+	d, err := driver.NewDriver(cfg)
+	nws.Driver = d
+	return err
+}
 
-	for _, station := range driver.stations {
-		fmt.Println(station)
-		err := driver.AddReport("national_weather_service", station, func() (*xbospb.XBOSIoTDeviceState, error) {
+func (nws *NationalWeatherServiceDriver) Start() error {
+	for _, station := range nws.stations {
+		err := nws.AddReport("national_weather_service", station, func() (*xbospb.XBOSIoTDeviceState, error) {
 			fmt.Println(station)
-			datum, err := driver.read(station)
+			datum, err := nws.read(station)
 			if err != nil {
 				return nil, err
 			}
@@ -103,18 +101,19 @@ func (driver *NationalWeatherServiceDriver) start() {
 			return msg, nil
 		})
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	}
+	return nws.BlockUntilError()
 }
 
-func (driver *NationalWeatherServiceDriver) read(station string) (datum, error) {
+func (nws *NationalWeatherServiceDriver) read(station string) (datum, error) {
 	var d = datum{
 		Station: station,
 	}
-	log.Println(fmt.Sprintf(driver.url, station))
-	resp, _, errs := driver.req.Get(fmt.Sprintf(driver.url, station)).
-		Set("User-Agent", driver.contact).
+	log.Println(fmt.Sprintf(nws.url, station))
+	resp, _, errs := nws.req.Get(fmt.Sprintf(nws.url, station)).
+		Set("User-Agent", nws.contact).
 		Set("Accept", "*/*").
 		End()
 	if errs != nil {
@@ -135,8 +134,6 @@ func main() {
 		SiteRouter: "localhost:4516",
 		ReportRate: 15 * time.Minute,
 	}
-	driver := newDriver([]string{"KOAK", "KTOA"}, "github.com/gtfierro/xboswave", cfg)
-
-	driver.start()
-	select {}
+	nws := newDriver([]string{"KOAK", "KTOA"}, "github.com/gtfierro/xboswave")
+	log.Fatal(driver.Manage(cfg, nws))
 }
