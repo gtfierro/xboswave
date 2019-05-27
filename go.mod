@@ -3,7 +3,7 @@ module github.com/gtfierro/xboswave
 require (
 	bitbucket.org/creachadair/cityhash v0.0.1
 	bou.ke/monkey v1.0.1
-	git.sr.ht/~gabe/hod v0.7.0
+	git.sr.ht/~gabe/hod v0.7.1
 	git.sr.ht/~gabe/mortar v1.0.11
 	github.com/BurntSushi/toml v0.3.1
 	github.com/abiosoft/ishell v2.0.0+incompatible
@@ -24,13 +24,14 @@ require (
 	github.com/dgraph-io/badger v1.5.5-0.20190226225317-8115aed38f8f
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/elastic/gosigar v0.10.2 // indirect
+	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
+	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/emicklei/proto v1.6.6
 	github.com/ethereum/go-ethereum v1.8.19
 	github.com/fjl/memsize v0.0.0-20180929194037-2a09253e352a // indirect
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gizak/termui v2.3.0+incompatible
 	github.com/gliderlabs/ssh v0.1.1
-	github.com/glycerine/goconvey v0.0.0-20190315024820-982ee783a72e // indirect
 	github.com/go-sql-driver/mysql v1.4.0
 	github.com/go-test/deep v1.0.1
 	github.com/gogo/protobuf v1.2.1
@@ -45,6 +46,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.8.6
 	github.com/gtfierro/go-ipfs-api v1.2.1
+	github.com/gtfierro/wave v0.4.1
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
 	github.com/huichen/murmur v0.0.0-20130808212358-e0489551cf51
@@ -69,6 +71,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/multiformats/go-multiaddr v0.0.4 // indirect
 	github.com/multiformats/go-multihash v0.0.5
 	github.com/naoina/go-stringutil v0.1.0 // indirect
@@ -76,6 +79,7 @@ require (
 	github.com/nsf/termbox-go v0.0.0-20190325093121-288510b9734e // indirect
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
+	github.com/parnurzeal/gorequest v0.2.15
 	github.com/pborman/uuid v1.2.0
 	github.com/peterh/liner v1.1.0 // indirect
 	github.com/pkg/errors v0.8.1
@@ -96,7 +100,6 @@ require (
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734
 	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
-	golang.org/x/tools v0.0.0-20190407030857-0fdf0c73855b // indirect
 	google.golang.org/genproto v0.0.0-20190508193815-b515fa19cec8
 	google.golang.org/grpc v1.20.1
 	gopkg.in/btrdb.v4 v4.15.3
