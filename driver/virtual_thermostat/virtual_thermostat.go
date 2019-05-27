@@ -19,14 +19,8 @@ type VirtualThermostatDriver struct {
 	state int
 }
 
-func newVirtualThermostatDriver(ntstats int, cfg driver.Config) *VirtualThermostatDriver {
-	driver, err := driver.NewDriver(cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func newVirtualThermostatDriver(ntstats int) *VirtualThermostatDriver {
 	return &VirtualThermostatDriver{
-		Driver:  driver,
 		ntstats: ntstats,
 		temp:    73,
 		hsp:     70,
@@ -35,7 +29,14 @@ func newVirtualThermostatDriver(ntstats int, cfg driver.Config) *VirtualThermost
 	}
 }
 
-func (driver *VirtualThermostatDriver) start() {
+func (drv *VirtualThermostatDriver) Init(cfg driver.Config) error {
+	d, err := driver.NewDriver(cfg)
+	drv.Driver = d
+	return err
+}
+
+func (driver *VirtualThermostatDriver) Start() error {
+
 	for tstatnum := 0; tstatnum < driver.ntstats; tstatnum++ {
 		tstatnum := tstatnum
 
@@ -60,7 +61,7 @@ func (driver *VirtualThermostatDriver) start() {
 			return driver.Respond("virtual_thermostat", instance, uint64(msg.Requestid), reading)
 		})
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		err = driver.AddReport("virtual_thermostat", instance, func() (*xbospb.XBOSIoTDeviceState, error) {
@@ -92,9 +93,11 @@ func (driver *VirtualThermostatDriver) start() {
 			return reading, nil
 		})
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	}
+
+	return driver.BlockUntilError()
 }
 
 func main() {
@@ -104,8 +107,7 @@ func main() {
 		SiteRouter: "localhost:4516",
 		ReportRate: 10 * time.Second,
 	}
-	driver := newVirtualThermostatDriver(1, cfg)
+	tstats := newVirtualThermostatDriver(2)
 
-	driver.start()
-	select {}
+	log.Fatal(driver.Manage(cfg, tstats))
 }
