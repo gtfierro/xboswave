@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 
@@ -19,6 +20,16 @@ import (
 	"github.com/immesys/wavemq/mqpb"
 	"google.golang.org/grpc"
 )
+
+func ParseResource(namespace, uri string) *xbospb.Resource {
+	parts := strings.Split(uri, "/")
+	return &xbospb.Resource{
+		Location:  "",
+		Namespace: namespace,
+		Service:   parts[0],
+		Instance:  parts[1],
+	}
+}
 
 type URI struct {
 	Namespace string
