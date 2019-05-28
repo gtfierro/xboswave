@@ -13,12 +13,11 @@ import (
 	"sync"
 	"time"
 
-	logrus "github.com/sirupsen/logrus"
-	//"github.com/golang/protobuf/descriptor"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	xbospb "github.com/gtfierro/xboswave/proto"
 	"github.com/immesys/wavemq/mqpb"
+	logrus "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
@@ -71,18 +70,6 @@ type Triple struct {
 type XBOSDriver interface {
 	Init(Config) error
 	Start() error
-}
-
-// Driver configuration struct
-type Config struct {
-	// base64 encoded namespace
-	Namespace string
-	// path to the entity file for this driver
-	EntityFile string
-	// local site router address
-	SiteRouter string
-	// default report rate
-	ReportRate time.Duration
 }
 
 // A Driver is a persistent process that handles the reporting+actuation to and from
