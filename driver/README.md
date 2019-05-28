@@ -111,11 +111,9 @@ func (vl *virtual_light) Start() error {
 }
 
 func main() {
-	cfg := driver.Config{
-		Namespace:  "GyCetklhSNcgsCKVKXxSuCUZP4M80z9NRxU1pwfb2XwGhg==",
-		EntityFile: "driver.ent",
-		SiteRouter: "localhost:4516",
-		ReportRate: 10 * time.Second,
+	cfg, err := driver.ReadConfigFromFile("params.toml")
+	if err != nil {
+		log.Fatal(err)
 	}
 	vl1 := newVirtualLight("light1")
 	vl2 := newVirtualLight("light2")
