@@ -101,13 +101,10 @@ func (driver *VirtualThermostatDriver) Start() error {
 }
 
 func main() {
-	cfg := driver.Config{
-		Namespace:  "GyCetklhSNcgsCKVKXxSuCUZP4M80z9NRxU1pwfb2XwGhg==",
-		EntityFile: "driver.ent",
-		SiteRouter: "localhost:4516",
-		ReportRate: 10 * time.Second,
+	cfg, err := driver.ReadConfigFromFile("params.toml")
+	if err != nil {
+		log.Fatal(err)
 	}
-	tstats := newVirtualThermostatDriver(2)
-
+	tstats := newVirtualThermostatDriver(cfg.GetInt("num_tstats"))
 	log.Fatal(driver.Manage(cfg, tstats))
 }

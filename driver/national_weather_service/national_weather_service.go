@@ -8,7 +8,6 @@ import (
 	"github.com/parnurzeal/gorequest"
 	"github.com/pkg/errors"
 	"log"
-	"time"
 )
 
 type datum struct {
@@ -128,12 +127,12 @@ func (nws *NationalWeatherServiceDriver) read(station string) (datum, error) {
 }
 
 func main() {
-	cfg := driver.Config{
-		Namespace:  "GyCetklhSNcgsCKVKXxSuCUZP4M80z9NRxU1pwfb2XwGhg==",
-		EntityFile: "driver.ent",
-		SiteRouter: "localhost:4516",
-		ReportRate: 15 * time.Minute,
+	cfg, err := driver.ReadConfigFromFile("params.toml")
+	if err != nil {
+		log.Fatal(err)
 	}
-	nws := newDriver([]string{"KOAK", "KTOA"}, "github.com/gtfierro/xboswave")
+	stations := cfg.GetStringSlice("stations")
+	contact := cfg.GetString("contact")
+	nws := newDriver(stations, contact)
 	log.Fatal(driver.Manage(cfg, nws))
 }
