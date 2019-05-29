@@ -209,7 +209,7 @@ $echo "${INFO}Adding archival requests${NC}"
 #echo "ssh -p 2222 root@172.17.0.1"
 cmd="add xbosproto/XBOS /plugins/system_monitor.so ${namespace_hash} *"
 $echo "${OK}Password is 'demo'${NC}"
-echo "$cmd" |  ssh -p 2222 root@172.17.0.1
+echo "$cmd" |  ssh -p 2222 -o "UserKnownHostsFile=/dev/null" root@172.17.0.1
 
 $echo "${OK}Password is 'demo'${NC}"
-echo "list" |  ssh -p 2222 root@172.17.0.1
+echo "list" |  ssh -p 2222 -o "UserKnownHostsFile=/dev/null" root@172.17.0.1
