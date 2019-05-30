@@ -43,7 +43,7 @@ class LPBCProcess(XBOSProcess):
         self.last_spbc_command = None
         self.control_on = False
 
-        schedule(self.subscribe_extract(self.namespace, f"upmu/{self.upmu}", ".C37DataFrame.phasorChannels[].data[]", self._upmucb))
+        schedule(self.subscribe_extract(self.namespace, f"upmu/{self.upmu}", ".C37DataFrame", self._upmucb))
         schedule(self.subscribe_extract(self.namespace, "spbc/1", ".EnergiseMessage.SPBC", self._spbccb))
 	
         schedule(self.call_periodic(self._rate, self._trigger, runfirst=False))
@@ -63,22 +63,20 @@ class LPBCProcess(XBOSProcess):
             if self.last_spbc_command is None or len(self.last_spbc_command.values) == 0:
                 self._log.warning(f"LPBC {self.name} has not received an SPBC command")
                 return
-            upmu_value = self.last_upmu_reading.values[-1] # most recent
-            timestamp = datetime.utcfromtimestamp(int(upmu_value['time']) / 1e9)
+            c37_frame = self.last_upmu_reading.values[-1] # most recent
             spbc_cmd = self.last_spbc_command.values[-1] # most recent
             targets = spbc_cmd['phasorTarget']
-            await self.do_trigger(timestamp, upmu_value['magnitude'], upmu_value['angle'], targets['P'], targets['Q'])
+            await self.do_trigger(c37_frame, targets['P'], targets['Q'])
         except IndexError:
             return # no upmu readings
 
-    async def do_trigger(self, timestamp, vmag, vang, p_target, q_target):
-        self._log.info(f"""LPBC {self.name} received call at {timestamp}:
-    V(mag): {vmag}
-    V(ang): {vang}
+    async def do_trigger(self, c37_frame, p_target, q_target):
+        self._log.info(f"""LPBC {self.name} received call at {datetime.now()}:
+    C37 data frame: {c37_frame}
     SPBC targets: P: {p_target} Q: {q_target}
     Enable control?: {self.control_on}
         """)
-        error, mp, mq, sat = self.step(timestamp, vmag, vang, p_target, q_target)
+        error, mp, mq, sat = self.step(c37_frame, p_target, q_target)
 
         msg = XBOS(
                 EnergiseMessage=EnergiseMessage(
