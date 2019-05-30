@@ -18,6 +18,8 @@ message Phasor {
   int64 time = 1;
   double angle = 2;
   double magnitude = 3;
+  double P = 4;
+  double Q = 5;
 }
 message ScalarChannel {
   string channelName = 1;
