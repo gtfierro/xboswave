@@ -25,6 +25,7 @@ import "parker.proto";
 
 // c37 + other energise-related
 import "c37.proto";
+import "energise.proto";
 
 // Root union type
 // We reserve 50 fields per imported file
@@ -49,6 +50,7 @@ message XBOS {
 
   //External Protocols
   C37DataFrame C37DataFrame = 250;
+  EnergiseMessage EnergiseMessage = 251;
 }
 
 enum Transport {

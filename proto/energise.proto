@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package xbospb;
+
+import "c37.proto";
+
+message EnergiseMessage {
+    SPBC SPBC = 1;
+    LPBCStatus LPBCStatus = 2;
+    LPBCCommand LPBCCommand = 3;
+}
+
+message EnergiseError {
+    string msg = 1;
+}
+
+// Defines the messages required for the ENERGISE project:
+
+message SPBC {
+    // current time of announcement in milliseconds
+    int64 time = 1;
+    
+    Phasor phasor_target = 2;
+    EnergiseError error = 3;
+}
+
+message LPBCStatus {
+    // current time of announcement in milliseconds
+    int64 time = 1;
+    // contains potential errors
+    EnergiseError error = 2;
+
+    // current P, Q of LPBC
+    Phasor phasors = 3;
+
+    // true if LPBC is saturated
+    bool saturated = 4;
+    // true of the LPBC is performing control
+    bool do_control = 5;
+}
+
+message LPBCCommand {
+    // current time of announcement in milliseconds
+    int64 time = 1;
+    // new phasor target (direct actuation). LPBC will also listen to phasor targets
+    // from SPBC messages
+    Phasor phasor_target = 2;
+    // set whether or not the LPBC is performing control
+    bool do_control = 3;
+}
