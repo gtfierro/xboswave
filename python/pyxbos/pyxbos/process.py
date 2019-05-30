@@ -49,7 +49,7 @@ class XBOSProcess:
             else:
                 raise ConfigMissingError('entity', extra="And no WAVE_DEFAULT_ENTITY in environment")
         if 'expiry' not in cfg:
-            cfg['expiry'] = 120
+            cfg['expiry'] = 10 # default to 10 second expiry
 
         self._cfg = cfg
 
