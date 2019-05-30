@@ -34,8 +34,11 @@ class LPBCProcess(XBOSProcess):
             raise ConfigMissingError('upmu')
         if 'name' not in cfg:
             raise ConfigMissingError('name')
+        if 'rate' not in cfg:
+            raise ConfigMissingError('rate')
         self.upmu = cfg['upmu']
         self.name = cfg['name']
+        self._rate = int(cfg['rate'])
         self.last_upmu_reading = None
         self.last_spbc_command = None
         self.control_on = False
@@ -43,7 +46,7 @@ class LPBCProcess(XBOSProcess):
         schedule(self.subscribe_extract(self.namespace, f"upmu/{self.upmu}", ".C37DataFrame.phasorChannels[].data[]", self._upmucb))
         schedule(self.subscribe_extract(self.namespace, "spbc/1", ".EnergiseMessage.SPBC", self._spbccb))
 	
-        schedule(self.call_periodic(2, self._trigger, runfirst=False))
+        schedule(self.call_periodic(self._rate, self._trigger, runfirst=False))
 
         self._log.info(f"initialized LPBC: {cfg}")
 
