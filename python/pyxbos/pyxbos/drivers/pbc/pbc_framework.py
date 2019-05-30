@@ -13,6 +13,12 @@ class SPBCProcess(XBOSProcess):
         self.namespace = b64decode(cfg['namespace'])
         self._log.info(f"initialized SPBC: {cfg}")
 
+        self.lpbcs = {}
+        schedule(self.subscribe_extract(self.namespace, "lpbc/*", ".EnergiseMessage.LPBCStatus", self._lpbccb))
+
+    def _lpbccb(self, resp):
+        self.lpbcs[resp.uri] = resp
+
     async def broadcast_target(self, p, q):
         self._log.info(f"SPBC announcing p {p} q {q}")
         await self.publish(self.namespace, "spbc/1", XBOS(

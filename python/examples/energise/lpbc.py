@@ -11,21 +11,49 @@ class democontroller(pbc.LPBCProcess):
     """
     def __init__(self, cfg):
         super().__init__(cfg)
+
+        # Create whatever instance variables + initialization you want here.
+        # Pass options in using the 'cfg' dictionary
+
         self.measured_p = 1
         self.measured_q = 1
-        self.vmag = None
-        self.vang = None
         self.saturated = False
 
-    def step(self, timestamp, vmag, vang, p_target, q_target):
+    def step(self, c37_frame, p_target, q_target):
         """
-        Step is called every 'rate' seconds with the most recent Vmag and Vang from the upmu
+        Step is called every 'rate' seconds with the most recent c37 frame from the upmu
         and the latest P and Q targets given by the SPBC.
 
         It runs its control loop to determine the actuation, performs it is 'self.control_on' is True
         and returns the status
+
+        C37 frame looks like
+
+            {
+                "stationName": "ENERGIZE_1",
+                "idCode": 1,
+                "phasorChannels": [
+                    {
+                        "channelName": "L1MagAng",
+                        "unit": "Volt",
+                        "data": [
+                            {
+                                "time": "1559231114799996800",
+                                "angle": 193.30149788923268,
+                                "magnitude": 0.038565948605537415
+                            },
+                            {
+                                "time": "1559231114899996400",
+                                "angle": 195.50249902851263,
+                                "magnitude": 0.042079225182533264
+                            }
+                        ]
+                    }
+                ]
+            }
         """
-        self.vmag, self.vang = vmag, vang
+
+        print(c37_frame)
 
         # do measurements
         self.measured_p = random.randint(0,100)

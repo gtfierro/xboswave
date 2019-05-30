@@ -15,6 +15,8 @@ class myspbc(pbc.SPBCProcess):
 
     async def compute_and_announce(self):
         # do expensive compute to get new P and Q
+        for lpbc, status in self.lpbcs.items():
+            print('LPBC status:', lpbc,':', status)
         self.p = 100 * random.random()
         self.q = 100 * random.random()
         await self.broadcast_target(self.p, self.q)
