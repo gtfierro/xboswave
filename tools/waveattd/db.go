@@ -76,10 +76,87 @@ func NewDB(cfg *Config) (*DB, error) {
 		return nil, err
 	}
 
+	// resolve any names in the tables if we have new names
+	db.resolveHashesToNames()
+
 	// setup interactive shell
 	db.setupShell()
 
 	return db, nil
+}
+
+func (db *DB) resolveHashesToNames() {
+	stmt := `SELECT id, subject from attestations;`
+	rows, err := db.db.Query(stmt)
+	if err != nil {
+		fmt.Println(err)
+		rows.Close()
+		return
+	}
+	var updateatts []struct {
+		subject string
+		id      int
+	}
+	for rows.Next() {
+		att := &Attestation{}
+		if err := rows.Scan(&att.id, &att.Subject); err != nil {
+			fmt.Println(err)
+			continue
+		}
+		name := getNameFromHash(db.wave, db.perspective, att.Subject)
+		if name != att.Subject {
+			updateatts = append(updateatts, struct {
+				subject string
+				id      int
+			}{name, att.id})
+		}
+	}
+	rows.Close()
+
+	for _, update := range updateatts {
+		_, err := db.db.Exec("UPDATE attestations SET subject=? WHERE id=?", update.subject, update.id)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+	}
+
+	var updatepols []struct {
+		ns   string
+		pset string
+		id   int
+	}
+
+	stmt = `SELECT id, namespace, pset from policies;`
+	prows, err := db.db.Query(stmt)
+	defer prows.Close()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for prows.Next() {
+		pol := &PolicyStatement{}
+		if err := prows.Scan(&pol.id, &pol.Namespace, &pol.PermissionSet); err != nil {
+			fmt.Println(err)
+			continue
+		}
+		ns := getNameFromHash(db.wave, db.perspective, pol.Namespace)
+		pset := getNameFromHash(db.wave, db.perspective, pol.PermissionSet)
+		if ns != pol.Namespace || pset != pol.PermissionSet {
+			updatepols = append(updatepols, struct {
+				ns   string
+				pset string
+				id   int
+			}{ns, pset, pol.id})
+		}
+	}
+	for _, update := range updatepols {
+		_, err := db.db.Exec("UPDATE policies SET namespace=? , SET pset=? WHERE id=?", update.ns, update.pset, update.id)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+	}
 }
 
 func (db *DB) watch(dir string) {
