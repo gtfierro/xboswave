@@ -158,6 +158,10 @@ func (db *DB) insertPolicy(pol *PolicyStatement) error {
 		return err
 	}
 
+	// resolve names (if any)
+	pol.Namespace = getNameFromHash(db.wave, db.perspective, pol.Namespace)
+	pol.PermissionSet = getNameFromHash(db.wave, db.perspective, pol.PermissionSet)
+
 	row := tx.QueryRow(formQueryStr("policies", "id", map[string]string{
 		"namespace":    pol.Namespace,
 		"resource":     pol.Resource,
@@ -215,6 +219,9 @@ func (db *DB) insertAttestation(att *Attestation) error {
 			return err
 		}
 
+		ps.Namespace = getNameFromHash(db.wave, db.perspective, ps.Namespace)
+		ps.PermissionSet = getNameFromHash(db.wave, db.perspective, ps.PermissionSet)
+
 		// see if policy already exists
 		row := tx.QueryRow(formQueryStr("policies", "id", map[string]string{
 			"namespace":    ps.Namespace,
@@ -269,6 +276,9 @@ func (db *DB) insertAttestation(att *Attestation) error {
 				return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
 			}
 		}
+
+		fmt.Printf("Resolve subject from %s to %s\n", att.Subject, getNameFromHash(db.wave, db.perspective, att.Subject))
+		att.Subject = getNameFromHash(db.wave, db.perspective, att.Subject)
 
 		_, err = tx.Exec(fmt.Sprintf(stmt, string(pol)), att.Hash, att.ValidUntil, string(pol), att.Subject)
 		if err != nil {
@@ -334,6 +344,7 @@ func formQueryStr(table, attribute string, where map[string]string) string {
 
 func (db *DB) readAttestations(rows *sql.Rows) ([]Attestation, error) {
 	var ret []Attestation
+	var seenhashes = make(map[string]struct{})
 	for rows.Next() {
 		att := &Attestation{}
 		var expires interface{}
@@ -342,6 +353,11 @@ func (db *DB) readAttestations(rows *sql.Rows) ([]Attestation, error) {
 		if err := rows.Scan(&att.Hash, &att.Subject, &expires, &_policyids); err != nil {
 			return nil, err
 		}
+		if _, found := seenhashes[att.Hash]; found {
+			continue
+		}
+		seenhashes[att.Hash] = struct{}{}
+
 		if expires != nil {
 			att.ValidUntil = expires.(time.Time)
 		}
