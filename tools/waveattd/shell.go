@@ -160,6 +160,12 @@ func (db *DB) setupShell() {
 				return
 			}
 
+			filename := fmt.Sprintf("%s.ent", entity_name)
+			if _, err := os.Stat(filename); err == nil || !os.IsNotExist(err) {
+				c.Err(fmt.Errorf("File %s.ent already exists in current directory. Exiting", entity_name))
+				return
+			}
+
 			resp, err := db.wave.CreateEntity(context.Background(), &pb.CreateEntityParams{
 				ValidFrom:  time.Now().UnixNano() / 1e6,
 				ValidUntil: time.Now().Add(*expiry).UnixNano() / 1e6,
@@ -180,7 +186,6 @@ func (db *DB) setupShell() {
 				Bytes: resp.SecretDER,
 			}
 			stringhash := base64.URLEncoding.EncodeToString(resp.Hash)
-			filename := fmt.Sprintf("%s.ent", entity_name)
 			err = ioutil.WriteFile(filename, pem.EncodeToMemory(&bl), 0600)
 			if err != nil {
 				c.Err(fmt.Errorf("could not write entity file: %v\n", err))
@@ -206,10 +211,8 @@ func (db *DB) setupShell() {
 				Perspective: db.perspective,
 				Name:        entity_name,
 				Subject:     resp.Hash,
-				//Namespace:   resp.Hash,
-				//Partition:   [][]byte{[]byte("privatenamedeclarations")},
-				ValidFrom:  time.Now().UnixNano() / 1e6,
-				ValidUntil: time.Now().Add(*expiry).UnixNano() / 1e6,
+				ValidFrom:   time.Now().UnixNano() / 1e6,
+				ValidUntil:  time.Now().Add(*expiry).UnixNano() / 1e6,
 			}
 			cresp, err := db.wave.CreateNameDeclaration(context.Background(), &params)
 			if err != nil {
