@@ -86,6 +86,7 @@ func NewDB(cfg *Config) (*DB, error) {
 }
 
 func (db *DB) resolveHashesToNames() {
+	db.syncgraph()
 	stmt := `SELECT id, subject from attestations;`
 	rows, err := db.db.Query(stmt)
 	if err != nil {
@@ -103,7 +104,7 @@ func (db *DB) resolveHashesToNames() {
 			fmt.Println(err)
 			continue
 		}
-		name := getNameFromHash(db.wave, db.perspective, att.Subject)
+		name := db.getNameFromHash(att.Subject)
 		if name != att.Subject {
 			updateatts = append(updateatts, struct {
 				subject string
@@ -140,8 +141,8 @@ func (db *DB) resolveHashesToNames() {
 			fmt.Println(err)
 			continue
 		}
-		ns := getNameFromHash(db.wave, db.perspective, pol.Namespace)
-		pset := getNameFromHash(db.wave, db.perspective, pol.PermissionSet)
+		ns := db.getNameFromHash(pol.Namespace)
+		pset := db.getNameFromHash(pol.PermissionSet)
 		if ns != pol.Namespace || pset != pol.PermissionSet {
 			updatepols = append(updatepols, struct {
 				ns   string
@@ -236,8 +237,8 @@ func (db *DB) insertPolicy(pol *PolicyStatement) error {
 	}
 
 	// resolve names (if any)
-	pol.Namespace = getNameFromHash(db.wave, db.perspective, pol.Namespace)
-	pol.PermissionSet = getNameFromHash(db.wave, db.perspective, pol.PermissionSet)
+	pol.Namespace = db.getNameFromHash(pol.Namespace)
+	pol.PermissionSet = db.getNameFromHash(pol.PermissionSet)
 
 	row := tx.QueryRow(formQueryStr("policies", "id", map[string]string{
 		"namespace":    pol.Namespace,
@@ -296,8 +297,8 @@ func (db *DB) insertAttestation(att *Attestation) error {
 			return err
 		}
 
-		ps.Namespace = getNameFromHash(db.wave, db.perspective, ps.Namespace)
-		ps.PermissionSet = getNameFromHash(db.wave, db.perspective, ps.PermissionSet)
+		ps.Namespace = db.getNameFromHash(ps.Namespace)
+		ps.PermissionSet = db.getNameFromHash(ps.PermissionSet)
 
 		// see if policy already exists
 		row := tx.QueryRow(formQueryStr("policies", "id", map[string]string{
@@ -354,8 +355,8 @@ func (db *DB) insertAttestation(att *Attestation) error {
 			}
 		}
 
-		fmt.Printf("Resolve subject from %s to %s\n", att.Subject, getNameFromHash(db.wave, db.perspective, att.Subject))
-		att.Subject = getNameFromHash(db.wave, db.perspective, att.Subject)
+		fmt.Printf("Resolve subject from %s to %s\n", att.Subject, db.getNameFromHash(att.Subject))
+		att.Subject = db.getNameFromHash(att.Subject)
 
 		_, err = tx.Exec(fmt.Sprintf(stmt, string(pol)), att.Hash, att.ValidUntil, string(pol), att.Subject)
 		if err != nil {
