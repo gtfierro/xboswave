@@ -1,13 +1,19 @@
 package main
 
 import (
+	"context"
+	"encoding/base64"
+	"encoding/pem"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/abiosoft/ishell"
+	"github.com/immesys/wave/eapi"
+	"github.com/immesys/wave/eapi/pb"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -136,6 +142,91 @@ func (db *DB) setupShell() {
 					return
 				}
 			}
+		},
+	})
+
+	db.shell.AddCmd(&ishell.Cmd{
+		Name: "mke",
+		Help: "Make entity",
+		Func: func(c *ishell.Context) {
+			if len(c.Args) < 2 {
+				c.Println("mke name expiry")
+				return
+			}
+			entity_name := c.Args[0]
+			expiry, err := ParseDuration(c.Args[1])
+			if err != nil {
+				c.Err(err)
+				return
+			}
+
+			filename := fmt.Sprintf("%s.ent", entity_name)
+			if _, err := os.Stat(filename); err == nil || !os.IsNotExist(err) {
+				c.Err(fmt.Errorf("File %s.ent already exists in current directory. Exiting", entity_name))
+				return
+			}
+
+			resp, err := db.wave.CreateEntity(context.Background(), &pb.CreateEntityParams{
+				ValidFrom:  time.Now().UnixNano() / 1e6,
+				ValidUntil: time.Now().Add(*expiry).UnixNano() / 1e6,
+				RevocationLocation: &pb.Location{
+					AgentLocation: "default",
+				},
+			})
+			if err != nil {
+				c.Err(err)
+				return
+			}
+			if resp.Error != nil {
+				c.Err(fmt.Errorf("error: [%d] %v\n", resp.Error.Code, resp.Error.Message))
+				return
+			}
+			bl := pem.Block{
+				Type:  eapi.PEM_ENTITY_SECRET,
+				Bytes: resp.SecretDER,
+			}
+			stringhash := base64.URLEncoding.EncodeToString(resp.Hash)
+			err = ioutil.WriteFile(filename, pem.EncodeToMemory(&bl), 0600)
+			if err != nil {
+				c.Err(fmt.Errorf("could not write entity file: %v\n", err))
+				return
+			}
+			fmt.Printf("wrote entity: %s\n", filename)
+			presp, err := db.wave.PublishEntity(context.Background(), &pb.PublishEntityParams{
+				DER: resp.PublicDER,
+				Location: &pb.Location{
+					AgentLocation: "default",
+				},
+			})
+			if err != nil {
+				c.Err(fmt.Errorf("publish error: %v\n", err))
+				return
+			}
+			if presp.Error != nil {
+				c.Err(fmt.Errorf("publish error: %s\n", presp.Error.Message))
+				return
+			}
+			fmt.Printf("published entity\n")
+			params := pb.CreateNameDeclarationParams{
+				Perspective: db.perspective,
+				Name:        entity_name,
+				Subject:     resp.Hash,
+				ValidFrom:   time.Now().UnixNano() / 1e6,
+				ValidUntil:  time.Now().Add(*expiry).UnixNano() / 1e6,
+			}
+			cresp, err := db.wave.CreateNameDeclaration(context.Background(), &params)
+			if err != nil {
+				c.Err(fmt.Errorf("unable to create name: %v\n", err))
+				return
+			}
+			if cresp.Error != nil {
+				c.Err(fmt.Errorf("unable to create name: %v\n", cresp.Error.Message))
+				return
+			}
+
+			fmt.Printf("name %s -> %s created successfully\n", params.Name, stringhash)
+			db.resolveHashesToNames()
+
 		},
 	})
 

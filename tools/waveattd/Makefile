@@ -18,7 +18,7 @@ sql:
 
 generate-entities: build
 	# clean up from last time
-	rm *.pem src.db
+	rm -f *.pem src.db
 	wv mke -o ns.ent --nopassphrase
 	wv mke -o src.ent --nopassphrase
 	wv mke -o dst1.ent --nopassphrase
