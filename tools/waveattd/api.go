@@ -66,7 +66,8 @@ func (db *DB) CreateAttestation(subjectHashOrFile string, ValidUntil time.Time, 
 	if len(policies) == 0 {
 		return fmt.Errorf("Need > 0 policies")
 	}
-	subject := resolveEntityNameOrHashOrFile(db.wave, db.perspective, subjectHashOrFile, "missing subject entity")
+	possiblename := getHashFromName(db.wave, db.perspective, subjectHashOrFile)
+	subject := resolveEntityNameOrHashOrFile(db.wave, db.perspective, possiblename, "missing subject entity")
 
 	subjresp, err := db.wave.ResolveHash(context.Background(), &pb.ResolveHashParams{
 		Hash: subject,

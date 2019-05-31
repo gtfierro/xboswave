@@ -164,6 +164,5 @@ func getHashFromName(conn pb.WAVEClient, perspective *pb.Perspective, name strin
 		fmt.Printf("Could not resolve hash for name %v\n", resp.Error.Message)
 		return name
 	}
-	fmt.Printf("%+v", resp)
-	return "hash"
+	return base64.URLEncoding.EncodeToString(resp.Entity.Hash)
 }
