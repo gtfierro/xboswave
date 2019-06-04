@@ -78,6 +78,7 @@ func NewDB(cfg *Config) (*DB, error) {
 
 	// resolve any names in the tables if we have new names
 	db.resolveHashesToNames()
+	db.removeDups()
 
 	// setup interactive shell
 	db.setupShell()
@@ -85,12 +86,79 @@ func NewDB(cfg *Config) (*DB, error) {
 	return db, nil
 }
 
+func (db *DB) removeDups() {
+	var pending []*PolicyStatement
+	stmt := `select count(*), namespace, pset, resource, permissions, indirections from policies group by namespace, pset, resource, permissions, indirections;`
+	rows, err := db.db.Query(stmt)
+	if err != nil {
+		log.Error(err)
+		rows.Close()
+		return
+	}
+
+	for rows.Next() {
+		var count int
+		pol := &PolicyStatement{}
+		var _perm []byte
+		if err := rows.Scan(&count, &pol.Namespace, &pol.PermissionSet, &pol.Resource, &_perm, &pol.Indirections); err != nil {
+			log.Error(err)
+			continue
+		}
+		if err := json.Unmarshal(_perm, &pol.Permissions); err != nil {
+			log.Error(err)
+			continue
+		}
+		if count > 1 {
+			fmt.Println(count, "dups for", pol)
+			pending = append(pending, pol)
+		}
+	}
+	rows.Close()
+
+	for _, pol := range pending {
+		fmt.Println(pol.Namespace, pol.PermissionSet, pol.Resource, pol.permissionString(), pol.Indirections)
+		rows, err := db.db.Query("select id from policies where namespace=? AND pset=? AND resource=? AND permissions=? AND indirections=?;", pol.Namespace, pol.PermissionSet, pol.Resource, pol.permissionString(), pol.Indirections)
+
+		//rows, err := db.db.Query("select id from policies where namespace=? and resource=? and permissions=?;", pol.Namespace, pol.Resource, pol.permissionString())
+		if err != nil {
+			log.Error(err)
+			rows.Close()
+			return
+		}
+		var ids []int
+		for rows.Next() {
+			var id int
+			if err := rows.Scan(&id); err != nil {
+				log.Error(err)
+				continue
+			}
+			ids = append(ids, id)
+		}
+		rows.Close()
+
+		new_pol := ids[0]
+		for _, old_pol := range ids[1:] {
+			_, err = db.db.Exec("delete from policies where id=?", old_pol)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+			stmt := fmt.Sprintf("update attestations set policies=json_insert(json_remove(policies, '$.%d'), '$.%d', 0) where json_extract(policies, '$.%d')!='';", old_pol, new_pol, old_pol)
+			_, err = db.db.Exec(stmt)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+		}
+	}
+}
+
 func (db *DB) resolveHashesToNames() {
 	db.syncgraph()
 	stmt := `SELECT id, subject from attestations;`
 	rows, err := db.db.Query(stmt)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		rows.Close()
 		return
 	}
@@ -101,7 +169,7 @@ func (db *DB) resolveHashesToNames() {
 	for rows.Next() {
 		att := &Attestation{}
 		if err := rows.Scan(&att.id, &att.Subject); err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			continue
 		}
 		name := db.getNameFromHash(att.Subject)
@@ -117,7 +185,7 @@ func (db *DB) resolveHashesToNames() {
 	for _, update := range updateatts {
 		_, err := db.db.Exec("UPDATE attestations SET subject=? WHERE id=?", update.subject, update.id)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			continue
 		}
 	}
@@ -132,13 +200,13 @@ func (db *DB) resolveHashesToNames() {
 	prows, err := db.db.Query(stmt)
 	defer prows.Close()
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		return
 	}
 	for prows.Next() {
 		pol := &PolicyStatement{}
 		if err := prows.Scan(&pol.id, &pol.Namespace, &pol.PermissionSet); err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			continue
 		}
 		ns := db.getNameFromHash(pol.Namespace)
@@ -152,9 +220,9 @@ func (db *DB) resolveHashesToNames() {
 		}
 	}
 	for _, update := range updatepols {
-		_, err := db.db.Exec("UPDATE policies SET namespace=? , SET pset=? WHERE id=?", update.ns, update.pset, update.id)
+		_, err := db.db.Exec("UPDATE policies SET namespace=?, pset=? WHERE id=?", update.ns, update.pset, update.id)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			continue
 		}
 	}

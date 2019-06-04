@@ -16,6 +16,7 @@ import (
 	"github.com/immesys/wavemq/server"
 	logging "github.com/op/go-logging"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	logrus "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -60,6 +61,10 @@ func main() {
 			Usage:  "Manage attestations",
 			Action: runWaveAtt,
 			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "verbose, v",
+					Usage: "if set, set verbose to True (DEBUG)",
+				},
 				cli.StringFlag{
 					Name:   "db",
 					EnvVar: "WAVEATTD_DB_LOCATION",
@@ -82,7 +87,7 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		lg.Fatal(err)
+		log.Fatal(err)
 	}
 }
 
@@ -98,6 +103,9 @@ func runWaveAtt(c *cli.Context) error {
 	agent := c.String("waved")
 	if agent == "" {
 		return fmt.Errorf("Set WAVE_AGENT")
+	}
+	if c.Bool("v") {
+		log.SetLevel(logrus.DebugLevel)
 	}
 	log.Info("╒ WAVEATTD_DB_LOCATION: ", location)
 	log.Info("╞ WAVE_DEFAULT_ENTITY: ", entity)

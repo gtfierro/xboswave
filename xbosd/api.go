@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"time"
 
 	"github.com/immesys/wave/eapi"
@@ -127,8 +126,7 @@ func (db *DB) CreateAttestation(subjectHashOrFile string, ValidUntil time.Time, 
 	outfilename := fmt.Sprintf("att_%s.pem", stringhash)
 	err = ioutil.WriteFile(outfilename, pem.EncodeToMemory(&bl), 0600)
 	if err != nil {
-		fmt.Printf("could not write attestation file: %v\n", err)
-		os.Exit(1)
+		log.Fatal(errors.Wrap(err, "could not write attestation file"))
 	}
 	presp, err := db.wave.PublishAttestation(context.Background(), &pb.PublishAttestationParams{
 		DER: resp.DER,
@@ -137,7 +135,7 @@ func (db *DB) CreateAttestation(subjectHashOrFile string, ValidUntil time.Time, 
 		return err
 	}
 	if presp.Error != nil {
-		return fmt.Errorf("error: %s\n", presp.Error.Message)
+		return errors.New(presp.Error.Message)
 	}
 	log.Infof("Published Attestation %s", stringhash)
 
@@ -169,7 +167,7 @@ func (db *DB) Validate(att Attestation) error {
 			return err
 		}
 		if resp.Error != nil {
-			return fmt.Errorf("error: %v\n", resp.Error.Message)
+			return errors.New(resp.Error.Message)
 		}
 
 		vresp, err := db.wave.VerifyProof(context.Background(), &pb.VerifyProofParams{
@@ -179,7 +177,7 @@ func (db *DB) Validate(att Attestation) error {
 			return err
 		}
 		if vresp.Error != nil {
-			return fmt.Errorf("error: %v\n", vresp.Error.Message)
+			return errors.New(vresp.Error.Message)
 		}
 		//proof := vresp.Result
 		//fmt.Printf("  Validity:\n")
@@ -219,7 +217,7 @@ func (db *DB) syncgraph() error {
 		return err
 	}
 	if resp.Error != nil {
-		return fmt.Errorf("error: %v\n", resp.Error.Message)
+		return errors.New(resp.Error.Message)
 	}
 	srv, err := db.wave.WaitForSyncComplete(context.Background(), &pb.SyncParams{
 		Perspective: db.perspective,
@@ -236,9 +234,13 @@ func (db *DB) syncgraph() error {
 }
 
 func (db *DB) getNameFromHash(hash string) (name string) {
+	// check wave, wavemq
+	if hash == "GyAUM3SzL9J0OVT-R4b2z4bUA3IPXsRCNrZYwmoeaA9uAQ==" {
+		return "wavemq"
+	}
 	bytehash, err := base64.URLEncoding.DecodeString(hash)
 	if err != nil {
-		fmt.Printf("Hash %v was not base64 (%v)", hash, err)
+		log.Debug(errors.Wrapf(err, "Hash %v was not base64", hash))
 		return hash
 	}
 	resp, err := db.wave.ResolveReverseName(context.Background(), &pb.ResolveReverseNameParams{
@@ -246,11 +248,11 @@ func (db *DB) getNameFromHash(hash string) (name string) {
 		Hash:        bytehash,
 	})
 	if err != nil {
-		fmt.Printf("Could not resolve name of hash %s %v\n", hash, err)
+		log.Debug(errors.Wrapf(err, "Could not resolve name of hash %s", hash))
 		return hash
 	}
 	if resp.Error != nil {
-		fmt.Printf("Could not resolve name of hash %s %v\n", hash, resp.Error.Message)
+		log.Debug(errors.Errorf("Could not resolve name of hash %s: %v", hash, resp.Error.Message))
 		return hash
 	}
 	return resp.Name
@@ -262,11 +264,11 @@ func (db *DB) getHashFromName(name string) (hash string) {
 		Name:        name,
 	})
 	if err != nil {
-		fmt.Printf("Could not resolve hash for name %v\n", err)
+		log.Debug(errors.Wrap(err, "could not resolve hash for name"))
 		return name
 	}
 	if resp.Error != nil {
-		fmt.Printf("Could not resolve hash for name %v\n", resp.Error.Message)
+		log.Debug(errors.Errorf("could not resolve hash for name: %v", resp.Error))
 		return name
 	}
 	return base64.URLEncoding.EncodeToString(resp.Entity.Hash)

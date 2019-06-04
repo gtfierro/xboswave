@@ -2,13 +2,16 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"time"
 
 	"github.com/immesys/wave/eapi/pb"
+	"github.com/pkg/errors"
 	logrus "github.com/sirupsen/logrus"
 )
 
@@ -17,7 +20,7 @@ var log = logrus.New()
 func init() {
 	log.SetFormatter(&logrus.TextFormatter{FullTimestamp: true, ForceColors: true})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(logrus.DebugLevel)
+	log.SetLevel(logrus.InfoLevel)
 }
 
 // this is a "stringy" version of pb.Attestation that is easier to
@@ -57,6 +60,17 @@ type PolicyStatement struct {
 	Indirections  uint32
 	Permissions   []string
 	Resource      string
+}
+
+func (ps PolicyStatement) permissionString() string {
+	var s = sort.StringSlice(ps.Permissions)
+	s.Sort()
+	b, err := json.Marshal(s)
+	if err != nil {
+		log.Error(errors.Wrap(err, "should not happen"))
+		return ""
+	}
+	return string(b)
 }
 
 func ParsePolicyStatement(body *pb.AttestationBody) (stmts []PolicyStatement) {
