@@ -165,6 +165,24 @@ message Meter {
     Double apparent_power = 3 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Apparent_Power_Sensor'];
     //unit: KWh
     Double energy = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Energy_Sensor'];
+    //unit: kVAR
+    Double reactive_power = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Reactive_Power_Sensor'];
+    //unit: Amps
+    Double current = 5 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Current_Sensor'];
+    //unit: kW
+    Double demand = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Demand_Sensor'];
+    //unit: Gallons
+    Double water_total = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Water_Total_Sensor'];
+    //unit: Gallons per Minute
+    Double water_rate = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Water_Rate_Sensor'];
+    //unit: Gallons per Minute
+    Double water_instantaneous = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Water_Instantaneous_Sensor'];
+    //unit: Gallons
+    Double condense_total = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Condense_Total_Sensor'];
+    //unit: Gallons per Minute
+    Double condense_rate = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Condense_Rate_Sensor'];
+    //unit: Gallons per Minute
+    Double condense_instantaneous = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Condense_Instantaneous_Sensor'];
 }
 
 message Light {
