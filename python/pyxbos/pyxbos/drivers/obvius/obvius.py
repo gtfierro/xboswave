@@ -19,18 +19,12 @@ class ObviusDriver(Driver):
         self.bmoroot = cfg['obvius']['bmoroot']
         self.statuspage = cfg['obvius']['statuspage']
         self.auth = (cfg['obvius']['username'], cfg['obvius']['password'])
+        self.devices = {}
+        self.conf = {}
+        self.discoverMeters()
 
-    def read(self, requestid=None):
-        end = datetime.today()
-        start = end - timedelta(days=1)
-        crawl(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
-
-    def crawl(self, start, end, getConfig):
-        starttime = start.split("-")
-        endtime = end.split("-")
-
+    def discoverMeters(self):
         # find all the AcquiSuite boxes
-        devices = {}
         response = requests.get(self.bmoroot + self.statuspage, auth=self.auth)
         soup = bs(response.content, features="html.parser")
 
@@ -40,14 +34,14 @@ class ObviusDriver(Driver):
                 continue
 
             name = tds[0].a.string
-            devices[name] = {
+            self.devices[name] = {
                 'ip' : self.remove_nbsp(tds[3].string),
                 'href' : tds[0].a['href'],
                 }
 
          # look at all the meters hanging off each of them
-         for location in devices:
-             response = requests.get(self.bmoroot + devices[location]['href'], auth=self.auth)
+         for location in self.devices:
+             response = requests.get(self.bmoroot + self.devices[location]['href'], auth=self.auth)
              soup = bs(response.content, features="html.parser")
              subdevices = []
              for tr in soup.findAll('tr'):
@@ -61,10 +55,9 @@ class ObviusDriver(Driver):
                      'type' : self.remove_nbsp(tds[3].string),
                      'firmware': self.remove_nbsp(tds[4].string)
                  })
-             devices[location]['subdevices'] = subdevices
+             self.devices[location]['subdevices'] = subdevices
 
-        conf = {}
-        for location, devs in devices.items():
+        for location, devs in self.devices.items():
             params = urllib.parse.parse_qs(urllib.parse.urlsplit(devs['href']).query)
             if "AS" not in params or "DB" not in params:
                 continue
@@ -84,17 +77,21 @@ class ObviusDriver(Driver):
                         dlurl)
 
             if thisconf:
-                conf[location] = thisconf
+                self.conf[location] = thisconf
 
-        for building in conf:
+    def read(self, requestid=None):
+        endtime = datetime.now()
+        starttime = end - timedelta(minutes=15)
+
+        for building in self.conf:
             building_path = '/' + self.to_pathname(building)
-            for metername in conf[building].keys():
+            for metername in self.conf[building].keys():
                 meter_path = building_path + '/' + self.to_pathname(metername)
                 req_url = url.format(start, end) \
-                    + "&mnuStartMonth=" + starttime[1] + "&mnuStartDay=" + starttime[2] \
-                    + "&mnuStartYear=" + starttime[0] + "&mnuStartTime=0%3A0" \
-                    + "&mnuEndMonth=" + endtime[1] + "&mnuEndDay=" + endtime[2] \
-                    + "&mnuEndYear=" + endtime[0] + "&mnuEndTime=23%3A59"
+                    + "&mnuStartMonth=" + starttime.month + "&mnuStartDay=" + starttime.day \
+                    + "&mnuStartYear=" + starttime.year + "&mnuStartTime=" + starttime.hour + "%3A" + starttime.minute \
+                    + "&mnuEndMonth=" + endtime.month + "&mnuEndDay=" + endtime,day \
+                    + "&mnuEndYear=" + endtime.year + "&mnuEndTime=" + endtime.hour + "%3A" + endtime.minute \
 
                 response = requests.get(url=req_url, auth=self.auth)
                 if response:
@@ -135,7 +132,7 @@ if __name__ == '__main__':
         'base_resource': 'obvius',
         'entity': 'obvius.ent',
         'id': 'pyxbos-driver-obvius',
-        'rate': 86400, # 1 Day
+        'rate': 900, # 15 Minutes
     }
 
     logging.basicConfig(level="INFO", format='%(asctime)s - %(name)s - %(message)s')
