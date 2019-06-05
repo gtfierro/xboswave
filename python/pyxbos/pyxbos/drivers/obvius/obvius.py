@@ -8,6 +8,7 @@ import urllib
 from bs4 import BeautifulSoup as bs
 from datetime import datetime, timedelta
 import sensordb
+import pandas as pd
 
 try:
     import ordereddict
