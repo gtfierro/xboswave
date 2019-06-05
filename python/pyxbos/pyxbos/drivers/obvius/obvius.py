@@ -17,6 +17,7 @@ except ImportError:
 
 class ObviusDriver(Driver):
     def setup(self, cfg):
+        self.hostname = os.uname()[1]
         self.bmoroot = cfg['obvius']['bmoroot']
         self.statuspage = cfg['obvius']['statuspage']
         self.auth = (cfg['obvius']['username'], cfg['obvius']['password'])
@@ -133,6 +134,7 @@ class ObviusDriver(Driver):
                             meter = meter_data
                         )
                     )
+                    self.report(self.hostname, msg)
                 else:
                     print("Received", response.status_code, "response for request:", req_url)
 
