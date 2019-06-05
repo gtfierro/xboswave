@@ -96,12 +96,42 @@ class ObviusDriver(Driver):
                 response = requests.get(url=req_url, auth=self.auth)
                 if response:
                     data = response.content.decode('utf-8')
-
                     if "No data found within range" in data:
                         print("[Warning] No data found for "+meter_path+" within given date range")
                         continue
+                    csv_df = pd.read_csv(io.StringIO(data))
 
-                    # TODO (john-b-yang): Clean + Package Data within corresponding proto message
+                    if "water" in metername:
+                        meter_data = iot_pb2.Meter(
+                            water_total = types.Double(value=csv_df['Water (Gallons)'].mean()),
+                            water_rate = types.Double(value=csv_df['Water Ave Rate (Gpm)'].mean()),
+                            water_instantaneous = types.Double(value=csv_df['Water Instantaneous (Gpm)'].mean()),
+                        )
+                    if "electric_meter" in metername:
+                        meter_data = iot_pb2.Meter(
+                            power = types.Double(value=csv_df['Real Power (kW)'].mean()),
+                            apparent_power = types.Double(value=csv_df['Apparent Power (kVA)'].mean()),
+                            reactive_power = types.Double(value=csv_df['Reactive Power (kVAR)'].mean()),
+                            voltage = types.Double(value=csv_df['Voltage'].mean()),
+                            energy = types.Double(value=csv_df['Current (Amps)'].mean()),
+                            demand = types.Double(value=csv_df['Present Demand (kW)'].mean()),
+                        )
+                    if "condensate" in metername:
+                        meter_data = iot_pb2.Meter(
+                            condense_total = types.Double(value=csv_df['Steam Condensate Meter (Gallons)'].mean()),
+                            condense_rate = types.Double(value=csv_df['Steam Condensate Meter Ave Rate (Gpm)'].mean()),
+                            condense_instantaneous = types.Double(value=csv_df['Steam Condensate Meter Instantaneous (Gpm)'].mean()),
+                        )
+                    else:
+                        print("Unrecognized type of meter: "+meter_path)
+                        continue
+
+                    msg = xbos_pb2.XBOS(
+                        XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
+                            time = int(time.time()*1e9),
+                            meter = meter_data
+                        )
+                    )
                 else:
                     print("Received", response.status_code, "response for request:", req_url)
 
@@ -126,7 +156,7 @@ if __name__ == '__main__':
             'statuspage': driverConfig['statuspage'],
             'username': driverConfig['username'],
             'password': driverConfig['password'],
-        }
+        },
         'wavemq': 'localhost:4516',
         'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
         'base_resource': 'obvius',
