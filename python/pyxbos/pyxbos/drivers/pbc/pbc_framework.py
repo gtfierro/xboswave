@@ -24,7 +24,7 @@ class SPBCProcess(XBOSProcess):
 
     async def broadcast_target(self, p, q):
         self._log.info(f"SPBC announcing p {p} q {q}")
-        await self.publish(self.namespace, "spbc/{self.name}", XBOS(
+        await self.publish(self.namespace, f"spbc/{self.name}", XBOS(
             EnergiseMessage = EnergiseMessage(
             SPBC=SPBC(
                 time=int(datetime.utcnow().timestamp()*1e9),
@@ -56,7 +56,7 @@ class LPBCProcess(XBOSProcess):
         self.control_on = False
 
         schedule(self.subscribe_extract(self.namespace, f"upmu/{self.upmu}", ".C37DataFrame", self._upmucb))
-        schedule(self.subscribe_extract(self.namespace, "spbc/{self.spbc}", ".EnergiseMessage.SPBC", self._spbccb))
+        schedule(self.subscribe_extract(self.namespace, f"spbc/{self.spbc}", ".EnergiseMessage.SPBC", self._spbccb))
 	
         schedule(self.call_periodic(self._rate, self._trigger, runfirst=False))
 
