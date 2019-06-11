@@ -47,7 +47,7 @@ func resolveEntityNameOrHashOrFile(conn pb.WAVEClient, perspective *pb.Perspecti
 			Name:        in,
 		})
 		if err != nil {
-			fmt.Printf("could not resolve name: %v\n", err)
+			fmt.Printf("could not resolve name: %v (%s)\n", err, msg)
 			os.Exit(1)
 		}
 		if resp.Error != nil {
@@ -128,4 +128,41 @@ func loadEntitySecretDER(filename string) []byte {
 		os.Exit(1)
 	}
 	return block.Bytes
+}
+
+func getNameFromHash(conn pb.WAVEClient, perspective *pb.Perspective, hash string) (name string) {
+	bytehash, err := base64.URLEncoding.DecodeString(hash)
+	if err != nil {
+		fmt.Printf("Hash %v was not base64 (%v)", hash, err)
+		return hash
+	}
+	resp, err := conn.ResolveReverseName(context.Background(), &pb.ResolveReverseNameParams{
+		Perspective: perspective,
+		Hash:        bytehash,
+	})
+	if err != nil {
+		fmt.Printf("Could not resolve name of hash %s %v\n", hash, err)
+		return hash
+	}
+	if resp.Error != nil {
+		fmt.Printf("Could not resolve name of hash %s %v\n", hash, resp.Error.Message)
+		return hash
+	}
+	return resp.Name
+}
+
+func getHashFromName(conn pb.WAVEClient, perspective *pb.Perspective, name string) (hash string) {
+	resp, err := conn.ResolveName(context.Background(), &pb.ResolveNameParams{
+		Perspective: perspective,
+		Name:        name,
+	})
+	if err != nil {
+		fmt.Printf("Could not resolve hash for name %v\n", err)
+		return name
+	}
+	if resp.Error != nil {
+		fmt.Printf("Could not resolve hash for name %v\n", resp.Error.Message)
+		return name
+	}
+	return base64.URLEncoding.EncodeToString(resp.Entity.Hash)
 }

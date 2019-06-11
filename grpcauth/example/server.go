@@ -13,7 +13,13 @@ import (
 	pb "github.com/immesys/wave/eapi/pb"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/encoding"
+	_ "google.golang.org/grpc/encoding/gzip"
 )
+
+func init() {
+	encoding.RegisterCompressor(encoding.GetCompressor("gzip"))
+}
 
 // This is a sample GRPC server that supports both a unary call and a streaming call
 // the proto file for this server is in xboswave/proto/grpcserver.proto

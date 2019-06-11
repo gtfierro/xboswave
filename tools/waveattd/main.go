@@ -22,6 +22,7 @@ func init() {
 
 // this is a "stringy" version of pb.Attestation that is easier to
 type Attestation struct {
+	id int
 	// base64 encoded
 	Attester string
 	// base64 encoded

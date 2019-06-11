@@ -18,10 +18,10 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type BasicServerStatus struct {
-	// unit:ns
+	//unit:ns
 	Time     uint64 `protobuf:"varint,1,opt,name=time,proto3" json:"time,omitempty"`
 	Hostname string `protobuf:"bytes,6,opt,name=hostname,proto3" json:"hostname,omitempty"`
 	// index is the CPU number;
@@ -47,6 +47,7 @@ func (*BasicServerStatus) ProtoMessage()    {}
 func (*BasicServerStatus) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6374dbf108b4cec7, []int{0}
 }
+
 func (m *BasicServerStatus) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_BasicServerStatus.Unmarshal(m, b)
 }
