@@ -32,6 +32,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gizak/termui v2.3.0+incompatible
 	github.com/gliderlabs/ssh v0.1.1
+	github.com/glycerine/goconvey v0.0.0-20190315024820-982ee783a72e // indirect
 	github.com/go-sql-driver/mysql v1.4.0
 	github.com/go-test/deep v1.0.1
 	github.com/gogo/protobuf v1.2.1
@@ -98,6 +99,7 @@ require (
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f
 	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
+	golang.org/x/tools v0.0.0-20190407030857-0fdf0c73855b // indirect
 	google.golang.org/genproto v0.0.0-20190508193815-b515fa19cec8
 	google.golang.org/grpc v1.20.1
 	gopkg.in/btrdb.v4 v4.15.3
