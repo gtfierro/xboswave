@@ -11,13 +11,13 @@ func has_system_status(msg xbospb.XBOS) bool {
 }
 
 var units = map[string]string{
-	"cpu_load": "percent",
+	"cpu_load":           "percent",
 	"phys_mem_available": "bytes",
-	"disk_usage": "percent",
-	"disk_available": "bytes",
+	"disk_usage":         "percent",
+	"disk_available":     "bytes",
 }
 
-var lookup = map[string]func(msg xbospb.XBOS) (float64, bool) {
+var lookup = map[string]func(msg xbospb.XBOS) (float64, bool){
 	//"cpu_load": func(msg xbospb.XBOS) (float64, bool) {
 	//	if has_system_status(msg) && msg.BasicServerStatus.CpuLoad != nil {
 	//		return float64(msg.BasicServerStatus.CpuLoad), true
@@ -54,8 +54,8 @@ func build(uri types.SubscriptionURI, name string, msg xbospb.XBOS) types.Extrac
 			extracted.UUID = types.GenerateUUID(uri, []byte(name))
 			extracted.Collection = fmt.Sprintf("xbos/%s", uri.Resource)
 			extracted.Tags = map[string]string{
-				"unit": units[name],
-				"name": name,
+				"unit":     units[name],
+				"name":     name,
 				"hostname": msg.BasicServerStatus.Hostname,
 			}
 			return extracted
@@ -84,9 +84,9 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			extracted.UUID = types.GenerateUUID(uri, []byte(name))
 			extracted.Collection = fmt.Sprintf("xbos/%s", uri.Resource)
 			extracted.Tags = map[string]string{
-				"unit": units[name],
-				"name": name,
-				"cpu_id": fmt.Sprintf("%d", cpuidx),
+				"unit":     units[name],
+				"name":     name,
+				"cpu_id":   fmt.Sprintf("%d", cpuidx),
 				"hostname": msg.BasicServerStatus.Hostname,
 			}
 			if err := add(extracted); err != nil {
