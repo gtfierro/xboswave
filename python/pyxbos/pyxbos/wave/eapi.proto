@@ -519,3 +519,4 @@ message Proof {
 message ProofPath {
   repeated int32 elements = 1;
 }
+

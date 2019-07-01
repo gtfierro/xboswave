@@ -147,3 +147,4 @@ message SubscriptionMessage {
   Error error = 1;
   Message message = 2;
 }
+

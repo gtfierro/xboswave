@@ -20,11 +20,170 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='mqpb',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\neapi.proto\x12\x04mqpb\x1a\x1cgoogle/api/annotations.proto\"!\n\x12\x43ompactProofParams\x12\x0b\n\x03\x44\x45R\x18\x01 \x01(\x0c\"D\n\x14\x43ompactProofResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x10\n\x08proofDER\x18\x02 \x01(\x0c\"\x87\x01\n\x0cRevokeParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x17\n\x0f\x61ttestationHash\x18\x02 \x01(\x0c\x12\x1b\n\x13nameDeclarationHash\x18\x03 \x01(\x0c\x12\x19\n\x11revokePerspective\x18\x04 \x01(\x08\",\n\x0eRevokeResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\"P\n\x18ResolveReverseNameParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0c\n\x04hash\x18\x02 \x01(\x0c\"F\n\x1aResolveReverseNameResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0c\n\x04name\x18\x02 \x01(\t\"}\n\x1bMarkEntityInterestingParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0e\n\x06\x65ntity\x18\x02 \x01(\x0c\x12&\n\x0e\x65ntityLocation\x18\x03 \x01(\x0b\x32\x0e.mqpb.Location\";\n\x1dMarkEntityInterestingResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\"\x85\x02\n\x1b\x43reateNameDeclarationParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0f\n\x07subject\x18\x03 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x04 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tvalidFrom\x18\x05 \x01(\x03\x12\x12\n\nvalidUntil\x18\x06 \x01(\x03\x12\x11\n\tnamespace\x18\x07 \x01(\x0c\x12)\n\x11namespaceLocation\x18\x08 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tpartition\x18\t \x03(\x0c\"V\n\x1d\x43reateNameDeclarationResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0b\n\x03\x44\x45R\x18\x02 \x01(\x0c\x12\x0c\n\x04hash\x18\x03 \x01(\x0c\"c\n\x11ResolveNameParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x18\n\x10topLevelAttester\x18\x03 \x01(\x0c\"\xcc\x02\n\x0fNameDeclaration\x12\x0c\n\x04hash\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0f\n\x07subject\x18\x03 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x04 \x01(\x0b\x32\x0e.mqpb.Location\x12\x10\n\x08\x61ttester\x18\x05 \x01(\x0c\x12(\n\x10\x61ttesterLocation\x18\x06 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tvalidFrom\x18\x07 \x01(\x03\x12\x12\n\nvalidUntil\x18\x08 \x01(\x03\x12\x11\n\tnamespace\x18\t \x01(\x0c\x12)\n\x11namespaceLocation\x18\n \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tpartition\x18\x0b \x03(\x0c\x12/\n\x08validity\x18\x0c \x01(\x0b\x32\x1d.mqpb.NameDeclarationValidity\"\x9c\x01\n\x13ResolveNameResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x1c\n\x06\x65ntity\x18\x02 \x01(\x0b\x32\x0c.mqpb.Entity\x12)\n\nderivation\x18\x03 \x03(\x0b\x32\x15.mqpb.NameDeclaration\x12 \n\x08location\x18\x04 \x01(\x0b\x32\x0e.mqpb.Location\"I\n\x11ResolveHashParams\x12\x0c\n\x04hash\x18\x01 \x01(\x0c\x12&\n\x0bperspective\x18\x02 \x01(\x0b\x32\x11.mqpb.Perspective\"\x99\x01\n\x13ResolveHashResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12 \n\x08location\x18\x02 \x01(\x0b\x32\x0e.mqpb.Location\x12\x1c\n\x06\x65ntity\x18\x03 \x01(\x0b\x32\x0c.mqpb.Entity\x12&\n\x0b\x61ttestation\x18\x04 \x01(\x0b\x32\x11.mqpb.Attestation\"H\n\rInspectParams\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x11\n\tproverKey\x18\x02 \x01(\x0c\x12\x13\n\x0bverifierKey\x18\x03 \x01(\x0c\"s\n\x0fInspectResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x1c\n\x06\x65ntity\x18\x02 \x01(\x0b\x32\x0c.mqpb.Entity\x12&\n\x0b\x61ttestation\x18\x03 \x01(\x0b\x32\x11.mqpb.Attestation\"\x15\n\x13ListLocationsParams\"\xc3\x01\n\x15ListLocationsResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12G\n\x0e\x61gentLocations\x18\x02 \x03(\x0b\x32/.mqpb.ListLocationsResponse.AgentLocationsEntry\x1a\x45\n\x13\x41gentLocationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1d\n\x05value\x18\x02 \x01(\x0b\x32\x0e.mqpb.Location:\x02\x38\x01\"\x81\x01\n\x12\x43reateEntityParams\x12\x11\n\tvalidFrom\x18\x01 \x01(\x03\x12\x12\n\nvalidUntil\x18\x02 \x01(\x03\x12*\n\x12revocationLocation\x18\x03 \x01(\x0b\x32\x0e.mqpb.Location\x12\x18\n\x10SecretPassphrase\x18\x04 \x01(\t\"f\n\x14\x43reateEntityResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x11\n\tPublicDER\x18\x02 \x01(\x0c\x12\x11\n\tSecretDER\x18\x03 \x01(\x0c\x12\x0c\n\x04hash\x18\x04 \x01(\x0c\"e\n\x06\x45ntity\x12\x0c\n\x04hash\x18\x01 \x01(\x0c\x12\x11\n\tvalidFrom\x18\x02 \x01(\x03\x12\x12\n\nvalidUntil\x18\x03 \x01(\x03\x12&\n\x08validity\x18\x04 \x01(\x0b\x32\x14.mqpb.EntityValidity\"\xe9\x01\n\x17\x43reateAttestationParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x12\n\nbodyScheme\x18\x02 \x01(\t\x12\x13\n\x0bsubjectHash\x18\x03 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x04 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tvalidFrom\x18\x05 \x01(\x03\x12\x12\n\nvalidUntil\x18\x06 \x01(\x03\x12\x1c\n\x06policy\x18\x07 \x01(\x0b\x32\x0c.mqpb.Policy\x12\x0f\n\x07publish\x18\x08 \x01(\x08\"F\n\x1cResyncPerspectiveGraphParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\"<\n\x1eResyncPerspectiveGraphResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\"4\n\nSyncParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\"\x84\x02\n\x14\x45ncryptMessageParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\x12\x13\n\x0bsubjectHash\x18\x03 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x04 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tnamespace\x18\x05 \x01(\x0c\x12)\n\x11namespaceLocation\x18\x06 \x01(\x0b\x32\x0e.mqpb.Location\x12\x10\n\x08resource\x18\x07 \x01(\t\x12\x11\n\tvalidFrom\x18\x08 \x01(\x03\x12\x12\n\nvalidUntil\x18\t \x01(\x03\"H\n\x16\x45ncryptMessageResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x12\n\nciphertext\x18\x02 \x01(\x0c\"R\n\x14\x44\x65\x63ryptMessageParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x12\n\nciphertext\x18\x02 \x01(\x0c\"E\n\x16\x44\x65\x63ryptMessageResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\"\xec\x01\n\x0cSyncResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12<\n\rstorageStatus\x18\x02 \x03(\x0b\x32%.mqpb.SyncResponse.StorageStatusEntry\x12\x19\n\x11totalSyncRequests\x18\x03 \x01(\x03\x12\x16\n\x0e\x63ompletedSyncs\x18\x04 \x01(\x03\x1aO\n\x12StorageStatusEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12(\n\x05value\x18\x02 \x01(\x0b\x32\x19.mqpb.StorageDriverStatus:\x02\x38\x01\"\x8a\x01\n\x13StorageDriverStatus\x12\x13\n\x0boperational\x18\x01 \x01(\x08\x12\x31\n\x04info\x18\x02 \x03(\x0b\x32#.mqpb.StorageDriverStatus.InfoEntry\x1a+\n\tInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"z\n\x19\x43reateAttestationResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0b\n\x03\x44\x45R\x18\x02 \x01(\x0c\x12\x13\n\x0bverifierKey\x18\x03 \x01(\x0c\x12\x11\n\tproverKey\x18\x04 \x01(\x0c\x12\x0c\n\x04hash\x18\x05 \x01(\x0c\"D\n\x13PublishEntityParams\x12\x0b\n\x03\x44\x45R\x18\x01 \x01(\x0c\x12 \n\x08location\x18\x02 \x01(\x0b\x32\x0e.mqpb.Location\"A\n\x15PublishEntityResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0c\n\x04hash\x18\x02 \x01(\x0c\"\'\n\x18PublishAttestationParams\x12\x0b\n\x03\x44\x45R\x18\x01 \x01(\x0c\"F\n\x1aPublishAttestationResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0c\n\x04hash\x18\x02 \x01(\x0c\"^\n\x14\x41\x64\x64\x41ttestationParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0b\n\x03\x44\x45R\x18\x02 \x01(\x0c\x12\x11\n\tproverKey\x18\x03 \x01(\x0c\"4\n\x16\x41\x64\x64\x41ttestationResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\"h\n\x18LookupAttestationsParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x12\n\nfromEntity\x18\x02 \x01(\x0c\x12\x10\n\x08toEntity\x18\x03 \x01(\x0c\"\\\n\x1aLookupAttestationsResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\"\n\x07results\x18\x02 \x03(\x0b\x32\x11.mqpb.Attestation\"&\n\x05\x45rror\x12\x0c\n\x04\x63ode\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\"Y\n\x0bPerspective\x12(\n\x0c\x65ntitySecret\x18\x01 \x01(\x0b\x32\x12.mqpb.EntitySecret\x12 \n\x08location\x18\x02 \x01(\x0b\x32\x0e.mqpb.Location\"I\n\x08Location\x12&\n\x0blocationURI\x18\x01 \x01(\x0b\x32\x11.mqpb.LocationURI\x12\x15\n\ragentLocation\x18\x02 \x01(\t\"+\n\x0bLocationURI\x12\x0b\n\x03URI\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\"/\n\x0c\x45ntitySecret\x12\x0b\n\x03\x44\x45R\x18\x01 \x01(\x0c\x12\x12\n\npassphrase\x18\x02 \x01(\x0c\"\xf3\x01\n\x0b\x41ttestation\x12\x0b\n\x03\x44\x45R\x18\x01 \x01(\x0c\x12\x0c\n\x04hash\x18\x02 \x01(\x0c\x12#\n\x04\x62ody\x18\x03 \x01(\x0b\x32\x15.mqpb.AttestationBody\x12\x13\n\x0bverifierKey\x18\x04 \x01(\x0c\x12\x11\n\tproverKey\x18\x05 \x01(\x0c\x12\x13\n\x0bsubjectHash\x18\x06 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x07 \x01(\x0b\x32\x0e.mqpb.Location\x12+\n\x08validity\x18\x08 \x01(\x0b\x32\x19.mqpb.AttestationValidity\x12\x11\n\tpartition\x18\t \x03(\x0c\"\xae\x01\n\x0f\x41ttestationBody\x12\x16\n\x0e\x44\x65\x63odedBodyDER\x18\x01 \x01(\x0c\x12\x14\n\x0c\x61ttesterHash\x18\x02 \x01(\x0c\x12(\n\x10\x61ttesterLocation\x18\x03 \x01(\x0b\x32\x0e.mqpb.Location\x12\x1c\n\x06policy\x18\x04 \x01(\x0b\x32\x0c.mqpb.Policy\x12\x11\n\tvalidFrom\x18\x05 \x01(\x03\x12\x12\n\nvalidUntil\x18\x06 \x01(\x03\"\xbd\x01\n\x13\x41ttestationValidity\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07revoked\x18\x02 \x01(\x08\x12\x0f\n\x07\x65xpired\x18\x03 \x01(\x08\x12\x11\n\tmalformed\x18\x04 \x01(\x08\x12\x14\n\x0cnotDecrypted\x18\x05 \x01(\x08\x12\x12\n\nsrcInvalid\x18\x06 \x01(\x08\x12\x12\n\ndstInvalid\x18\x07 \x01(\x08\x12\x0f\n\x07message\x18\x08 \x01(\t\x12\x13\n\x0bnotValidYet\x18\t \x01(\x08\"z\n\x0e\x45ntityValidity\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07revoked\x18\x02 \x01(\x08\x12\x0f\n\x07\x65xpired\x18\x03 \x01(\x08\x12\x11\n\tmalformed\x18\x04 \x01(\x08\x12\x0f\n\x07message\x18\x05 \x01(\t\x12\x13\n\x0bnotValidYet\x18\x06 \x01(\x08\"\x83\x01\n\x17NameDeclarationValidity\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07revoked\x18\x02 \x01(\x08\x12\x0f\n\x07\x65xpired\x18\x03 \x01(\x08\x12\x11\n\tmalformed\x18\x04 \x01(\x08\x12\x0f\n\x07message\x18\x05 \x01(\t\x12\x13\n\x0bnotValidYet\x18\x06 \x01(\x08\"b\n\x06Policy\x12\x30\n\x10trustLevelPolicy\x18\x01 \x01(\x0b\x32\x16.mqpb.TrustLevelPolicy\x12&\n\x0brTreePolicy\x18\x02 \x01(\x0b\x32\x11.mqpb.RTreePolicy\"!\n\x10TrustLevelPolicy\x12\r\n\x05trust\x18\x01 \x01(\x05\"}\n\x0bRTreePolicy\x12\x11\n\tnamespace\x18\x01 \x01(\x0c\x12\x14\n\x0cindirections\x18\x02 \x01(\r\x12.\n\nstatements\x18\x03 \x03(\x0b\x32\x1a.mqpb.RTreePolicyStatement\x12\x15\n\rvisibilityURI\x18\x04 \x03(\x0c\"T\n\x14RTreePolicyStatement\x12\x15\n\rpermissionSet\x18\x01 \x01(\x0c\x12\x13\n\x0bpermissions\x18\x02 \x03(\t\x12\x10\n\x08resource\x18\x03 \x01(\t\"\xac\x01\n\x15\x42uildRTreeProofParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x13\n\x0bsubjectHash\x18\x02 \x01(\x0c\x12\x11\n\tnamespace\x18\x03 \x01(\x0c\x12.\n\nstatements\x18\x04 \x03(\x0b\x32\x1a.mqpb.RTreePolicyStatement\x12\x13\n\x0bresyncFirst\x18\x05 \x01(\x08\"d\n\x17\x42uildRTreeProofResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x1b\n\x06result\x18\x02 \x01(\x0b\x32\x0b.mqpb.Proof\x12\x10\n\x08proofDER\x18\x03 \x01(\x0c\"U\n\x11VerifyProofParams\x12\x10\n\x08proofDER\x18\x01 \x01(\x0c\x12.\n\x13requiredRTreePolicy\x18\x02 \x01(\x0b\x32\x11.mqpb.RTreePolicy\"N\n\x13VerifyProofResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x1b\n\x06result\x18\x02 \x01(\x0b\x32\x0b.mqpb.Proof\"\xb4\x01\n\x05Proof\x12#\n\x08\x65lements\x18\x01 \x03(\x0b\x32\x11.mqpb.Attestation\x12\x1e\n\x05paths\x18\x02 \x03(\x0b\x32\x0f.mqpb.ProofPath\x12\x1c\n\x06policy\x18\x03 \x01(\x0b\x32\x0c.mqpb.Policy\x12\x0e\n\x06\x65xpiry\x18\x04 \x01(\x03\x12\x0f\n\x07subject\x18\x05 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x06 \x01(\x0b\x32\x0e.mqpb.Location\"\x1d\n\tProofPath\x12\x10\n\x08\x65lements\x18\x01 \x03(\x05\x32\x92\x12\n\x04WAVE\x12\x61\n\x0c\x43reateEntity\x12\x18.mqpb.CreateEntityParams\x1a\x1a.mqpb.CreateEntityResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\"\x10/v1/CreateEntity:\x01*\x12u\n\x11\x43reateAttestation\x12\x1d.mqpb.CreateAttestationParams\x1a\x1f.mqpb.CreateAttestationResponse\" \x82\xd3\xe4\x93\x02\x1a\"\x15/v1/CreateAttestation:\x01*\x12\x65\n\rPublishEntity\x12\x19.mqpb.PublishEntityParams\x1a\x1b.mqpb.PublishEntityResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\"\x11/v1/PublishEntity:\x01*\x12y\n\x12PublishAttestation\x12\x1e.mqpb.PublishAttestationParams\x1a .mqpb.PublishAttestationResponse\"!\x82\xd3\xe4\x93\x02\x1b\"\x16/v1/PublishAttestation:\x01*\x12i\n\x0e\x41\x64\x64\x41ttestation\x12\x1a.mqpb.AddAttestationParams\x1a\x1c.mqpb.AddAttestationResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\"\x12/v1/AddAttestation:\x01*\x12x\n\x12LookupAttestations\x12\x1e.mqpb.LookupAttestationsParams\x1a .mqpb.LookupAttestationsResponse\" \x82\xd3\xe4\x93\x02\x1a\"\x15/v1/LookupAttestation:\x01*\x12\x89\x01\n\x16ResyncPerspectiveGraph\x12\".mqpb.ResyncPerspectiveGraphParams\x1a$.mqpb.ResyncPerspectiveGraphResponse\"%\x82\xd3\xe4\x93\x02\x1f\"\x1a/v1/ResyncPerspectiveGraph:\x01*\x12M\n\nSyncStatus\x12\x10.mqpb.SyncParams\x1a\x12.mqpb.SyncResponse\"\x19\x82\xd3\xe4\x93\x02\x13\"\x0e/v1/SyncStatus:\x01*\x12=\n\x13WaitForSyncComplete\x12\x10.mqpb.SyncParams\x1a\x12.mqpb.SyncResponse0\x01\x12m\n\x0f\x42uildRTreeProof\x12\x1b.mqpb.BuildRTreeProofParams\x1a\x1d.mqpb.BuildRTreeProofResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\"\x13/v1/BuildRTreeProof:\x01*\x12]\n\x0bVerifyProof\x12\x17.mqpb.VerifyProofParams\x1a\x19.mqpb.VerifyProofResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\"\x0f/v1/VerifyProof:\x01*\x12\x65\n\rListLocations\x12\x19.mqpb.ListLocationsParams\x1a\x1b.mqpb.ListLocationsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\"\x11/v1/ListLocations:\x01*\x12M\n\x07Inspect\x12\x13.mqpb.InspectParams\x1a\x15.mqpb.InspectResponse\"\x16\x82\xd3\xe4\x93\x02\x10\"\x0b/v1/Inspect:\x01*\x12]\n\x0bResolveHash\x12\x17.mqpb.ResolveHashParams\x1a\x19.mqpb.ResolveHashResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\"\x0f/v1/ResolveHash:\x01*\x12i\n\x0e\x45ncryptMessage\x12\x1a.mqpb.EncryptMessageParams\x1a\x1c.mqpb.EncryptMessageResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\"\x12/v1/EncryptMessage:\x01*\x12i\n\x0e\x44\x65\x63ryptMessage\x12\x1a.mqpb.DecryptMessageParams\x1a\x1c.mqpb.DecryptMessageResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\"\x12/v1/DecryptMessage:\x01*\x12\x85\x01\n\x15\x43reateNameDeclaration\x12!.mqpb.CreateNameDeclarationParams\x1a#.mqpb.CreateNameDeclarationResponse\"$\x82\xd3\xe4\x93\x02\x1e\"\x19/v1/CreateNameDeclaration:\x01*\x12]\n\x0bResolveName\x12\x17.mqpb.ResolveNameParams\x1a\x19.mqpb.ResolveNameResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\"\x0f/v1/ResolveName:\x01*\x12\x85\x01\n\x15MarkEntityInteresting\x12!.mqpb.MarkEntityInterestingParams\x1a#.mqpb.MarkEntityInterestingResponse\"$\x82\xd3\xe4\x93\x02\x1e\"\x19/v1/MarkEntityInteresting:\x01*\x12y\n\x12ResolveReverseName\x12\x1e.mqpb.ResolveReverseNameParams\x1a .mqpb.ResolveReverseNameResponse\"!\x82\xd3\xe4\x93\x02\x1b\"\x16/v1/ResolveReverseName:\x01*\x12I\n\x06Revoke\x12\x12.mqpb.RevokeParams\x1a\x14.mqpb.RevokeResponse\"\x15\x82\xd3\xe4\x93\x02\x0f\"\n/v1/Revoke:\x01*\x12\x61\n\x0c\x43ompactProof\x12\x18.mqpb.CompactProofParams\x1a\x1a.mqpb.CompactProofResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\"\x10/v1/CompactProof:\x01*b\x06proto3')
+  serialized_pb=_b('\n\neapi.proto\x12\x04mqpb\x1a\x1cgoogle/api/annotations.proto\"E\n\nSignParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\"=\n\x0cSignResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x11\n\tsignature\x18\x02 \x01(\x0c\"s\n\x15VerifySignatureParams\x12\x0e\n\x06signer\x18\x01 \x01(\x0c\x12&\n\x0esignerLocation\x18\x02 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tsignature\x18\x03 \x01(\x0c\x12\x0f\n\x07\x63ontent\x18\x04 \x01(\x0c\"5\n\x17VerifySignatureResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\"!\n\x12\x43ompactProofParams\x12\x0b\n\x03\x44\x45R\x18\x01 \x01(\x0c\"D\n\x14\x43ompactProofResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x10\n\x08proofDER\x18\x02 \x01(\x0c\"\x87\x01\n\x0cRevokeParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x17\n\x0f\x61ttestationHash\x18\x02 \x01(\x0c\x12\x1b\n\x13nameDeclarationHash\x18\x03 \x01(\x0c\x12\x19\n\x11revokePerspective\x18\x04 \x01(\x08\",\n\x0eRevokeResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\"P\n\x18ResolveReverseNameParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0c\n\x04hash\x18\x02 \x01(\x0c\"F\n\x1aResolveReverseNameResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0c\n\x04name\x18\x02 \x01(\t\"}\n\x1bMarkEntityInterestingParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0e\n\x06\x65ntity\x18\x02 \x01(\x0c\x12&\n\x0e\x65ntityLocation\x18\x03 \x01(\x0b\x32\x0e.mqpb.Location\";\n\x1dMarkEntityInterestingResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\"\x85\x02\n\x1b\x43reateNameDeclarationParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0f\n\x07subject\x18\x03 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x04 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tvalidFrom\x18\x05 \x01(\x03\x12\x12\n\nvalidUntil\x18\x06 \x01(\x03\x12\x11\n\tnamespace\x18\x07 \x01(\x0c\x12)\n\x11namespaceLocation\x18\x08 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tpartition\x18\t \x03(\x0c\"V\n\x1d\x43reateNameDeclarationResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0b\n\x03\x44\x45R\x18\x02 \x01(\x0c\x12\x0c\n\x04hash\x18\x03 \x01(\x0c\"c\n\x11ResolveNameParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x18\n\x10topLevelAttester\x18\x03 \x01(\x0c\"\xcc\x02\n\x0fNameDeclaration\x12\x0c\n\x04hash\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0f\n\x07subject\x18\x03 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x04 \x01(\x0b\x32\x0e.mqpb.Location\x12\x10\n\x08\x61ttester\x18\x05 \x01(\x0c\x12(\n\x10\x61ttesterLocation\x18\x06 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tvalidFrom\x18\x07 \x01(\x03\x12\x12\n\nvalidUntil\x18\x08 \x01(\x03\x12\x11\n\tnamespace\x18\t \x01(\x0c\x12)\n\x11namespaceLocation\x18\n \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tpartition\x18\x0b \x03(\x0c\x12/\n\x08validity\x18\x0c \x01(\x0b\x32\x1d.mqpb.NameDeclarationValidity\"\x9c\x01\n\x13ResolveNameResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x1c\n\x06\x65ntity\x18\x02 \x01(\x0b\x32\x0c.mqpb.Entity\x12)\n\nderivation\x18\x03 \x03(\x0b\x32\x15.mqpb.NameDeclaration\x12 \n\x08location\x18\x04 \x01(\x0b\x32\x0e.mqpb.Location\"I\n\x11ResolveHashParams\x12\x0c\n\x04hash\x18\x01 \x01(\x0c\x12&\n\x0bperspective\x18\x02 \x01(\x0b\x32\x11.mqpb.Perspective\"\x99\x01\n\x13ResolveHashResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12 \n\x08location\x18\x02 \x01(\x0b\x32\x0e.mqpb.Location\x12\x1c\n\x06\x65ntity\x18\x03 \x01(\x0b\x32\x0c.mqpb.Entity\x12&\n\x0b\x61ttestation\x18\x04 \x01(\x0b\x32\x11.mqpb.Attestation\"H\n\rInspectParams\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x11\n\tproverKey\x18\x02 \x01(\x0c\x12\x13\n\x0bverifierKey\x18\x03 \x01(\x0c\"s\n\x0fInspectResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x1c\n\x06\x65ntity\x18\x02 \x01(\x0b\x32\x0c.mqpb.Entity\x12&\n\x0b\x61ttestation\x18\x03 \x01(\x0b\x32\x11.mqpb.Attestation\"\x15\n\x13ListLocationsParams\"\xc3\x01\n\x15ListLocationsResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12G\n\x0e\x61gentLocations\x18\x02 \x03(\x0b\x32/.mqpb.ListLocationsResponse.AgentLocationsEntry\x1a\x45\n\x13\x41gentLocationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1d\n\x05value\x18\x02 \x01(\x0b\x32\x0e.mqpb.Location:\x02\x38\x01\"\x81\x01\n\x12\x43reateEntityParams\x12\x11\n\tvalidFrom\x18\x01 \x01(\x03\x12\x12\n\nvalidUntil\x18\x02 \x01(\x03\x12*\n\x12revocationLocation\x18\x03 \x01(\x0b\x32\x0e.mqpb.Location\x12\x18\n\x10SecretPassphrase\x18\x04 \x01(\t\"f\n\x14\x43reateEntityResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x11\n\tPublicDER\x18\x02 \x01(\x0c\x12\x11\n\tSecretDER\x18\x03 \x01(\x0c\x12\x0c\n\x04hash\x18\x04 \x01(\x0c\"e\n\x06\x45ntity\x12\x0c\n\x04hash\x18\x01 \x01(\x0c\x12\x11\n\tvalidFrom\x18\x02 \x01(\x03\x12\x12\n\nvalidUntil\x18\x03 \x01(\x03\x12&\n\x08validity\x18\x04 \x01(\x0b\x32\x14.mqpb.EntityValidity\"\xe9\x01\n\x17\x43reateAttestationParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x12\n\nbodyScheme\x18\x02 \x01(\t\x12\x13\n\x0bsubjectHash\x18\x03 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x04 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tvalidFrom\x18\x05 \x01(\x03\x12\x12\n\nvalidUntil\x18\x06 \x01(\x03\x12\x1c\n\x06policy\x18\x07 \x01(\x0b\x32\x0c.mqpb.Policy\x12\x0f\n\x07publish\x18\x08 \x01(\x08\"F\n\x1cResyncPerspectiveGraphParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\"<\n\x1eResyncPerspectiveGraphResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\"4\n\nSyncParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\"\xff\x01\n\x14\x45ncryptMessageParams\x12!\n\x06unused\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\x12\x13\n\x0bsubjectHash\x18\x03 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x04 \x01(\x0b\x32\x0e.mqpb.Location\x12\x11\n\tnamespace\x18\x05 \x01(\x0c\x12)\n\x11namespaceLocation\x18\x06 \x01(\x0b\x32\x0e.mqpb.Location\x12\x10\n\x08resource\x18\x07 \x01(\t\x12\x11\n\tvalidFrom\x18\x08 \x01(\x03\x12\x12\n\nvalidUntil\x18\t \x01(\x03\"H\n\x16\x45ncryptMessageResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x12\n\nciphertext\x18\x02 \x01(\x0c\"g\n\x14\x44\x65\x63ryptMessageParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x12\n\nciphertext\x18\x02 \x01(\x0c\x12\x13\n\x0bresyncFirst\x18\x03 \x01(\x08\"E\n\x16\x44\x65\x63ryptMessageResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\"\xec\x01\n\x0cSyncResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12<\n\rstorageStatus\x18\x02 \x03(\x0b\x32%.mqpb.SyncResponse.StorageStatusEntry\x12\x19\n\x11totalSyncRequests\x18\x03 \x01(\x03\x12\x16\n\x0e\x63ompletedSyncs\x18\x04 \x01(\x03\x1aO\n\x12StorageStatusEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12(\n\x05value\x18\x02 \x01(\x0b\x32\x19.mqpb.StorageDriverStatus:\x02\x38\x01\"\x8a\x01\n\x13StorageDriverStatus\x12\x13\n\x0boperational\x18\x01 \x01(\x08\x12\x31\n\x04info\x18\x02 \x03(\x0b\x32#.mqpb.StorageDriverStatus.InfoEntry\x1a+\n\tInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"z\n\x19\x43reateAttestationResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0b\n\x03\x44\x45R\x18\x02 \x01(\x0c\x12\x13\n\x0bverifierKey\x18\x03 \x01(\x0c\x12\x11\n\tproverKey\x18\x04 \x01(\x0c\x12\x0c\n\x04hash\x18\x05 \x01(\x0c\"D\n\x13PublishEntityParams\x12\x0b\n\x03\x44\x45R\x18\x01 \x01(\x0c\x12 \n\x08location\x18\x02 \x01(\x0b\x32\x0e.mqpb.Location\"A\n\x15PublishEntityResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0c\n\x04hash\x18\x02 \x01(\x0c\"\'\n\x18PublishAttestationParams\x12\x0b\n\x03\x44\x45R\x18\x01 \x01(\x0c\"F\n\x1aPublishAttestationResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x0c\n\x04hash\x18\x02 \x01(\x0c\"^\n\x14\x41\x64\x64\x41ttestationParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x0b\n\x03\x44\x45R\x18\x02 \x01(\x0c\x12\x11\n\tproverKey\x18\x03 \x01(\x0c\"4\n\x16\x41\x64\x64\x41ttestationResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\"h\n\x18LookupAttestationsParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x12\n\nfromEntity\x18\x02 \x01(\x0c\x12\x10\n\x08toEntity\x18\x03 \x01(\x0c\"\\\n\x1aLookupAttestationsResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\"\n\x07results\x18\x02 \x03(\x0b\x32\x11.mqpb.Attestation\"&\n\x05\x45rror\x12\x0c\n\x04\x63ode\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\"Y\n\x0bPerspective\x12(\n\x0c\x65ntitySecret\x18\x01 \x01(\x0b\x32\x12.mqpb.EntitySecret\x12 \n\x08location\x18\x02 \x01(\x0b\x32\x0e.mqpb.Location\"I\n\x08Location\x12&\n\x0blocationURI\x18\x01 \x01(\x0b\x32\x11.mqpb.LocationURI\x12\x15\n\ragentLocation\x18\x02 \x01(\t\"+\n\x0bLocationURI\x12\x0b\n\x03URI\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\x05\"/\n\x0c\x45ntitySecret\x12\x0b\n\x03\x44\x45R\x18\x01 \x01(\x0c\x12\x12\n\npassphrase\x18\x02 \x01(\x0c\"\xf3\x01\n\x0b\x41ttestation\x12\x0b\n\x03\x44\x45R\x18\x01 \x01(\x0c\x12\x0c\n\x04hash\x18\x02 \x01(\x0c\x12#\n\x04\x62ody\x18\x03 \x01(\x0b\x32\x15.mqpb.AttestationBody\x12\x13\n\x0bverifierKey\x18\x04 \x01(\x0c\x12\x11\n\tproverKey\x18\x05 \x01(\x0c\x12\x13\n\x0bsubjectHash\x18\x06 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x07 \x01(\x0b\x32\x0e.mqpb.Location\x12+\n\x08validity\x18\x08 \x01(\x0b\x32\x19.mqpb.AttestationValidity\x12\x11\n\tpartition\x18\t \x03(\x0c\"\xae\x01\n\x0f\x41ttestationBody\x12\x16\n\x0e\x44\x65\x63odedBodyDER\x18\x01 \x01(\x0c\x12\x14\n\x0c\x61ttesterHash\x18\x02 \x01(\x0c\x12(\n\x10\x61ttesterLocation\x18\x03 \x01(\x0b\x32\x0e.mqpb.Location\x12\x1c\n\x06policy\x18\x04 \x01(\x0b\x32\x0c.mqpb.Policy\x12\x11\n\tvalidFrom\x18\x05 \x01(\x03\x12\x12\n\nvalidUntil\x18\x06 \x01(\x03\"\xbd\x01\n\x13\x41ttestationValidity\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07revoked\x18\x02 \x01(\x08\x12\x0f\n\x07\x65xpired\x18\x03 \x01(\x08\x12\x11\n\tmalformed\x18\x04 \x01(\x08\x12\x14\n\x0cnotDecrypted\x18\x05 \x01(\x08\x12\x12\n\nsrcInvalid\x18\x06 \x01(\x08\x12\x12\n\ndstInvalid\x18\x07 \x01(\x08\x12\x0f\n\x07message\x18\x08 \x01(\t\x12\x13\n\x0bnotValidYet\x18\t \x01(\x08\"z\n\x0e\x45ntityValidity\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07revoked\x18\x02 \x01(\x08\x12\x0f\n\x07\x65xpired\x18\x03 \x01(\x08\x12\x11\n\tmalformed\x18\x04 \x01(\x08\x12\x0f\n\x07message\x18\x05 \x01(\t\x12\x13\n\x0bnotValidYet\x18\x06 \x01(\x08\"\x83\x01\n\x17NameDeclarationValidity\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07revoked\x18\x02 \x01(\x08\x12\x0f\n\x07\x65xpired\x18\x03 \x01(\x08\x12\x11\n\tmalformed\x18\x04 \x01(\x08\x12\x0f\n\x07message\x18\x05 \x01(\t\x12\x13\n\x0bnotValidYet\x18\x06 \x01(\x08\"b\n\x06Policy\x12\x30\n\x10trustLevelPolicy\x18\x01 \x01(\x0b\x32\x16.mqpb.TrustLevelPolicy\x12&\n\x0brTreePolicy\x18\x02 \x01(\x0b\x32\x11.mqpb.RTreePolicy\"!\n\x10TrustLevelPolicy\x12\r\n\x05trust\x18\x01 \x01(\x05\"}\n\x0bRTreePolicy\x12\x11\n\tnamespace\x18\x01 \x01(\x0c\x12\x14\n\x0cindirections\x18\x02 \x01(\r\x12.\n\nstatements\x18\x03 \x03(\x0b\x32\x1a.mqpb.RTreePolicyStatement\x12\x15\n\rvisibilityURI\x18\x04 \x03(\x0c\"T\n\x14RTreePolicyStatement\x12\x15\n\rpermissionSet\x18\x01 \x01(\x0c\x12\x13\n\x0bpermissions\x18\x02 \x03(\t\x12\x10\n\x08resource\x18\x03 \x01(\t\"\xac\x01\n\x15\x42uildRTreeProofParams\x12&\n\x0bperspective\x18\x01 \x01(\x0b\x32\x11.mqpb.Perspective\x12\x13\n\x0bsubjectHash\x18\x02 \x01(\x0c\x12\x11\n\tnamespace\x18\x03 \x01(\x0c\x12.\n\nstatements\x18\x04 \x03(\x0b\x32\x1a.mqpb.RTreePolicyStatement\x12\x13\n\x0bresyncFirst\x18\x05 \x01(\x08\"d\n\x17\x42uildRTreeProofResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x1b\n\x06result\x18\x02 \x01(\x0b\x32\x0b.mqpb.Proof\x12\x10\n\x08proofDER\x18\x03 \x01(\x0c\"f\n\x11VerifyProofParams\x12\x10\n\x08proofDER\x18\x01 \x01(\x0c\x12.\n\x13requiredRTreePolicy\x18\x02 \x01(\x0b\x32\x11.mqpb.RTreePolicy\x12\x0f\n\x07subject\x18\x03 \x01(\x0c\"N\n\x13VerifyProofResponse\x12\x1a\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0b.mqpb.Error\x12\x1b\n\x06result\x18\x02 \x01(\x0b\x32\x0b.mqpb.Proof\"\xb4\x01\n\x05Proof\x12#\n\x08\x65lements\x18\x01 \x03(\x0b\x32\x11.mqpb.Attestation\x12\x1e\n\x05paths\x18\x02 \x03(\x0b\x32\x0f.mqpb.ProofPath\x12\x1c\n\x06policy\x18\x03 \x01(\x0b\x32\x0c.mqpb.Policy\x12\x0e\n\x06\x65xpiry\x18\x04 \x01(\x03\x12\x0f\n\x07subject\x18\x05 \x01(\x0c\x12\'\n\x0fsubjectLocation\x18\x06 \x01(\x0b\x32\x0e.mqpb.Location\"\x1d\n\tProofPath\x12\x10\n\x08\x65lements\x18\x01 \x03(\x05\x32\xc4\x13\n\x04WAVE\x12\x61\n\x0c\x43reateEntity\x12\x18.mqpb.CreateEntityParams\x1a\x1a.mqpb.CreateEntityResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\"\x10/v1/CreateEntity:\x01*\x12u\n\x11\x43reateAttestation\x12\x1d.mqpb.CreateAttestationParams\x1a\x1f.mqpb.CreateAttestationResponse\" \x82\xd3\xe4\x93\x02\x1a\"\x15/v1/CreateAttestation:\x01*\x12\x65\n\rPublishEntity\x12\x19.mqpb.PublishEntityParams\x1a\x1b.mqpb.PublishEntityResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\"\x11/v1/PublishEntity:\x01*\x12y\n\x12PublishAttestation\x12\x1e.mqpb.PublishAttestationParams\x1a .mqpb.PublishAttestationResponse\"!\x82\xd3\xe4\x93\x02\x1b\"\x16/v1/PublishAttestation:\x01*\x12i\n\x0e\x41\x64\x64\x41ttestation\x12\x1a.mqpb.AddAttestationParams\x1a\x1c.mqpb.AddAttestationResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\"\x12/v1/AddAttestation:\x01*\x12x\n\x12LookupAttestations\x12\x1e.mqpb.LookupAttestationsParams\x1a .mqpb.LookupAttestationsResponse\" \x82\xd3\xe4\x93\x02\x1a\"\x15/v1/LookupAttestation:\x01*\x12\x89\x01\n\x16ResyncPerspectiveGraph\x12\".mqpb.ResyncPerspectiveGraphParams\x1a$.mqpb.ResyncPerspectiveGraphResponse\"%\x82\xd3\xe4\x93\x02\x1f\"\x1a/v1/ResyncPerspectiveGraph:\x01*\x12M\n\nSyncStatus\x12\x10.mqpb.SyncParams\x1a\x12.mqpb.SyncResponse\"\x19\x82\xd3\xe4\x93\x02\x13\"\x0e/v1/SyncStatus:\x01*\x12=\n\x13WaitForSyncComplete\x12\x10.mqpb.SyncParams\x1a\x12.mqpb.SyncResponse0\x01\x12m\n\x0f\x42uildRTreeProof\x12\x1b.mqpb.BuildRTreeProofParams\x1a\x1d.mqpb.BuildRTreeProofResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\"\x13/v1/BuildRTreeProof:\x01*\x12]\n\x0bVerifyProof\x12\x17.mqpb.VerifyProofParams\x1a\x19.mqpb.VerifyProofResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\"\x0f/v1/VerifyProof:\x01*\x12\x65\n\rListLocations\x12\x19.mqpb.ListLocationsParams\x1a\x1b.mqpb.ListLocationsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\"\x11/v1/ListLocations:\x01*\x12M\n\x07Inspect\x12\x13.mqpb.InspectParams\x1a\x15.mqpb.InspectResponse\"\x16\x82\xd3\xe4\x93\x02\x10\"\x0b/v1/Inspect:\x01*\x12]\n\x0bResolveHash\x12\x17.mqpb.ResolveHashParams\x1a\x19.mqpb.ResolveHashResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\"\x0f/v1/ResolveHash:\x01*\x12i\n\x0e\x45ncryptMessage\x12\x1a.mqpb.EncryptMessageParams\x1a\x1c.mqpb.EncryptMessageResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\"\x12/v1/EncryptMessage:\x01*\x12i\n\x0e\x44\x65\x63ryptMessage\x12\x1a.mqpb.DecryptMessageParams\x1a\x1c.mqpb.DecryptMessageResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\"\x12/v1/DecryptMessage:\x01*\x12\x85\x01\n\x15\x43reateNameDeclaration\x12!.mqpb.CreateNameDeclarationParams\x1a#.mqpb.CreateNameDeclarationResponse\"$\x82\xd3\xe4\x93\x02\x1e\"\x19/v1/CreateNameDeclaration:\x01*\x12]\n\x0bResolveName\x12\x17.mqpb.ResolveNameParams\x1a\x19.mqpb.ResolveNameResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\"\x0f/v1/ResolveName:\x01*\x12\x85\x01\n\x15MarkEntityInteresting\x12!.mqpb.MarkEntityInterestingParams\x1a#.mqpb.MarkEntityInterestingResponse\"$\x82\xd3\xe4\x93\x02\x1e\"\x19/v1/MarkEntityInteresting:\x01*\x12y\n\x12ResolveReverseName\x12\x1e.mqpb.ResolveReverseNameParams\x1a .mqpb.ResolveReverseNameResponse\"!\x82\xd3\xe4\x93\x02\x1b\"\x16/v1/ResolveReverseName:\x01*\x12I\n\x06Revoke\x12\x12.mqpb.RevokeParams\x1a\x14.mqpb.RevokeResponse\"\x15\x82\xd3\xe4\x93\x02\x0f\"\n/v1/Revoke:\x01*\x12\x61\n\x0c\x43ompactProof\x12\x18.mqpb.CompactProofParams\x1a\x1a.mqpb.CompactProofResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\"\x10/v1/CompactProof:\x01*\x12\x41\n\x04Sign\x12\x10.mqpb.SignParams\x1a\x12.mqpb.SignResponse\"\x13\x82\xd3\xe4\x93\x02\r\"\x08/v1/Sign:\x01*\x12m\n\x0fVerifySignature\x12\x1b.mqpb.VerifySignatureParams\x1a\x1d.mqpb.VerifySignatureResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\"\x13/v1/VerifySignature:\x01*b\x06proto3')
   ,
   dependencies=[google_dot_api_dot_annotations__pb2.DESCRIPTOR,])
 
 
+
+
+_SIGNPARAMS = _descriptor.Descriptor(
+  name='SignParams',
+  full_name='mqpb.SignParams',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='perspective', full_name='mqpb.SignParams.perspective', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='content', full_name='mqpb.SignParams.content', index=1,
+      number=2, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=50,
+  serialized_end=119,
+)
+
+
+_SIGNRESPONSE = _descriptor.Descriptor(
+  name='SignResponse',
+  full_name='mqpb.SignResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='error', full_name='mqpb.SignResponse.error', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='signature', full_name='mqpb.SignResponse.signature', index=1,
+      number=2, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=121,
+  serialized_end=182,
+)
+
+
+_VERIFYSIGNATUREPARAMS = _descriptor.Descriptor(
+  name='VerifySignatureParams',
+  full_name='mqpb.VerifySignatureParams',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='signer', full_name='mqpb.VerifySignatureParams.signer', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='signerLocation', full_name='mqpb.VerifySignatureParams.signerLocation', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='signature', full_name='mqpb.VerifySignatureParams.signature', index=2,
+      number=3, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='content', full_name='mqpb.VerifySignatureParams.content', index=3,
+      number=4, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=184,
+  serialized_end=299,
+)
+
+
+_VERIFYSIGNATURERESPONSE = _descriptor.Descriptor(
+  name='VerifySignatureResponse',
+  full_name='mqpb.VerifySignatureResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='error', full_name='mqpb.VerifySignatureResponse.error', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=301,
+  serialized_end=354,
+)
 
 
 _COMPACTPROOFPARAMS = _descriptor.Descriptor(
@@ -53,8 +212,8 @@ _COMPACTPROOFPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=50,
-  serialized_end=83,
+  serialized_start=356,
+  serialized_end=389,
 )
 
 
@@ -91,8 +250,8 @@ _COMPACTPROOFRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=85,
-  serialized_end=153,
+  serialized_start=391,
+  serialized_end=459,
 )
 
 
@@ -143,8 +302,8 @@ _REVOKEPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=156,
-  serialized_end=291,
+  serialized_start=462,
+  serialized_end=597,
 )
 
 
@@ -174,8 +333,8 @@ _REVOKERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=293,
-  serialized_end=337,
+  serialized_start=599,
+  serialized_end=643,
 )
 
 
@@ -212,8 +371,8 @@ _RESOLVEREVERSENAMEPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=339,
-  serialized_end=419,
+  serialized_start=645,
+  serialized_end=725,
 )
 
 
@@ -250,8 +409,8 @@ _RESOLVEREVERSENAMERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=421,
-  serialized_end=491,
+  serialized_start=727,
+  serialized_end=797,
 )
 
 
@@ -295,8 +454,8 @@ _MARKENTITYINTERESTINGPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=493,
-  serialized_end=618,
+  serialized_start=799,
+  serialized_end=924,
 )
 
 
@@ -326,8 +485,8 @@ _MARKENTITYINTERESTINGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=620,
-  serialized_end=679,
+  serialized_start=926,
+  serialized_end=985,
 )
 
 
@@ -413,8 +572,8 @@ _CREATENAMEDECLARATIONPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=682,
-  serialized_end=943,
+  serialized_start=988,
+  serialized_end=1249,
 )
 
 
@@ -458,8 +617,8 @@ _CREATENAMEDECLARATIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=945,
-  serialized_end=1031,
+  serialized_start=1251,
+  serialized_end=1337,
 )
 
 
@@ -503,8 +662,8 @@ _RESOLVENAMEPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1033,
-  serialized_end=1132,
+  serialized_start=1339,
+  serialized_end=1438,
 )
 
 
@@ -611,8 +770,8 @@ _NAMEDECLARATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1135,
-  serialized_end=1467,
+  serialized_start=1441,
+  serialized_end=1773,
 )
 
 
@@ -663,8 +822,8 @@ _RESOLVENAMERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1470,
-  serialized_end=1626,
+  serialized_start=1776,
+  serialized_end=1932,
 )
 
 
@@ -701,8 +860,8 @@ _RESOLVEHASHPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1628,
-  serialized_end=1701,
+  serialized_start=1934,
+  serialized_end=2007,
 )
 
 
@@ -753,8 +912,8 @@ _RESOLVEHASHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1704,
-  serialized_end=1857,
+  serialized_start=2010,
+  serialized_end=2163,
 )
 
 
@@ -798,8 +957,8 @@ _INSPECTPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1859,
-  serialized_end=1931,
+  serialized_start=2165,
+  serialized_end=2237,
 )
 
 
@@ -843,8 +1002,8 @@ _INSPECTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1933,
-  serialized_end=2048,
+  serialized_start=2239,
+  serialized_end=2354,
 )
 
 
@@ -867,8 +1026,8 @@ _LISTLOCATIONSPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2050,
-  serialized_end=2071,
+  serialized_start=2356,
+  serialized_end=2377,
 )
 
 
@@ -905,8 +1064,8 @@ _LISTLOCATIONSRESPONSE_AGENTLOCATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2200,
-  serialized_end=2269,
+  serialized_start=2506,
+  serialized_end=2575,
 )
 
 _LISTLOCATIONSRESPONSE = _descriptor.Descriptor(
@@ -942,8 +1101,8 @@ _LISTLOCATIONSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2074,
-  serialized_end=2269,
+  serialized_start=2380,
+  serialized_end=2575,
 )
 
 
@@ -994,8 +1153,8 @@ _CREATEENTITYPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2272,
-  serialized_end=2401,
+  serialized_start=2578,
+  serialized_end=2707,
 )
 
 
@@ -1046,8 +1205,8 @@ _CREATEENTITYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2403,
-  serialized_end=2505,
+  serialized_start=2709,
+  serialized_end=2811,
 )
 
 
@@ -1098,8 +1257,8 @@ _ENTITY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2507,
-  serialized_end=2608,
+  serialized_start=2813,
+  serialized_end=2914,
 )
 
 
@@ -1178,8 +1337,8 @@ _CREATEATTESTATIONPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2611,
-  serialized_end=2844,
+  serialized_start=2917,
+  serialized_end=3150,
 )
 
 
@@ -1209,8 +1368,8 @@ _RESYNCPERSPECTIVEGRAPHPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2846,
-  serialized_end=2916,
+  serialized_start=3152,
+  serialized_end=3222,
 )
 
 
@@ -1240,8 +1399,8 @@ _RESYNCPERSPECTIVEGRAPHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2918,
-  serialized_end=2978,
+  serialized_start=3224,
+  serialized_end=3284,
 )
 
 
@@ -1271,8 +1430,8 @@ _SYNCPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2980,
-  serialized_end=3032,
+  serialized_start=3286,
+  serialized_end=3338,
 )
 
 
@@ -1284,7 +1443,7 @@ _ENCRYPTMESSAGEPARAMS = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='perspective', full_name='mqpb.EncryptMessageParams.perspective', index=0,
+      name='unused', full_name='mqpb.EncryptMessageParams.unused', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -1358,8 +1517,8 @@ _ENCRYPTMESSAGEPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3035,
-  serialized_end=3295,
+  serialized_start=3341,
+  serialized_end=3596,
 )
 
 
@@ -1396,8 +1555,8 @@ _ENCRYPTMESSAGERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3297,
-  serialized_end=3369,
+  serialized_start=3598,
+  serialized_end=3670,
 )
 
 
@@ -1422,6 +1581,13 @@ _DECRYPTMESSAGEPARAMS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='resyncFirst', full_name='mqpb.DecryptMessageParams.resyncFirst', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -1434,8 +1600,8 @@ _DECRYPTMESSAGEPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3371,
-  serialized_end=3453,
+  serialized_start=3672,
+  serialized_end=3775,
 )
 
 
@@ -1472,8 +1638,8 @@ _DECRYPTMESSAGERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3455,
-  serialized_end=3524,
+  serialized_start=3777,
+  serialized_end=3846,
 )
 
 
@@ -1510,8 +1676,8 @@ _SYNCRESPONSE_STORAGESTATUSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3684,
-  serialized_end=3763,
+  serialized_start=4006,
+  serialized_end=4085,
 )
 
 _SYNCRESPONSE = _descriptor.Descriptor(
@@ -1561,8 +1727,8 @@ _SYNCRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3527,
-  serialized_end=3763,
+  serialized_start=3849,
+  serialized_end=4085,
 )
 
 
@@ -1599,8 +1765,8 @@ _STORAGEDRIVERSTATUS_INFOENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3861,
-  serialized_end=3904,
+  serialized_start=4183,
+  serialized_end=4226,
 )
 
 _STORAGEDRIVERSTATUS = _descriptor.Descriptor(
@@ -1636,8 +1802,8 @@ _STORAGEDRIVERSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3766,
-  serialized_end=3904,
+  serialized_start=4088,
+  serialized_end=4226,
 )
 
 
@@ -1695,8 +1861,8 @@ _CREATEATTESTATIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3906,
-  serialized_end=4028,
+  serialized_start=4228,
+  serialized_end=4350,
 )
 
 
@@ -1733,8 +1899,8 @@ _PUBLISHENTITYPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4030,
-  serialized_end=4098,
+  serialized_start=4352,
+  serialized_end=4420,
 )
 
 
@@ -1771,8 +1937,8 @@ _PUBLISHENTITYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4100,
-  serialized_end=4165,
+  serialized_start=4422,
+  serialized_end=4487,
 )
 
 
@@ -1802,8 +1968,8 @@ _PUBLISHATTESTATIONPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4167,
-  serialized_end=4206,
+  serialized_start=4489,
+  serialized_end=4528,
 )
 
 
@@ -1840,8 +2006,8 @@ _PUBLISHATTESTATIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4208,
-  serialized_end=4278,
+  serialized_start=4530,
+  serialized_end=4600,
 )
 
 
@@ -1885,8 +2051,8 @@ _ADDATTESTATIONPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4280,
-  serialized_end=4374,
+  serialized_start=4602,
+  serialized_end=4696,
 )
 
 
@@ -1916,8 +2082,8 @@ _ADDATTESTATIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4376,
-  serialized_end=4428,
+  serialized_start=4698,
+  serialized_end=4750,
 )
 
 
@@ -1961,8 +2127,8 @@ _LOOKUPATTESTATIONSPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4430,
-  serialized_end=4534,
+  serialized_start=4752,
+  serialized_end=4856,
 )
 
 
@@ -1999,8 +2165,8 @@ _LOOKUPATTESTATIONSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4536,
-  serialized_end=4628,
+  serialized_start=4858,
+  serialized_end=4950,
 )
 
 
@@ -2037,8 +2203,8 @@ _ERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4630,
-  serialized_end=4668,
+  serialized_start=4952,
+  serialized_end=4990,
 )
 
 
@@ -2075,8 +2241,8 @@ _PERSPECTIVE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4670,
-  serialized_end=4759,
+  serialized_start=4992,
+  serialized_end=5081,
 )
 
 
@@ -2113,8 +2279,8 @@ _LOCATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4761,
-  serialized_end=4834,
+  serialized_start=5083,
+  serialized_end=5156,
 )
 
 
@@ -2151,8 +2317,8 @@ _LOCATIONURI = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4836,
-  serialized_end=4879,
+  serialized_start=5158,
+  serialized_end=5201,
 )
 
 
@@ -2189,8 +2355,8 @@ _ENTITYSECRET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4881,
-  serialized_end=4928,
+  serialized_start=5203,
+  serialized_end=5250,
 )
 
 
@@ -2276,8 +2442,8 @@ _ATTESTATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4931,
-  serialized_end=5174,
+  serialized_start=5253,
+  serialized_end=5496,
 )
 
 
@@ -2342,8 +2508,8 @@ _ATTESTATIONBODY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5177,
-  serialized_end=5351,
+  serialized_start=5499,
+  serialized_end=5673,
 )
 
 
@@ -2429,8 +2595,8 @@ _ATTESTATIONVALIDITY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5354,
-  serialized_end=5543,
+  serialized_start=5676,
+  serialized_end=5865,
 )
 
 
@@ -2495,8 +2661,8 @@ _ENTITYVALIDITY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5545,
-  serialized_end=5667,
+  serialized_start=5867,
+  serialized_end=5989,
 )
 
 
@@ -2561,8 +2727,8 @@ _NAMEDECLARATIONVALIDITY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5670,
-  serialized_end=5801,
+  serialized_start=5992,
+  serialized_end=6123,
 )
 
 
@@ -2599,8 +2765,8 @@ _POLICY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5803,
-  serialized_end=5901,
+  serialized_start=6125,
+  serialized_end=6223,
 )
 
 
@@ -2630,8 +2796,8 @@ _TRUSTLEVELPOLICY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5903,
-  serialized_end=5936,
+  serialized_start=6225,
+  serialized_end=6258,
 )
 
 
@@ -2682,8 +2848,8 @@ _RTREEPOLICY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5938,
-  serialized_end=6063,
+  serialized_start=6260,
+  serialized_end=6385,
 )
 
 
@@ -2727,8 +2893,8 @@ _RTREEPOLICYSTATEMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6065,
-  serialized_end=6149,
+  serialized_start=6387,
+  serialized_end=6471,
 )
 
 
@@ -2786,8 +2952,8 @@ _BUILDRTREEPROOFPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6152,
-  serialized_end=6324,
+  serialized_start=6474,
+  serialized_end=6646,
 )
 
 
@@ -2831,8 +2997,8 @@ _BUILDRTREEPROOFRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6326,
-  serialized_end=6426,
+  serialized_start=6648,
+  serialized_end=6748,
 )
 
 
@@ -2857,6 +3023,13 @@ _VERIFYPROOFPARAMS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='subject', full_name='mqpb.VerifyProofParams.subject', index=2,
+      number=3, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -2869,8 +3042,8 @@ _VERIFYPROOFPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6428,
-  serialized_end=6513,
+  serialized_start=6750,
+  serialized_end=6852,
 )
 
 
@@ -2907,8 +3080,8 @@ _VERIFYPROOFRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6515,
-  serialized_end=6593,
+  serialized_start=6854,
+  serialized_end=6932,
 )
 
 
@@ -2973,8 +3146,8 @@ _PROOF = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6596,
-  serialized_end=6776,
+  serialized_start=6935,
+  serialized_end=7115,
 )
 
 
@@ -3004,10 +3177,14 @@ _PROOFPATH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6778,
-  serialized_end=6807,
+  serialized_start=7117,
+  serialized_end=7146,
 )
 
+_SIGNPARAMS.fields_by_name['perspective'].message_type = _PERSPECTIVE
+_SIGNRESPONSE.fields_by_name['error'].message_type = _ERROR
+_VERIFYSIGNATUREPARAMS.fields_by_name['signerLocation'].message_type = _LOCATION
+_VERIFYSIGNATURERESPONSE.fields_by_name['error'].message_type = _ERROR
 _COMPACTPROOFRESPONSE.fields_by_name['error'].message_type = _ERROR
 _REVOKEPARAMS.fields_by_name['perspective'].message_type = _PERSPECTIVE
 _REVOKERESPONSE.fields_by_name['error'].message_type = _ERROR
@@ -3050,7 +3227,7 @@ _CREATEATTESTATIONPARAMS.fields_by_name['policy'].message_type = _POLICY
 _RESYNCPERSPECTIVEGRAPHPARAMS.fields_by_name['perspective'].message_type = _PERSPECTIVE
 _RESYNCPERSPECTIVEGRAPHRESPONSE.fields_by_name['error'].message_type = _ERROR
 _SYNCPARAMS.fields_by_name['perspective'].message_type = _PERSPECTIVE
-_ENCRYPTMESSAGEPARAMS.fields_by_name['perspective'].message_type = _PERSPECTIVE
+_ENCRYPTMESSAGEPARAMS.fields_by_name['unused'].message_type = _PERSPECTIVE
 _ENCRYPTMESSAGEPARAMS.fields_by_name['subjectLocation'].message_type = _LOCATION
 _ENCRYPTMESSAGEPARAMS.fields_by_name['namespaceLocation'].message_type = _LOCATION
 _ENCRYPTMESSAGERESPONSE.fields_by_name['error'].message_type = _ERROR
@@ -3093,6 +3270,10 @@ _PROOF.fields_by_name['elements'].message_type = _ATTESTATION
 _PROOF.fields_by_name['paths'].message_type = _PROOFPATH
 _PROOF.fields_by_name['policy'].message_type = _POLICY
 _PROOF.fields_by_name['subjectLocation'].message_type = _LOCATION
+DESCRIPTOR.message_types_by_name['SignParams'] = _SIGNPARAMS
+DESCRIPTOR.message_types_by_name['SignResponse'] = _SIGNRESPONSE
+DESCRIPTOR.message_types_by_name['VerifySignatureParams'] = _VERIFYSIGNATUREPARAMS
+DESCRIPTOR.message_types_by_name['VerifySignatureResponse'] = _VERIFYSIGNATURERESPONSE
 DESCRIPTOR.message_types_by_name['CompactProofParams'] = _COMPACTPROOFPARAMS
 DESCRIPTOR.message_types_by_name['CompactProofResponse'] = _COMPACTPROOFRESPONSE
 DESCRIPTOR.message_types_by_name['RevokeParams'] = _REVOKEPARAMS
@@ -3155,6 +3336,34 @@ DESCRIPTOR.message_types_by_name['VerifyProofResponse'] = _VERIFYPROOFRESPONSE
 DESCRIPTOR.message_types_by_name['Proof'] = _PROOF
 DESCRIPTOR.message_types_by_name['ProofPath'] = _PROOFPATH
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+SignParams = _reflection.GeneratedProtocolMessageType('SignParams', (_message.Message,), dict(
+  DESCRIPTOR = _SIGNPARAMS,
+  __module__ = 'eapi_pb2'
+  # @@protoc_insertion_point(class_scope:mqpb.SignParams)
+  ))
+_sym_db.RegisterMessage(SignParams)
+
+SignResponse = _reflection.GeneratedProtocolMessageType('SignResponse', (_message.Message,), dict(
+  DESCRIPTOR = _SIGNRESPONSE,
+  __module__ = 'eapi_pb2'
+  # @@protoc_insertion_point(class_scope:mqpb.SignResponse)
+  ))
+_sym_db.RegisterMessage(SignResponse)
+
+VerifySignatureParams = _reflection.GeneratedProtocolMessageType('VerifySignatureParams', (_message.Message,), dict(
+  DESCRIPTOR = _VERIFYSIGNATUREPARAMS,
+  __module__ = 'eapi_pb2'
+  # @@protoc_insertion_point(class_scope:mqpb.VerifySignatureParams)
+  ))
+_sym_db.RegisterMessage(VerifySignatureParams)
+
+VerifySignatureResponse = _reflection.GeneratedProtocolMessageType('VerifySignatureResponse', (_message.Message,), dict(
+  DESCRIPTOR = _VERIFYSIGNATURERESPONSE,
+  __module__ = 'eapi_pb2'
+  # @@protoc_insertion_point(class_scope:mqpb.VerifySignatureResponse)
+  ))
+_sym_db.RegisterMessage(VerifySignatureResponse)
 
 CompactProofParams = _reflection.GeneratedProtocolMessageType('CompactProofParams', (_message.Message,), dict(
   DESCRIPTOR = _COMPACTPROOFPARAMS,
@@ -3618,8 +3827,8 @@ _WAVE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=6810,
-  serialized_end=9132,
+  serialized_start=7149,
+  serialized_end=9649,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateEntity',
@@ -3818,6 +4027,24 @@ _WAVE = _descriptor.ServiceDescriptor(
     input_type=_COMPACTPROOFPARAMS,
     output_type=_COMPACTPROOFRESPONSE,
     serialized_options=_b('\202\323\344\223\002\025\"\020/v1/CompactProof:\001*'),
+  ),
+  _descriptor.MethodDescriptor(
+    name='Sign',
+    full_name='mqpb.WAVE.Sign',
+    index=22,
+    containing_service=None,
+    input_type=_SIGNPARAMS,
+    output_type=_SIGNRESPONSE,
+    serialized_options=_b('\202\323\344\223\002\r\"\010/v1/Sign:\001*'),
+  ),
+  _descriptor.MethodDescriptor(
+    name='VerifySignature',
+    full_name='mqpb.WAVE.VerifySignature',
+    index=23,
+    containing_service=None,
+    input_type=_VERIFYSIGNATUREPARAMS,
+    output_type=_VERIFYSIGNATURERESPONSE,
+    serialized_options=_b('\202\323\344\223\002\030\"\023/v1/VerifySignature:\001*'),
   ),
 ])
 _sym_db.RegisterServiceDescriptor(_WAVE)
