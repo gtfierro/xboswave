@@ -1,4 +1,3 @@
-bitbucket.org/creachadair/cityhash v0.0.1/go.mod h1:0zUWpkitjOBXC3invbABTtKV2Vg4OTUcuoTV2Q3WBUc=
 bou.ke/monkey v1.0.1 h1:zEMLInw9xvNakzUUPjfS4Ds6jYPqCFx3m7bRmG5NH2U=
 bou.ke/monkey v1.0.1/go.mod h1:FgHuK96Rv2Nlf+0u1OOVDpCMdsWyOFmeeketDHE7LIg=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
@@ -146,6 +145,7 @@ github.com/emicklei/proto v1.6.6/go.mod h1:Dqn751twH9SasYqvA59Lb9Hz+itoJgmMoivX6
 github.com/emirpasic/gods v1.9.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3ymbK86o=
 github.com/ethereum/go-ethereum v1.8.19 h1:H3m/wLo1hx3gpduVMQWb9ertqkmuTXvqjQNcxiA6XNI=
 github.com/ethereum/go-ethereum v1.8.19/go.mod h1:PwpWDrCLZrV+tfrhqqF6kPknbISMHaJv9Ln3kPCZLwY=
+github.com/ethereum/go-ethereum v1.8.27 h1:d+gkiLaBDk5fn3Pe/xNVaMrB/ozI+AUB2IlVBp29IrY=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=

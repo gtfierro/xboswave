@@ -19,6 +19,7 @@ require (
 	github.com/emicklei/proto v1.6.6
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gliderlabs/ssh v0.1.1
+	github.com/glycerine/goconvey v0.0.0-20190315024820-982ee783a72e // indirect
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang/groupcache v0.0.0-20190129154638-5b532d6fd5ef // indirect
 	github.com/golang/protobuf v1.3.1
@@ -62,6 +63,7 @@ require (
 	github.com/ucbrise/jedi-pairing v0.0.0-20190527004100-4c3d16d2a74f // indirect
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f // indirect
+	golang.org/x/tools v0.0.0-20190407030857-0fdf0c73855b // indirect
 	google.golang.org/grpc v1.20.1
 	gopkg.in/btrdb.v4 v4.15.3
 	gopkg.in/yaml.v2 v2.2.2
