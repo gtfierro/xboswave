@@ -157,10 +157,10 @@ class LPBCProcess(XBOSProcess):
         if 'namespace' not in cfg:
             raise ConfigMissingError('namespace')
         self.namespace = b64decode(cfg['namespace'])
-        if 'local_upmu' not in cfg:
-            raise ConfigMissingError('local_upmu')
-        if 'reference_upmu' not in cfg:
-            raise ConfigMissingError('reference_upmu')
+        if 'local_channels' not in cfg:
+            raise ConfigMissingError('local_channels')
+        if 'reference_channels' not in cfg:
+            raise ConfigMissingError('reference_channels')
         if 'name' not in cfg:
             raise ConfigMissingError('name')
         if 'spbc' not in cfg:
@@ -168,21 +168,29 @@ class LPBCProcess(XBOSProcess):
         if 'rate' not in cfg:
             raise ConfigMissingError('rate')
 
-        self.local_upmu = cfg['local_upmu']
-        self.reference_upmu = cfg['reference_upmu']
+        self.local_channels = cfg['local_channels']
+        self.reference_channels = cfg['reference_channels']
 
         self.name = cfg['name']
         self.spbc = cfg['spbc']
         self._rate = int(cfg['rate'])
-        self.last_local_upmu_reading = None
-        self.last_reference_upmu_reading = None
+
+        # local buffers for phasor data
+        # key: channel name, value: phasor data
+        self.local_phasor_data = {}
+        self.reference_phasor_data = {}
         self.last_spbc_command = None
         self.control_on = False
 
-        schedule(self.subscribe_extract(self.namespace, f"upmu/{self.local_upmu}", ".C37DataFrame", self._local_upmucb))
-        schedule(self.subscribe_extract(self.namespace, f"upmu/{self.reference_upmu}", ".C37DataFrame", self._reference_upmucb))
-        #schedule(self.subscribe_extract(self.namespace, f"spbc/{self.spbc}/*", ".EnergiseMessage.SPBC", self._spbccb))
-        schedule(self.subscribe_extract(self.namespace, "spbc/*", ".EnergiseMessage.SPBC", self._spbccb))
+        for local_channel in self.local_channels:
+            self.local_phasor_data[local_channel] = []
+            schedule(self.subscribe_extract(self.namespace, f"upmu/{local_channel}", ".C37DataFrame", self._local_upmucb))
+        for reference_channel in self.reference_channels:
+            self.reference_phasor_data[reference_channel] = []
+            schedule(self.subscribe_extract(self.namespace, f"upmu/{reference_channel}", ".C37DataFrame", self._reference_upmucb))
+
+        # TODO: listen to SPBC
+        schedule(self.subscribe_extract(self.namespace, f"spbc/{self.spbc}/node/{self.name}", ".EnergiseMessage.SPBC", self._spbccb))
 	
         schedule(self.call_periodic(self._rate, self._trigger, runfirst=False))
 
@@ -190,30 +198,46 @@ class LPBCProcess(XBOSProcess):
 
     def _local_upmucb(self, resp):
         """Stores the most recent local upmu reading"""
-        self.last_local_upmu_reading = resp
+        frame = resp.values[-1]['phasorChannels'][0]
+        self.local_phasor_data[frame['channelName']].append(frame['data'])
+
     def _reference_upmucb(self, resp):
         """Stores the most recent reference upmu reading"""
-        self.last_reference_upmu_reading = resp
+        frame = resp.values[-1]['phasorChannels'][0]
+        self.reference_phasor_data[frame['channelName']].append(frame['data'])
+
     def _spbccb(self, resp):
         """Stores the most recent SPBC command"""
         self.last_spbc_command = resp
 
+    def _received_local_phasor_data(self):
+        return sum(map(len, self.local_phasor_data.values())) > 0
+    def _received_reference_phasor_data(self):
+        return sum(map(len, self.reference_phasor_data.values())) > 0
+
     async def _trigger(self):
         try:
-            if self.last_local_upmu_reading is None or len(self.last_local_upmu_reading.values) == 0:
+            if not self._received_local_phasor_data():
                 self._log.warning(f"LPBC {self.name} has not received a local upmu reading")
                 return
-            if self.last_reference_upmu_reading is None or len(self.last_reference_upmu_reading.values) == 0:
+            if not self._received_reference_phasor_data():
                 self._log.warning(f"LPBC {self.name} has not received a reference upmu reading")
                 return
             if self.last_spbc_command is None or len(self.last_spbc_command.values) == 0:
                 self._log.warning(f"LPBC {self.name} has not received an SPBC command")
                 return
-            local_c37_frame = self.last_local_upmu_reading.values[-1] # most recent
-            reference_c37_frame = self.last_reference_upmu_reading.values[-1] # most recent
             spbc_cmd = self.last_spbc_command.values[-1] # most recent
             targets = spbc_cmd['phasorTarget']
-            await self.do_trigger(local_c37_frame, reference_c37_frame, 1,0)#targets['P'], targets['Q'])
+            local_phasors = [self.local_phasor_data.pop(local_channel) for local_channel in self.local_channels]
+            reference_phasors = [self.reference_phasor_data.pop(reference_channel) for reference_channel in self.reference_channels]
+
+            # rebuild buffers
+            for local_channel in self.local_channels:
+                self.local_phasor_data[local_channel] = []
+            for reference_channel in self.reference_channels:
+                self.reference_phasor_data[reference_channel] = []
+
+            await self.do_trigger(local_phasors, reference_phasors, self.last_spbc_command) #targets['P'], targets['Q'])
         except IndexError:
             return # no upmu readings
 
@@ -224,15 +248,22 @@ class LPBCProcess(XBOSProcess):
     SPBC targets: P: {p_target} Q: {q_target}
     Enable control?: {self.control_on}
         """)
-        error, mp, mq, sat = self.step(local_c37_frame, reference_c37_frame, p_target, q_target)
+        status = self.step(local_c37_frame, reference_c37_frame, p_target, q_target)
 
+        p_max = Double(value=status.get('p_max')) if status.get('p_max') else None
+        q_max = Double(value=status.get('q_max')) if status.get('q_max') else None
         msg = XBOS(
                 EnergiseMessage=EnergiseMessage(
                     LPBCStatus=LPBCStatus(
                         time=int(datetime.utcnow().timestamp()*1e9),
-                        phasors=Phasor(P=mp, Q=mq),
-                        saturated=sat,
-                        do_control=self.control_on,
+                        phasor_errors=Phasor(
+                            magnitude=status['phasor_errors'].get('V',0),
+                            angle=status['phasor_errors'].get('delta',0),
+                        ),
+                        p_saturated=status.get('p_saturated', False),
+                        q_saturated=status.get('q_saturated', False),
+                        p_max=p_max,
+                        q_max=q_max,
                     )
                 ))
         await self.publish(self.namespace, f"lpbc/{self.name}", msg)
