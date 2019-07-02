@@ -4,6 +4,10 @@ package xbospb;
 
 import "c37.proto";
 
+message Double {
+    double value = 1;
+}
+
 message EnergiseMessage {
     SPBC SPBC = 1;
     LPBCStatus LPBCStatus = 2;
@@ -14,13 +18,35 @@ message EnergiseError {
     string msg = 1;
 }
 
+// EnergisePhasorTarget is a control target specified on a per-node basis
+// upmu0 is the 'head of feeder'. This is reference for everything: SPBC, LPBCs
+message EnergisePhasorTarget {
+    string nodeID = 1;
+    double magnitude = 2;
+    double angle = 3;
+    Double kvbase = 4;
+}
+
+// SPBC sends a target (V mag + angle delta). This requires knowledge of the reference phasor
+// Maybe the SPBC sends the reference phasor to the LPBC along with.
+
+// The reference C37 upmu stream is single magnitude + angle
+// TODO: is this true?
+
 // Defines the messages required for the ENERGISE project:
 
+// The SPBC message is sent by a supervisory controller (also called an SPBC)
+// at regular intervals.  The expectation is the SPBC will send out a single
+// message for each node that it is controlling, containing an
+// EnergisePhasorTarget for that node. We restrict each message to a single
+// phasor_target for now in order to maintain isolation between the nodes and
+// bound what information they are allowed to see.
 message SPBC {
     // current time of announcement in milliseconds
     int64 time = 1;
-    
-    Phasor phasor_target = 2;
+    // a phasor target for a specific node
+    EnergisePhasorTarget phasor_target = 2;
+    // represents general errors in the SPBC
     EnergiseError error = 3;
 }
 
@@ -30,13 +56,20 @@ message LPBCStatus {
     // contains potential errors
     EnergiseError error = 2;
 
-    // current P, Q of LPBC
-    Phasor phasors = 3;
+    // current P, Q errors of LPBC
+    Phasor phasor_errors = 3;
 
-    // true if LPBC is saturated
-    bool saturated = 4;
-    // true of the LPBC is performing control
-    bool do_control = 5;
+    // true if LPBC P is saturated
+    bool p_saturated = 4;
+    // true if LPBC Q is saturated
+    bool q_saturated = 5;
+    // true if the LPBC is performing control
+    bool do_control = 6;
+    // should be populated if p_saturated or q_saturated
+    // gives the value at which p or q saturated
+    Double p_max = 7;
+    Double q_max = 8;
+
 }
 
 message LPBCCommand {
