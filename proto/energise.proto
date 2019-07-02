@@ -19,9 +19,10 @@ message EnergiseError {
 // upmu0 is the 'head of feeder'. This is reference for everything: SPBC, LPBCs
 message EnergisePhasorTarget {
     string nodeID = 1;
-    double magnitude = 2;
+    string channelName = 2;
     double angle = 3;
-    Double kvbase = 4;
+    double magnitude = 4;
+    Double kvbase = 5;
 }
 
 // SPBC sends a target (V mag + angle delta). This requires knowledge of the reference phasor
@@ -41,8 +42,8 @@ message EnergisePhasorTarget {
 message SPBC {
     // current time of announcement in milliseconds
     int64 time = 1;
-    // a phasor target for a specific node
-    EnergisePhasorTarget phasor_target = 2;
+    // phasor targets for a specific node (can be multiple phases)
+    repeated EnergisePhasorTarget phasor_targets = 2;
     // represents general errors in the SPBC
     EnergiseError error = 3;
 }

@@ -1,7 +1,7 @@
 from pyxbos.process import XBOSProcess, b64decode, b64encode, schedule, run_loop
 from pyxbos.xbos_pb2 import XBOS
 from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, EnergiseError, EnergisePhasorTarget, Double
-from pyxbos.c37_pb2 import Phasor
+from pyxbos.c37_pb2 import Phasor, PhasorChannel
 from datetime import datetime
 from collections import deque
 
@@ -18,8 +18,6 @@ class SPBCProcess(XBOSProcess):
 
     At regular intervals, the SPBC publishes a V + delta target for *each* node,
     represented by an LPBC.
-
-    TODO: how does the SPBC get the most recent C37 reference phasor reading?
     """
 
     def __init__(self, cfg):
@@ -34,7 +32,10 @@ class SPBCProcess(XBOSProcess):
         self._log.info(f"initialized SPBC: {cfg}")
         self.name = cfg['name']
 
-        # TODO: document this configuration option
+        # reference channels are URIs for the uPMU channels the SPBC
+        # subscribes to. The SPBC framework maintains self.reference_phasors
+        # to contain the most recent phasor measurements for each channel
+        self.reference_phasors = {k: None for k in reference_channels}
         self._reference_channels = reference_channels
         for channel in reference_channels:
             upmu_uri = f"upmu/{channel}"
@@ -44,37 +45,104 @@ class SPBCProcess(XBOSProcess):
         self.lpbcs = {}
         schedule(self.subscribe_extract(self.namespace, "lpbc/*", ".EnergiseMessage.LPBCStatus", self._lpbccb))
 
-    def _upmucb(self, c37_frame):
+    def _upmucb(self, resp):
         """
-        """
-        # TODO: handle upmu
+        Called on every received C37 frame from the reference upmu channels.
+        Stores the most recent phasors received:
 
-        pass
+        self.reference_phasors = {
+            'flexlab1/L1': [
+                {
+                    "time": "1559231114799996800",
+                    "angle": 193.30149788923268,
+                    "magnitude": 0.038565948605537415
+                },
+                {
+                    "time": "1559231114899996400",
+                    "angle": 195.50249902851263,
+                    "magnitude": 0.042079225182533264
+                }
+                ... etc
+            ],
+            'flexlab/L2': [
+                {
+                    "time": "1559231114799996800",
+                    "angle": 220.30149788923268,
+                    "magnitude": 10.038565948605537415
+                },
+                {
+                    "time": "1559231114899996400",
+                    "angle": 220.50249902851263,
+                    "magnitude": 10.042079225182533264
+                }
+            ]
+        }
+        """
+        upmu = resp.uri.lstrip('upmu/')
+        self.reference_phasors[upmu] = resp.values[-1]['phasorChannels']['data']
 
     def _lpbccb(self, resp):
         """
         Caches the last message heard from each LPBC
+
+        Each LPBC status looks like:
+        {
+            # local time of LPBC
+            'time': 1559231114799996800,
+            # phasor errors of LPBC
+            'phasor_errors': {
+                'angle': 1.12132,
+                'magnitude': 31.12093090,
+                # ... and/or ...
+                'P': 1.12132,
+                'Q': 31.12093090,
+            },
+            # true if P is saturated
+            'p_saturated': True,
+            # true if Q is saturated
+            'q_saturated': True,
+            # if p_saturated is True, expect the p max value
+            'p_max': {'value': 1.4},
+            # if q_saturated is True, expect the q max value
+            'q_max': {'value': 11.4},
+            # true if LPBc is doing control
+            'do_control': True,
+        }
         """
         self.lpbcs[resp.uri] = resp
 
-    async def broadcast_target(self, nodeid, vmag, vang, kvbase=None):
+    async def broadcast_target(self, nodeid, channels, vmags, vangs, kvbases=None):
         """
         Publishes SPBC V and delta for a particular node
 
         Args:
             nodeid (str): the name of the node we are publishing the target to
-            vmag (float): the 'V' target to be set
-            vang (float): the 'delta' target to be set
-            kvbase (float): the KV base
+            channels (list of str): list of channel names for the node we are announcing targets to
+            vmag (list of float): the 'V' target to be set for each channel
+            vang (list of float): the 'delta' target to be set for each channel
+            kvbase (list of float or None): the KV base for each channel
         """
-        self._log.info(f"SPBC announcing vmag {vmag}, vang {vang} to node {nodeid}")
+        self._log.info(f"SPBC announcing channels {channels}, vmag {vmags}, vang {vangs} to node {nodeid}")
         # wrap value in nullable Double if provided
-        kvbase = Double(value=kvbase) if kvbase else None
+
+        targets = []
+        for idx, channel in enumerate(channels):
+            kvbase = Double(value=kvbases[idx]) if kvbases else None
+            targets.append(
+                EnergisePhasorTarget(
+                    nodeID=nodeid,
+                    channelName=channels[idx],
+                    angle=vangs[idx],
+                    magnitude=vmags[idx], 
+                    kvbase=kvbase,
+                )
+            )
+
         await self.publish(self.namespace, f"spbc/{self.name}/node/{nodeid}", XBOS(
             EnergiseMessage = EnergiseMessage(
             SPBC=SPBC(
                 time=int(datetime.utcnow().timestamp()*1e9),
-                phasor_target=EnergisePhasorTarget(nodeID=nodeid,magnitude=vmag,angle=vang,kvbase=kvbase)
+                phasor_targets=targets
                 )
             )))
 
