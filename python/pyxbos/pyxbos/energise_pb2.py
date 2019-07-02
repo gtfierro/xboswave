@@ -14,6 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 from . import c37_pb2 as c37__pb2
+from . import nullabletypes_pb2 as nullabletypes__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -21,9 +22,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='xbospb',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0e\x65nergise.proto\x12\x06xbospb\x1a\tc37.proto\"\x7f\n\x0f\x45nergiseMessage\x12\x1a\n\x04SPBC\x18\x01 \x01(\x0b\x32\x0c.xbospb.SPBC\x12&\n\nLPBCStatus\x18\x02 \x01(\x0b\x32\x12.xbospb.LPBCStatus\x12(\n\x0bLPBCCommand\x18\x03 \x01(\x0b\x32\x13.xbospb.LPBCCommand\"\x1c\n\rEnergiseError\x12\x0b\n\x03msg\x18\x01 \x01(\t\"X\n\x14\x45nergisePhasorTarget\x12\x0e\n\x06nodeID\x18\x01 \x01(\t\x12\x11\n\tmagnitude\x18\x02 \x01(\x01\x12\r\n\x05\x61ngle\x18\x03 \x01(\x01\x12\x0e\n\x06kvbase\x18\x04 \x01(\x01\"o\n\x04SPBC\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12\x33\n\rphasor_target\x18\x02 \x01(\x0b\x32\x1c.xbospb.EnergisePhasorTarget\x12$\n\x05\x65rror\x18\x03 \x01(\x0b\x32\x15.xbospb.EnergiseError\"\xef\x01\n\nLPBCStatus\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12$\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x15.xbospb.EnergiseError\x12%\n\rphasor_errors\x18\x03 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x13\n\x0bp_saturated\x18\x04 \x01(\x08\x12\x13\n\x0bq_saturated\x18\x05 \x01(\x08\x12\x12\n\ndo_control\x18\x06 \x01(\x08\x12%\n\x05pqmax\x18\x07 \x01(\x0b\x32\x16.xbospb.LPBCStatus.Max\x1a!\n\x03Max\x12\x0c\n\x04Pmax\x18\x01 \x01(\x01\x12\x0c\n\x04Pmin\x18\x02 \x01(\x01\"V\n\x0bLPBCCommand\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12%\n\rphasor_target\x18\x02 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x12\n\ndo_control\x18\x03 \x01(\x08\x62\x06proto3')
+  serialized_pb=_b('\n\x0e\x65nergise.proto\x12\x06xbospb\x1a\tc37.proto\x1a\x13nullabletypes.proto\"\x7f\n\x0f\x45nergiseMessage\x12\x1a\n\x04SPBC\x18\x01 \x01(\x0b\x32\x0c.xbospb.SPBC\x12&\n\nLPBCStatus\x18\x02 \x01(\x0b\x32\x12.xbospb.LPBCStatus\x12(\n\x0bLPBCCommand\x18\x03 \x01(\x0b\x32\x13.xbospb.LPBCCommand\"\x1c\n\rEnergiseError\x12\x0b\n\x03msg\x18\x01 \x01(\t\"h\n\x14\x45nergisePhasorTarget\x12\x0e\n\x06nodeID\x18\x01 \x01(\t\x12\x11\n\tmagnitude\x18\x02 \x01(\x01\x12\r\n\x05\x61ngle\x18\x03 \x01(\x01\x12\x1e\n\x06kvbase\x18\x04 \x01(\x0b\x32\x0e.xbospb.Double\"o\n\x04SPBC\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12\x33\n\rphasor_target\x18\x02 \x01(\x0b\x32\x1c.xbospb.EnergisePhasorTarget\x12$\n\x05\x65rror\x18\x03 \x01(\x0b\x32\x15.xbospb.EnergiseError\"\xe3\x01\n\nLPBCStatus\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12$\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x15.xbospb.EnergiseError\x12%\n\rphasor_errors\x18\x03 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x13\n\x0bp_saturated\x18\x04 \x01(\x08\x12\x13\n\x0bq_saturated\x18\x05 \x01(\x08\x12\x12\n\ndo_control\x18\x06 \x01(\x08\x12\x1d\n\x05p_max\x18\x07 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1d\n\x05q_max\x18\x08 \x01(\x0b\x32\x0e.xbospb.Double\"V\n\x0bLPBCCommand\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12%\n\rphasor_target\x18\x02 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x12\n\ndo_control\x18\x03 \x01(\x08\x62\x06proto3')
   ,
-  dependencies=[c37__pb2.DESCRIPTOR,])
+  dependencies=[c37__pb2.DESCRIPTOR,nullabletypes__pb2.DESCRIPTOR,])
 
 
 
@@ -68,8 +69,8 @@ _ENERGISEMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=37,
-  serialized_end=164,
+  serialized_start=58,
+  serialized_end=185,
 )
 
 
@@ -99,8 +100,8 @@ _ENERGISEERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=166,
-  serialized_end=194,
+  serialized_start=187,
+  serialized_end=215,
 )
 
 
@@ -134,8 +135,8 @@ _ENERGISEPHASORTARGET = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='kvbase', full_name='xbospb.EnergisePhasorTarget.kvbase', index=3,
-      number=4, type=1, cpp_type=5, label=1,
-      has_default_value=False, default_value=float(0),
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -151,8 +152,8 @@ _ENERGISEPHASORTARGET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=196,
-  serialized_end=284,
+  serialized_start=217,
+  serialized_end=321,
 )
 
 
@@ -196,47 +197,10 @@ _SPBC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=286,
-  serialized_end=397,
+  serialized_start=323,
+  serialized_end=434,
 )
 
-
-_LPBCSTATUS_MAX = _descriptor.Descriptor(
-  name='Max',
-  full_name='xbospb.LPBCStatus.Max',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='Pmax', full_name='xbospb.LPBCStatus.Max.Pmax', index=0,
-      number=1, type=1, cpp_type=5, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='Pmin', full_name='xbospb.LPBCStatus.Max.Pmin', index=1,
-      number=2, type=1, cpp_type=5, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=606,
-  serialized_end=639,
-)
 
 _LPBCSTATUS = _descriptor.Descriptor(
   name='LPBCStatus',
@@ -288,8 +252,15 @@ _LPBCSTATUS = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='pqmax', full_name='xbospb.LPBCStatus.pqmax', index=6,
+      name='p_max', full_name='xbospb.LPBCStatus.p_max', index=6,
       number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='q_max', full_name='xbospb.LPBCStatus.q_max', index=7,
+      number=8, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -297,7 +268,7 @@ _LPBCSTATUS = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_LPBCSTATUS_MAX, ],
+  nested_types=[],
   enum_types=[
   ],
   serialized_options=None,
@@ -306,8 +277,8 @@ _LPBCSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=400,
-  serialized_end=639,
+  serialized_start=437,
+  serialized_end=664,
 )
 
 
@@ -351,19 +322,20 @@ _LPBCCOMMAND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=641,
-  serialized_end=727,
+  serialized_start=666,
+  serialized_end=752,
 )
 
 _ENERGISEMESSAGE.fields_by_name['SPBC'].message_type = _SPBC
 _ENERGISEMESSAGE.fields_by_name['LPBCStatus'].message_type = _LPBCSTATUS
 _ENERGISEMESSAGE.fields_by_name['LPBCCommand'].message_type = _LPBCCOMMAND
+_ENERGISEPHASORTARGET.fields_by_name['kvbase'].message_type = nullabletypes__pb2._DOUBLE
 _SPBC.fields_by_name['phasor_target'].message_type = _ENERGISEPHASORTARGET
 _SPBC.fields_by_name['error'].message_type = _ENERGISEERROR
-_LPBCSTATUS_MAX.containing_type = _LPBCSTATUS
 _LPBCSTATUS.fields_by_name['error'].message_type = _ENERGISEERROR
 _LPBCSTATUS.fields_by_name['phasor_errors'].message_type = c37__pb2._PHASOR
-_LPBCSTATUS.fields_by_name['pqmax'].message_type = _LPBCSTATUS_MAX
+_LPBCSTATUS.fields_by_name['p_max'].message_type = nullabletypes__pb2._DOUBLE
+_LPBCSTATUS.fields_by_name['q_max'].message_type = nullabletypes__pb2._DOUBLE
 _LPBCCOMMAND.fields_by_name['phasor_target'].message_type = c37__pb2._PHASOR
 DESCRIPTOR.message_types_by_name['EnergiseMessage'] = _ENERGISEMESSAGE
 DESCRIPTOR.message_types_by_name['EnergiseError'] = _ENERGISEERROR
@@ -402,19 +374,11 @@ SPBC = _reflection.GeneratedProtocolMessageType('SPBC', (_message.Message,), dic
 _sym_db.RegisterMessage(SPBC)
 
 LPBCStatus = _reflection.GeneratedProtocolMessageType('LPBCStatus', (_message.Message,), dict(
-
-  Max = _reflection.GeneratedProtocolMessageType('Max', (_message.Message,), dict(
-    DESCRIPTOR = _LPBCSTATUS_MAX,
-    __module__ = 'energise_pb2'
-    # @@protoc_insertion_point(class_scope:xbospb.LPBCStatus.Max)
-    ))
-  ,
   DESCRIPTOR = _LPBCSTATUS,
   __module__ = 'energise_pb2'
   # @@protoc_insertion_point(class_scope:xbospb.LPBCStatus)
   ))
 _sym_db.RegisterMessage(LPBCStatus)
-_sym_db.RegisterMessage(LPBCStatus.Max)
 
 LPBCCommand = _reflection.GeneratedProtocolMessageType('LPBCCommand', (_message.Message,), dict(
   DESCRIPTOR = _LPBCCOMMAND,

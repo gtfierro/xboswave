@@ -3,10 +3,7 @@ syntax = "proto3";
 package xbospb;
 
 import "c37.proto";
-
-message Double {
-    double value = 1;
-}
+import "nullabletypes.proto";
 
 message EnergiseMessage {
     SPBC SPBC = 1;
