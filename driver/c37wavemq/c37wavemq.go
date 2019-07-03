@@ -70,7 +70,8 @@ func StartProtocolAdapter(cfg *ProtocolAdapterConfig) {
 	}
 }
 
-const BatchSize = 120
+//const BatchSize = 120
+const BatchSize = 30
 const Proportion = 1 // 100% of readings
 var _batchstep = 1   //int(Proportion * BatchSize)
 
