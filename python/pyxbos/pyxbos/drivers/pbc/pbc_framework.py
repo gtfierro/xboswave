@@ -29,9 +29,13 @@ class SPBCProcess(XBOSProcess):
             raise ConfigMissingError('name')
         if 'reference_channels' not in cfg:
             raise ConfigMissingError('reference_channels')
+        if 'lpbcs' not in cfg:
+            raise ConfigMissingError('lpbcs')
         self.namespace = b64decode(cfg['namespace'])
         self._log.info(f"initialized SPBC: {cfg}")
         self.name = cfg['name']
+        # list of lpbcs to publish to
+        self._lpbcs = cfg['lpbcs']
 
         # reference channels are URIs for the uPMU channels the SPBC
         # subscribes to. The SPBC framework maintains self.reference_phasors
@@ -185,27 +189,29 @@ class LPBCProcess(XBOSProcess):
 
         for local_channel in self.local_channels:
             self.local_phasor_data[local_channel] = []
-            schedule(self.subscribe_extract(self.namespace, f"upmu/{local_channel}", ".C37DataFrame", self._local_upmucb))
+            schedule(self.subscribe_extract(self.namespace, f"upmu/{local_channel}", ".C37DataFrame", lambda x: self._local_upmucb(local_channel, x)))
         for reference_channel in self.reference_channels:
             self.reference_phasor_data[reference_channel] = []
-            schedule(self.subscribe_extract(self.namespace, f"upmu/{reference_channel}", ".C37DataFrame", self._reference_upmucb))
+            schedule(self.subscribe_extract(self.namespace, f"upmu/{reference_channel}", ".C37DataFrame", lambda x: self._reference_upmucb(reference_channel, x)))
 
         # TODO: listen to SPBC
+        print(f"spbc/{self.spbc}/node/{self.name}")
         schedule(self.subscribe_extract(self.namespace, f"spbc/{self.spbc}/node/{self.name}", ".EnergiseMessage.SPBC", self._spbccb))
 	
         schedule(self.call_periodic(self._rate, self._trigger, runfirst=False))
 
         self._log.info(f"initialized LPBC: {cfg}")
 
-    def _local_upmucb(self, resp):
+    def _local_upmucb(self, channel, resp):
         """Stores the most recent local upmu reading"""
         frame = resp.values[-1]['phasorChannels'][0]
-        self.local_phasor_data[frame['channelName']].append(frame['data'])
+        #self._log.info(f"got {len(frame['data'])} values on local")
+        self.local_phasor_data[channel].extend(frame['data'])
 
-    def _reference_upmucb(self, resp):
+    def _reference_upmucb(self, channel, resp):
         """Stores the most recent reference upmu reading"""
         frame = resp.values[-1]['phasorChannels'][0]
-        self.reference_phasor_data[frame['channelName']].append(frame['data'])
+        self.reference_phasor_data[channel].extend(frame['data'])
 
     def _spbccb(self, resp):
         """Stores the most recent SPBC command"""
@@ -227,10 +233,12 @@ class LPBCProcess(XBOSProcess):
             if self.last_spbc_command is None or len(self.last_spbc_command.values) == 0:
                 self._log.warning(f"LPBC {self.name} has not received an SPBC command")
                 return
-            spbc_cmd = self.last_spbc_command.values[-1] # most recent
-            targets = spbc_cmd['phasorTarget']
+            #spbc_cmd = self.last_spbc_command.values[-1] # most recent
+            #targets = spbc_cmd['phasor_targets']
             local_phasors = [self.local_phasor_data.pop(local_channel) for local_channel in self.local_channels]
             reference_phasors = [self.reference_phasor_data.pop(reference_channel) for reference_channel in self.reference_channels]
+
+            phasor_targets = self.last_spbc_command.values[-1]
 
             # rebuild buffers
             for local_channel in self.local_channels:
@@ -238,18 +246,17 @@ class LPBCProcess(XBOSProcess):
             for reference_channel in self.reference_channels:
                 self.reference_phasor_data[reference_channel] = []
 
-            await self.do_trigger(local_phasors, reference_phasors, self.last_spbc_command) #targets['P'], targets['Q'])
+            await self.do_trigger(local_phasors, reference_phasors, phasor_targets)
         except IndexError:
             return # no upmu readings
 
-    async def do_trigger(self, local_c37_frame, reference_c37_frame, p_target, q_target):
+    async def do_trigger(self, local_phasors, reference_phasors, phasor_targets):
         self._log.info(f"""LPBC {self.name} received call at {datetime.now()}:
-    Local C37 data frame from {local_c37_frame['stationName']}
-    Reference C37 data frame from {reference_c37_frame['stationName']}
-    SPBC targets: P: {p_target} Q: {q_target}
-    Enable control?: {self.control_on}
+    Local phasor has {len(local_phasors)} channels
+    Reference phasor has {len(reference_phasors)} channels
+    SPBC targets: {phasor_targets}
         """)
-        status = self.step(local_c37_frame, reference_c37_frame, p_target, q_target)
+        status = self.step(local_phasors, reference_phasors, phasor_targets)
 
         p_max = Double(value=status.get('p_max')) if status.get('p_max') else None
         q_max = Double(value=status.get('q_max')) if status.get('q_max') else None
