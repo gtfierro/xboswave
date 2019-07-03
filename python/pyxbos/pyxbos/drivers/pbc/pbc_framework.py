@@ -29,13 +29,9 @@ class SPBCProcess(XBOSProcess):
             raise ConfigMissingError('name')
         if 'reference_channels' not in cfg:
             raise ConfigMissingError('reference_channels')
-        if 'lpbcs' not in cfg:
-            raise ConfigMissingError('lpbcs')
         self.namespace = b64decode(cfg['namespace'])
         self._log.info(f"initialized SPBC: {cfg}")
         self.name = cfg['name']
-        # list of lpbcs to publish to
-        self._lpbcs = cfg['lpbcs']
 
         # reference channels are URIs for the uPMU channels the SPBC
         # subscribes to. The SPBC framework maintains self.reference_phasors
