@@ -1,6 +1,7 @@
 from pyxbos.process import XBOSProcess, b64decode, b64encode, schedule, run_loop
 from pyxbos.xbos_pb2 import XBOS
-from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, EnergiseError, EnergisePhasorTarget, Double
+from pyxbos.nullabletypes_pb2 import Double
+from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, EnergiseError, EnergisePhasorTarget
 from pyxbos.c37_pb2 import Phasor, PhasorChannel
 from datetime import datetime
 from collections import deque
@@ -35,9 +36,9 @@ class SPBCProcess(XBOSProcess):
         # reference channels are URIs for the uPMU channels the SPBC
         # subscribes to. The SPBC framework maintains self.reference_phasors
         # to contain the most recent phasor measurements for each channel
-        self.reference_phasors = {k: None for k in reference_channels}
-        self._reference_channels = reference_channels
-        for channel in reference_channels:
+        self._reference_channels = cfg['reference_channels']
+        self.reference_phasors = {k: None for k in self._reference_channels}
+        for channel in self._reference_channels:
             upmu_uri = f"upmu/{channel}"
             self._log.info(f"Subscribing to {channel} as reference phasor")
             schedule(self.subscribe_extract(self.namespace, upmu_uri, ".C37DataFrame", self._upmucb))
@@ -79,7 +80,7 @@ class SPBCProcess(XBOSProcess):
         }
         """
         upmu = resp.uri.lstrip('upmu/')
-        self.reference_phasors[upmu] = resp.values[-1]['phasorChannels']['data']
+        self.reference_phasors[upmu] = resp.values[-1]['phasorChannels'][0]['data']
 
     def _lpbccb(self, resp):
         """
