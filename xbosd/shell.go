@@ -349,6 +349,35 @@ func (db *DB) setupShell() {
 	})
 
 	db.shell.AddCmd(&ishell.Cmd{
+		Name: "entities",
+		Help: "List entities",
+		Func: func(c *ishell.Context) {
+			filter, err := parseFilterFromArgs(c.Args)
+			if err != nil {
+				c.Err(err)
+				return
+			}
+			pols, err := db.listPolicy(filter)
+			if err != nil {
+				c.Err(err)
+				return
+			}
+
+			table := tablewriter.NewWriter(os.Stdout)
+			table.SetRowLine(true)
+			table.SetHeader([]string{"id", "namespace", "resource", "indir", "pset", "perms"})
+
+			for _, p := range pols {
+				_id := fmt.Sprintf("%d", p.id)
+				_indir := fmt.Sprintf("%d", p.Indirections)
+				_perms := fmt.Sprintf("%s", p.Permissions)
+				table.Append([]string{_id, p.Namespace, p.Resource, _indir, p.PermissionSet, _perms})
+			}
+			table.Render()
+		},
+	})
+
+	db.shell.AddCmd(&ishell.Cmd{
 		Name: "list",
 		Help: "List unique properteis of policies, etc",
 		Func: func(c *ishell.Context) {
