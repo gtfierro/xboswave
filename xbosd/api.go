@@ -273,3 +273,22 @@ func (db *DB) getHashFromName(name string) (hash string) {
 	}
 	return base64.URLEncoding.EncodeToString(resp.Entity.Hash)
 }
+
+func (db *DB) getEntityFromFile(file string) (*Entity, error) {
+	content, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := db.wave.Inspect(context.Background(), &pb.InspectParams{
+		Content: content,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not inspect file %s", file)
+	}
+
+	if resp.Entity != nil {
+		return nil, fmt.Errorf("%s was not an entity", file)
+	}
+	return ParseEntity(resp.Entity), nil
+}

@@ -23,6 +23,24 @@ func init() {
 	log.SetLevel(logrus.InfoLevel)
 }
 
+type Entity struct {
+	id int
+	// base64 encoded
+	Hash    string
+	Name    string
+	Expires time.Time
+}
+
+func ParseEntity(ent *pb.Entity) *Entity {
+	if ent == nil {
+		return nil
+	}
+	return &Entity{
+		Hash:    base64.URLEncoding.EncodeToString(ent.Hash),
+		Expires: time.Unix(0, ent.ValidUntil*1e6),
+	}
+}
+
 // this is a "stringy" version of pb.Attestation that is easier to
 type Attestation struct {
 	id int

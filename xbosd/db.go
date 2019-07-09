@@ -64,6 +64,9 @@ func NewDB(cfg *Config) (*DB, error) {
         expires     DATETIME NOT NULL,
         policies    JSON
     );`)
+	if err != nil {
+		return nil, err
+	}
 	_, err = db.db.Exec(`CREATE TABLE IF NOT EXISTS policies (
         id          INTEGER PRIMARY KEY,
         namespace   TEXT NOT NULL,
@@ -75,10 +78,24 @@ func NewDB(cfg *Config) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = db.db.Exec(`CREATE TABLE IF NOT EXISTS entities (
+        id          INTEGER PRIMARY KEY,
+        hash        TEXT UNIQUE NOT NULL,
+        expires     DATETIME NOT NULL,
+        name        TEXT,
+    );`)
+	if err != nil {
+		return nil, err
+	}
 
 	// resolve any names in the tables if we have new names
 	db.resolveHashesToNames()
 	db.removeDups()
+	// TODO: load in default entity
+	default_entity, err := db.getEntityFromFile(cfg.Perspective)
+	if err != nil {
+		log.Debug(errors.Wrap(err, "Could not load entity"))
+	}
 
 	// setup interactive shell
 	db.setupShell()
@@ -276,6 +293,8 @@ func (db *DB) watch(dir string) {
 	<-done
 }
 
+//func (db *DB) insertEntity(ent
+
 func (db *DB) insertPolicy(pol *PolicyStatement) error {
 	if pol == nil {
 		return errors.New("could not insert empty policy")
@@ -437,6 +456,38 @@ func (db *DB) insertAttestation(att *Attestation) error {
 	return tx.Commit()
 }
 
+func (db *DB) insertEntity(ent *Entity) error {
+	if ent == nil {
+		return errors.New("could not insert empty entity")
+	}
+	if ent.Hash == "" {
+		return errors.New("Entity needs hash")
+	}
+
+	tx, err := db.db.BeginTx(context.Background(), &sql.TxOptions{
+		ReadOnly: false,
+	})
+	if err != nil {
+		return err
+	}
+
+	// resolve names (if any)
+	if ent.Name == "" {
+		ent.Name = db.getNameFromHash(ent.Hash)
+	}
+
+	stmt := "INSERT INTO entities(name, hash, expires) VALUES (?, ?, ?)"
+	_, err = tx.Exec(stmt, ent.Name, ent.Hash, ent.Expires)
+	if err != nil {
+		log.Error(errors.Wrap(err, "upsert policy"))
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
+		}
+	}
+
+	return tx.Commit()
+}
+
 func (db *DB) getUnique(attribute string, where map[string]string) ([]string, error) {
 	stmt := formQueryStr("attestations", attribute, where)
 	rows, err := db.db.Query(stmt)
@@ -539,6 +590,22 @@ func (db *DB) readPolicies(rows *sql.Rows) ([]PolicyStatement, error) {
 	return ret, nil
 }
 
+func (db *DB) readEntities(rows *sql.Rows) ([]Entity, error) {
+	var ret []Entity
+	for rows.Next() {
+		ent := &Entity{}
+		var expires interface{}
+		if err := rows.Scan(&ent.id, &ent.Name, &ent.Hash, &expires); err != nil {
+			return nil, err
+		}
+		if expires != nil {
+			ent.Expires = expires.(time.Time)
+		}
+		ret = append(ret, *ent)
+	}
+	return ret, nil
+}
+
 func (db *DB) getPoliciesById(ids []int) ([]PolicyStatement, error) {
 
 	var stmts []PolicyStatement
@@ -599,6 +666,27 @@ func (db *DB) listPolicy(filter *filter) ([]PolicyStatement, error) {
 		return nil, err
 	}
 	return db.readPolicies(rows)
+}
+
+func (db *DB) listEntity(filter *filter) ([]Entity, error) {
+	stmt := `SELECT id, name, hash, expires
+			 FROM entities
+			 `
+
+	where, err := filter.toSQL()
+	if err != nil {
+		return nil, err
+	}
+	if len(where) > 0 {
+		stmt += " WHERE " + where
+	}
+
+	rows, err := db.db.Query(stmt)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	return db.readEntities(rows)
 }
 
 type filter struct {
