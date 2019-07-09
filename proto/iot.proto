@@ -10,6 +10,7 @@ package xbospb;
 import "nullabletypes.proto";
 import "weather_station.proto";
 import "brick.proto";
+import "hvac.proto";
 
 message Error {
     string msg = 1;
@@ -47,6 +48,9 @@ message XBOSIoTDeviceState {
     EVSE evse = 7;
     WeatherStation weather_station = 8;
     WeatherStationPrediction weather_station_prediction = 9;
+    VAV vav = 10;
+    VVT vvt = 11;
+    AHU ahu = 12;
 }
 
 

@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package xbospb;
+
+import "brick.proto";
+import "nullabletypes.proto";
+
+message VAV {
+	option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
+	option (brick_equip_class).value = 'VAV';
+
+	Double discharge_air_temperature_sensor = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Discharge_Air_Temperature_Sensor'];
+	Double thermostat_adjust_setpoint = 2 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Thermostat_Adjust_Setpoint'];
+	Double zone_temperature_sensor = 3 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Zone_Temperature_Sensor'];
+	Double cooling_max_supply_air_flow_setpoint = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Cooling_Max_Supply_Air_Flow_Setpoint'];
+	Double supply_air_flow_sensor = 5 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Supply_Air_Flow_Sensor'];
+	Double zone_temperature_setpoint = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Zone_Temperature_Setpoint'];
+	Double box_mode = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Box_Mode'];
+	Double cooling_demand = 8 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Cooling_Demand'];
+	Double occupied_heating_min_supply_air_flow_setpoint = 9 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Occupied_Heating_Min_Supply_Air_Flow_Setpoint'];
+	Double supply_air_flow_setpoint = 10 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Supply_Air_Flow_Setpoint'];
+	Double supply_air_velocity_pressure_sensor = 11 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Supply_Air_Velocity_Pressure_Sensor'];
+	Double heating_demand = 12 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Heating_Demand'];
+}
+
+message VVT {
+	option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
+	option (brick_equip_class).value = 'VVT';
+
+	Double occupied_dead_band = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Occupied_Dead_Band'];
+	Double zone_demand = 2 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Zone_Demand'];
+	Double zone_temperature_sensor = 3 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Zone_Temperature_Sensor'];
+	Double supply_air_damper_min_position_setpoint = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Supply_Air_Damper_Min_Position_Setpoint'];
+	Double thermostat_adjust_setpoint = 5 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Thermostat_Adjust_Setpoint'];
+	Double occupied_temperature_setpoint = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Occupied_Temperature_Setpoint'];
+	Double occupied_mode_status = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Occupied_Mode_Status'];
+	Double supply_air_damper_max_position_setpoint = 8 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Supply_Air_Damper_Max_Position_Setpoint'];
+	Double unoccupied_dead_band = 9 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Unoccupied_Dead_Band'];
+	Double discharge_air_temperature_sensor = 10 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Discharge_Air_Temperature_Sensor'];
+	Double occupancy_command = 11 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Occupancy_Command'];
+	Double unoccupied_temperature_setpoint = 12 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Unoccupied_Temperature_Setpoint'];
+}
+
+message AHU {
+	option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
+	option (brick_equip_class).value = 'AHU';
+
+	Double zone_temperature_setpoint = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Zone_Temperature_Setpoint'];
+	Double outside_air_temperature_sensor = 2 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Outside_Air_Temperature_Sensor'];
+	Double mixed_air_temperature_sensor = 3 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Mixed_Air_Temperature_Sensor'];
+	Double occupied_mode_status = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Occupied_Mode_Status'];
+	Double filter_status = 5 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Filter_Status'];
+	Double shutdown_command = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Shutdown_Command'];
+	Double mixed_air_temperature_setpoint = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Mixed_Air_Temperature_Setpoint'];
+	Double supply_air_damper_min_position_setpoint = 8 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Supply_Air_Damper_Min_Position_Setpoint'];
+	Double mixed_air_temperature_low_limit_setpoint = 9 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Mixed_Air_Temperature_Low_Limit_Setpoint'];
+	Double zone_temperature_sensor = 10 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Zone_Temperature_Sensor'];
+	Double return_air_temperature_sensor = 11 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Return_Air_Temperature_Sensor'];
+	Double heating_valve_command = 12 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Heating_Valve_Command'];
+	Double discharge_air_temperature_sensor = 13 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Discharge_Air_Temperature_Sensor'];
+	Double discharge_air_temperature_setpoint = 14 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Discharge_Air_Temperature_Setpoint'];
+	Double building_static_pressure_sensor = 15 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Building_Static_Pressure_Sensor'];
+	Double cooling_valve_command = 16 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Cooling_Valve_Command'];
+	Double occupancy_command = 17 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Occupancy_Command'];
+	Double discharge_air_static_pressure_setpoint = 18 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Discharge_Air_Static_Pressure_Setpoint'];
+	Double discharge_air_static_pressure_sensor = 19 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Discharge_Air_Static_Pressure_Sensor'];
+	Double cooling_demand = 20 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Cooling_Demand'];
+	Double building_static_pressure_setpoint = 21 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Building_Static_Pressure_Setpoint'];
+}
+
