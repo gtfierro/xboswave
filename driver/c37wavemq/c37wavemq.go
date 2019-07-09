@@ -70,9 +70,10 @@ func StartProtocolAdapter(cfg *ProtocolAdapterConfig) {
 	}
 }
 
-const BatchSize = 120
-const Proportion = .1 // 10% of readings
-var _batchstep = int(Proportion * BatchSize)
+//const BatchSize = 120
+const BatchSize = 30
+const Proportion = 1 // 100% of readings
+var _batchstep = 1   //int(Proportion * BatchSize)
 
 func makeDownstreams(entity []byte, namespace []byte, client mqpb.WAVEMQClient, outputs []ProtocolAdapterOutput) []chan *DataFrame {
 	perspective := &mqpb.Perspective{

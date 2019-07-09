@@ -10,6 +10,7 @@ package xbospb;
 import "nullabletypes.proto";
 import "weather_station.proto";
 import "brick.proto";
+import "hvac.proto";
 
 message Error {
     string msg = 1;
@@ -47,6 +48,9 @@ message XBOSIoTDeviceState {
     EVSE evse = 7;
     WeatherStation weather_station = 8;
     WeatherStationPrediction weather_station_prediction = 9;
+    VAV vav = 10;
+    VVT vvt = 11;
+    AHU ahu = 12;
 }
 
 
@@ -155,26 +159,44 @@ message DemandResponseEvent {
 }
 
 message Meter {
-    option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#brick';
+    option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
     option (brick_equip_class).value = 'Meter';
     //unit: kW
-    Double power = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Power_Sensor'];
+    Double power = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Power_Sensor'];
     //unit: V
-    Double voltage = 2 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Voltage_Sensor'];
+    Double voltage = 2 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Voltage_Sensor'];
     //unit: kVA
-    Double apparent_power = 3 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Apparent_Power_Sensor'];
+    Double apparent_power = 3 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Apparent_Power_Sensor'];
     //unit: KWh
-    Double energy = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Energy_Sensor'];
+    Double energy = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Energy_Sensor'];
+    //unit: kVAR
+    Double reactive_power = 5 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Reactive_Power_Sensor'];
+    //unit: Amps
+    Double current = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Current_Sensor'];
+    //unit: kW
+    Double demand = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Demand_Sensor'];
+    //unit: Gallons
+    Double water_total = 8 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Water_Total_Sensor'];
+    //unit: Gallons per Minute
+    Double water_rate = 9 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Water_Rate_Sensor'];
+    //unit: Gallons per Minute
+    Double water_instantaneous = 10 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Water_Instantaneous_Sensor'];
+    //unit: Gallons
+    Double condense_total = 11 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Condense_Total_Sensor'];
+    //unit: Gallons per Minute
+    Double condense_rate = 12 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Condense_Rate_Sensor'];
+    //unit: Gallons per Minute
+    Double condense_instantaneous = 13 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Condense_Instantaneous_Sensor'];
 }
 
 message Light {
-    option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#brick';
+    option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
     option (brick_equip_class).value = 'Luminaire';
     // True if the light is on
     //unit: on/off
-    Bool state = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Lighting_State'];
+    Bool state = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Lighting_State'];
     // 100 is maximum brightness
-    Int64 brightness = 2 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#brick', (brick_point_class).value='Luminance_Command'];
+    Int64 brightness = 2 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Luminance_Command'];
 }
 
 message EVSE {

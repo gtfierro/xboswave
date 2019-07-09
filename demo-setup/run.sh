@@ -213,3 +213,5 @@ echo "$cmd" |  ssh -p 2222 -o "UserKnownHostsFile=/dev/null" root@172.17.0.1
 
 $echo "${OK}Password is 'demo'${NC}"
 echo "list" |  ssh -p 2222 -o "UserKnownHostsFile=/dev/null" root@172.17.0.1
+
+$echo "${INFO}Namespace hash is: ${XBOS_NAMESPACE}${NC}"
