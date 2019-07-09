@@ -65,8 +65,6 @@ message AHU {
 	Double discharge_air_static_pressure_setpoint = 18 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Discharge_Air_Static_Pressure_Setpoint'];
 	Double discharge_air_static_pressure_sensor = 19 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Discharge_Air_Static_Pressure_Sensor'];
 	Double cooling_demand = 20 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Cooling_Demand'];
-	Double vav = 21 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='VAV'];
 	Double building_static_pressure_setpoint = 22 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='Building_Static_Pressure_Setpoint'];
-	Double vvt = 23 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#', (brick_point_class).value='VVT'];
 }
 
