@@ -226,7 +226,6 @@ func (db *DB) setupShell() {
 
 			fmt.Printf("name %s -> %s created successfully\n", params.Name, stringhash)
 			db.resolveHashesToNames()
-
 		},
 	})
 
@@ -357,7 +356,7 @@ func (db *DB) setupShell() {
 				c.Err(err)
 				return
 			}
-			pols, err := db.listPolicy(filter)
+			ents, err := db.listEntity(filter)
 			if err != nil {
 				c.Err(err)
 				return
@@ -365,13 +364,11 @@ func (db *DB) setupShell() {
 
 			table := tablewriter.NewWriter(os.Stdout)
 			table.SetRowLine(true)
-			table.SetHeader([]string{"id", "namespace", "resource", "indir", "pset", "perms"})
+			table.SetHeader([]string{"id", "name", "hash", "expires"})
 
-			for _, p := range pols {
-				_id := fmt.Sprintf("%d", p.id)
-				_indir := fmt.Sprintf("%d", p.Indirections)
-				_perms := fmt.Sprintf("%s", p.Permissions)
-				table.Append([]string{_id, p.Namespace, p.Resource, _indir, p.PermissionSet, _perms})
+			for _, e := range ents {
+				_id := fmt.Sprintf("%d", e.id)
+				table.Append([]string{_id, e.Name, e.Hash, e.Expires.Format(time.RFC822Z)})
 			}
 			table.Render()
 		},
@@ -424,6 +421,44 @@ func (db *DB) setupShell() {
 				}
 			case "att", "attestation", "attestations":
 			}
+		},
+	})
+
+	db.shell.AddCmd(&ishell.Cmd{
+		Name: "name",
+		Help: "Name entity from default entity",
+		Func: func(c *ishell.Context) {
+			if len(c.Args) < 2 {
+				c.Println("name entityhash name")
+				return
+			}
+			entityhash := c.Args[0]
+			name := c.Args[1]
+
+			_hash, err := base64.URLEncoding.DecodeString(entityhash)
+			if err != nil {
+				c.Err(fmt.Errorf("Entity hash %v needs to be base64 (%v)", entityhash, err))
+				return
+			}
+
+			params := pb.CreateNameDeclarationParams{
+				Perspective: db.perspective,
+				Name:        name,
+				Subject:     _hash,
+				ValidFrom:   time.Now().UnixNano() / 1e6,
+				ValidUntil:  time.Now().Add(5*365*24*time.Hour).UnixNano() / 1e6,
+			}
+			cresp, err := db.wave.CreateNameDeclaration(context.Background(), &params)
+			if err != nil {
+				c.Err(fmt.Errorf("unable to create name: %v\n", err))
+				return
+			}
+			if cresp.Error != nil {
+				c.Err(fmt.Errorf("unable to create name: %v\n", cresp.Error.Message))
+				return
+			}
+			fmt.Printf("name %s -> %s created successfully\n", params.Name, entityhash)
+			db.resolveHashesToNames()
 		},
 	})
 }

@@ -82,7 +82,7 @@ func NewDB(cfg *Config) (*DB, error) {
         id          INTEGER PRIMARY KEY,
         hash        TEXT UNIQUE NOT NULL,
         expires     DATETIME NOT NULL,
-        name        TEXT,
+        name        TEXT
     );`)
 	if err != nil {
 		return nil, err
@@ -92,9 +92,8 @@ func NewDB(cfg *Config) (*DB, error) {
 	db.resolveHashesToNames()
 	db.removeDups()
 	// TODO: load in default entity
-	default_entity, err := db.getEntityFromFile(cfg.Perspective)
-	if err != nil {
-		log.Debug(errors.Wrap(err, "Could not load entity"))
+	if err := db.LoadEntityFile(cfg.Perspective); err != nil {
+		return nil, errors.Wrap(err, "Could not insert default entity")
 	}
 
 	// setup interactive shell
@@ -243,13 +242,48 @@ func (db *DB) resolveHashesToNames() {
 			continue
 		}
 	}
+
+	var updateents []struct {
+		name string
+		id   int
+	}
+
+	stmt = `SELECT id, name, hash from entities;`
+	erows, err := db.db.Query(stmt)
+	defer erows.Close()
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	for erows.Next() {
+		ent := &Entity{}
+		if err := erows.Scan(&ent.id, &ent.Name, &ent.Hash); err != nil {
+			log.Error(err)
+			continue
+		}
+		n := db.getNameFromHash(ent.Hash)
+		if n != ent.Name {
+			updateents = append(updateents, struct {
+				name string
+				id   int
+			}{n, ent.id})
+		}
+	}
+	for _, update := range updateents {
+		_, err := db.db.Exec("UPDATE entities SET name=? WHERE id=?", update.name, update.id)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+	}
+
 }
 
 func (db *DB) watch(dir string) {
 	// load in existing
 	files, err := filepath.Glob("*.pem")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(errors.Wrap(err, "Could not glob *.pem"))
 	}
 	for _, filename := range files {
 		if err := db.LoadAttestationFile(filename); err != nil {
@@ -257,10 +291,21 @@ func (db *DB) watch(dir string) {
 		}
 	}
 
+	// load in existing entities
+	files, err = filepath.Glob("*.ent")
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "Could not glob *.ent"))
+	}
+	for _, filename := range files {
+		if err := db.LoadEntityFile(filename); err != nil {
+			log.Warning("Could not load detected entity: ", err)
+		}
+	}
+
 	// watch the directory!
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(errors.Wrap(err, "Could not create new file watcher"))
 	}
 	defer watcher.Close()
 
@@ -277,6 +322,11 @@ func (db *DB) watch(dir string) {
 						log.Warning("Could not load detected attestation: ", err)
 					}
 				}
+				if event.Op == fsnotify.Create && strings.HasSuffix(event.Name, ".ent") {
+					if err := db.LoadEntityFile(event.Name); err != nil {
+						log.Warning("Could not load detected entity: ", err)
+					}
+				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
@@ -288,12 +338,10 @@ func (db *DB) watch(dir string) {
 
 	err = watcher.Add(dir)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(errors.Wrap(err, "could not add dir to file watch"))
 	}
 	<-done
 }
-
-//func (db *DB) insertEntity(ent
 
 func (db *DB) insertPolicy(pol *PolicyStatement) error {
 	if pol == nil {
@@ -471,12 +519,14 @@ func (db *DB) insertEntity(ent *Entity) error {
 		return err
 	}
 
+	// check if ent exists
+
 	// resolve names (if any)
 	if ent.Name == "" {
 		ent.Name = db.getNameFromHash(ent.Hash)
 	}
 
-	stmt := "INSERT INTO entities(name, hash, expires) VALUES (?, ?, ?)"
+	stmt := "INSERT OR IGNORE INTO entities(name, hash, expires) VALUES (?, ?, ?)"
 	_, err = tx.Exec(stmt, ent.Name, ent.Hash, ent.Expires)
 	if err != nil {
 		log.Error(errors.Wrap(err, "upsert policy"))
