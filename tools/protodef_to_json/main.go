@@ -163,7 +163,8 @@ func (v *visitor) VisitSyntax(*parser.Syntax) (next bool) {
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Fatal("Usage: protodef_to_json path/to/protofile.proto")
+		fmt.Println("Usage: protodef_to_json path/to/protofile.proto")
+		os.Exit(0)
 	}
 	filename := os.Args[1]
 	//fmt.Println(filename)
