@@ -22,3 +22,7 @@ containers/wavemq/wavemq
 _hod_
 demo-setup/influxdata
 demo-setup/k3s
+
+# trash
+.DS_Store
+.pymortartoken.json
