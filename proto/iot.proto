@@ -48,9 +48,7 @@ message XBOSIoTDeviceState {
     EVSE evse = 7;
     WeatherStation weather_station = 8;
     WeatherStationPrediction weather_station_prediction = 9;
-    VAV vav = 10;
-    VVT vvt = 11;
-    AHU ahu = 12;
+
 }
 
 

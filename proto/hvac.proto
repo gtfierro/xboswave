@@ -5,31 +5,6 @@ package xbospb;
 import "brick.proto";
 import "nullabletypes.proto";
 
-message Economizer {
-	option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
-	option (brick_equip_class).value = 'Economizer';
-
-	Double economizer_differential_air_temperature_setpoint = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Economizer_Differential_Air_Temperature_Setpoint'];
-}
-
-message VAV {
-	option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
-	option (brick_equip_class).value = 'VAV';
-
-	Double zone_temperature_setpoint = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Zone_Temperature_Setpoint'];
-	Double occupied_heating_min_supply_air_flow_setpoint = 2 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Occupied_Heating_Min_Supply_Air_Flow_Setpoint'];
-	Double supply_air_flow_setpoint = 3 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Supply_Air_Flow_Setpoint'];
-	Double discharge_air_temperature_sensor = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Discharge_Air_Temperature_Sensor'];
-	Double heating_demand = 5 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Heating_Demand'];
-	Double box_mode = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Box_Mode'];
-	Double cooling_demand = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Cooling_Demand'];
-	Double supply_air_velocity_pressure_sensor = 8 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Supply_Air_Velocity_Pressure_Sensor'];
-	Double cooling_max_supply_air_flow_setpoint = 9 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Cooling_Max_Supply_Air_Flow_Setpoint'];
-	Double thermostat_adjust_setpoint = 10 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Thermostat_Adjust_Setpoint'];
-	Double zone_temperature_sensor = 11 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Zone_Temperature_Sensor'];
-	Double supply_air_flow_sensor = 12 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Supply_Air_Flow_Sensor'];
-}
-
 message AHU {
 	option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
 	option (brick_equip_class).value = 'AHU';
@@ -55,6 +30,33 @@ message AHU {
 	Double shutdown_command = 19 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Shutdown_Command'];
 	Double mixed_air_temperature_low_limit_setpoint = 20 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Mixed_Air_Temperature_Low_Limit_Setpoint'];
 	Double zone_temperature_setpoint = 21 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Zone_Temperature_Setpoint'];
+	Double vav = 22 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='VAV'];
+	Double vvt = 23 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='VVT'];
+}
+
+message Economizer {
+	option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
+	option (brick_equip_class).value = 'Economizer';
+
+	Double economizer_differential_air_temperature_setpoint = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Economizer_Differential_Air_Temperature_Setpoint'];
+}
+
+message VAV {
+	option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
+	option (brick_equip_class).value = 'VAV';
+
+	Double zone_temperature_setpoint = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Zone_Temperature_Setpoint'];
+	Double occupied_heating_min_supply_air_flow_setpoint = 2 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Occupied_Heating_Min_Supply_Air_Flow_Setpoint'];
+	Double supply_air_flow_setpoint = 3 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Supply_Air_Flow_Setpoint'];
+	Double discharge_air_temperature_sensor = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Discharge_Air_Temperature_Sensor'];
+	Double heating_demand = 5 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Heating_Demand'];
+	Double box_mode = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Box_Mode'];
+	Double cooling_demand = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Cooling_Demand'];
+	Double supply_air_velocity_pressure_sensor = 8 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Supply_Air_Velocity_Pressure_Sensor'];
+	Double cooling_max_supply_air_flow_setpoint = 9 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Cooling_Max_Supply_Air_Flow_Setpoint'];
+	Double thermostat_adjust_setpoint = 10 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Thermostat_Adjust_Setpoint'];
+	Double zone_temperature_sensor = 11 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Zone_Temperature_Sensor'];
+	Double supply_air_flow_sensor = 12 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Supply_Air_Flow_Sensor'];
 }
 
 message Damper {
@@ -75,18 +77,5 @@ message Fan {
 	Double fan_overload_alarm = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Fan_Overload_Alarm'];
 	Double vfd_alarm = 5 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='VFD_Alarm'];
 	Double fan_status = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Fan_Status'];
-}
-
-message Thermostat {
-	option (brick_equip_class).namespace = 'https://brickschema.org/schema/1.0.3/Brick#';
-	option (brick_equip_class).value = 'Thermostat';
-
-	Double temperature_sensor = 1 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Temperature_Sensor'];
-	Double fan_command = 2 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Fan_Command'];
-	Double thermostat_mode_command = 3 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Thermostat_Mode_Command'];
-	Double thermostat_status = 4 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Thermostat_Status'];
-	Double supply_air_temperature_cooling_setpoint = 5 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Supply_Air_Temperature_Cooling_Setpoint'];
-	Double supply_air_temperature_heating_setpoint = 6 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Supply_Air_Temperature_Heating_Setpoint'];
-	Double override_command = 7 [(brick_point_class).namespace='https://brickschema.org/schema/1.0.3/Brick#',(brick_point_class).value='Override_Command'];
 }
 

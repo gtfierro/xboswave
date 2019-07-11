@@ -8,7 +8,7 @@ from collections import OrderedDict
 def main():
     
     pymortar_client = pymortar.Client()
-    buildings = ['orinda-public-library', 'avenal-animal-shelter', 'hayward-station-1']
+    buildings = ['orinda-public-library']
     proto_json = gen_proto_json() if os.path.exists('hvac.proto') and os.stat("hvac.proto").st_size != 0 else {}
     f = open("hvac.proto","w+")
     clustered_equipment = {"Damper": {}, "Fan": {}, "Thermostat": {}}
