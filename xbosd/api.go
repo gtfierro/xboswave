@@ -14,6 +14,29 @@ import (
 	"github.com/pkg/errors"
 )
 
+func (db *DB) LoadEntityFile(filename string) error {
+	content, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return errors.Wrap(err, "Could not read file")
+	}
+
+	resp, err := db.wave.Inspect(context.Background(), &pb.InspectParams{
+		Content: content,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "Could not inspect file %s", filename)
+	}
+	if resp.Error != nil {
+		return fmt.Errorf("Could not inspect: %s", resp.Error.Message)
+	}
+
+	if resp.Entity == nil {
+		return fmt.Errorf("%s was not an entity", filename)
+	}
+	ent := ParseEntity(resp.Entity)
+	return db.insertEntity(ent)
+}
+
 func (db *DB) LoadAttestationFile(filename string) error {
 	contents, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -277,7 +300,7 @@ func (db *DB) getHashFromName(name string) (hash string) {
 func (db *DB) getEntityFromFile(file string) (*Entity, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Could not read file")
 	}
 
 	resp, err := db.wave.Inspect(context.Background(), &pb.InspectParams{
@@ -286,8 +309,11 @@ func (db *DB) getEntityFromFile(file string) (*Entity, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "Could not inspect file %s", file)
 	}
+	if resp.Error != nil {
+		return nil, fmt.Errorf("Could not inspect: %s", resp.Error.Message)
+	}
 
-	if resp.Entity != nil {
+	if resp.Entity == nil {
 		return nil, fmt.Errorf("%s was not an entity", file)
 	}
 	return ParseEntity(resp.Entity), nil

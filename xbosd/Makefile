@@ -1,11 +1,14 @@
 run: build
-	./waveattd
+	 WAVE_DEFAULT_ENTITY=src.ent WAVEATTD_DB_LOCATION=src.db ./xbosd att
 
 trun: build
-	./waveattd
+	./xbosd
 
 build:
 	go build --tags "sqlite_json"
+
+build-pie:
+	env GOOS=linux GOARCH=arm GOARM=5 go build --tags "sqlite_json"
 
 install:
 	go install --tags "sqlite_json"
@@ -26,4 +29,4 @@ generate-entities: build
 	wv name --attester src.ent ns.ent testns
 	wv rtgrant --attester ns.ent --subject src.ent --indirections 3 -e 30d "wavemq:perm1,perm2,perm3@ns.ent/*"
 	wv rtgrant --attester src.ent --subject dst1 --indirections 1 -e 30d "wavemq:perm1@testns/abc/1" "wavemq:perm1@testns/abc/2"
-	WAVE_DEFAULT_ENTITY=src.ent WAVEATTD_DB_LOCATION=src.db ./waveattd
+	WAVE_DEFAULT_ENTITY=src.ent WAVEATTD_DB_LOCATION=src.db ./xbosd
