@@ -5,6 +5,7 @@ from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, 
 from pyxbos.c37_pb2 import Phasor, PhasorChannel
 from datetime import datetime
 from collections import deque
+import asyncio
 
 class ConfigMissingError(Exception): pass
 
@@ -169,6 +170,10 @@ class LPBCProcess(XBOSProcess):
         if 'rate' not in cfg:
             raise ConfigMissingError('rate')
 
+        # locks
+        self._reference_phasor_lock = asyncio.Lock()
+        self._local_phasor_lock = asyncio.Lock()
+
         self.local_channels = cfg['local_channels']
         self.reference_channels = cfg['reference_channels']
 
@@ -202,15 +207,21 @@ class LPBCProcess(XBOSProcess):
         """Stores the most recent local upmu reading"""
         frame = resp.values[-1]['phasorChannels'][0]
         #self._log.info(f"got {len(frame['data'])} values on local")
+        if channel not in self.local_phasor_data:
+            self.local_phasor_data[channel] = []
         self.local_phasor_data[channel].extend(frame['data'])
 
     def _reference_upmucb(self, channel, resp):
         """Stores the most recent reference upmu reading"""
         frame = resp.values[-1]['phasorChannels'][0]
+        if channel not in self.reference_phasor_data:
+            self.reference_phasor_data[channel] = []
         self.reference_phasor_data[channel].extend(frame['data'])
 
     def _spbccb(self, resp):
         """Stores the most recent SPBC command"""
+        resp = resp.values[-1]
+        resp['phasor_targets'] = resp.pop('phasorTargets')
         self.last_spbc_command = resp
 
     def _received_local_phasor_data(self):
@@ -226,21 +237,26 @@ class LPBCProcess(XBOSProcess):
             if not self._received_reference_phasor_data():
                 self._log.warning(f"LPBC {self.name} has not received a reference upmu reading")
                 return
-            if self.last_spbc_command is None or len(self.last_spbc_command.values) == 0:
+            if self.last_spbc_command is None:
                 self._log.warning(f"LPBC {self.name} has not received an SPBC command")
                 return
             #spbc_cmd = self.last_spbc_command.values[-1] # most recent
             #targets = spbc_cmd['phasor_targets']
-            local_phasors = [self.local_phasor_data.pop(local_channel) for local_channel in self.local_channels]
-            reference_phasors = [self.reference_phasor_data.pop(reference_channel) for reference_channel in self.reference_channels]
+            async with self._local_phasor_lock:
+                local_phasors = [self.local_phasor_data.pop(local_channel) for local_channel in self.local_channels]
+            async with self._reference_phasor_lock:
+                reference_phasors = [self.reference_phasor_data.pop(reference_channel) for reference_channel in self.reference_channels]
 
-            phasor_targets = self.last_spbc_command.values[-1]
+            phasor_targets = self.last_spbc_command
 
             # rebuild buffers
-            for local_channel in self.local_channels:
-                self.local_phasor_data[local_channel] = []
-            for reference_channel in self.reference_channels:
-                self.reference_phasor_data[reference_channel] = []
+            async with self._local_phasor_lock:
+                for local_channel in self.local_channels:
+                    self.local_phasor_data[local_channel] = []
+
+            async with self._reference_phasor_lock:
+                for reference_channel in self.reference_channels:
+                    self.reference_phasor_data[reference_channel] = []
 
             await self.do_trigger(local_phasors, reference_phasors, phasor_targets)
         except IndexError:

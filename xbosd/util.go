@@ -13,13 +13,18 @@ import (
 	"github.com/immesys/wave/consts"
 	"github.com/immesys/wave/eapi"
 	"github.com/immesys/wave/eapi/pb"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
 
 func resolveEntityNameOrHashOrFile(conn pb.WAVEClient, perspective *pb.Perspective, in string, msg string) (hash []byte) {
 	f, err := ioutil.ReadFile(in)
 	if err != nil {
-		if !os.IsNotExist(err) {
+		stat, serr := os.Stat(in)
+		if serr != nil && !os.IsNotExist(serr) {
+			log.Fatal(errors.Wrap(err, "could not stat file"))
+		}
+		if !os.IsNotExist(err) && !stat.IsDir() {
 			fmt.Printf("Error opening file %q: %v\n", in, err)
 			os.Exit(1)
 		}
