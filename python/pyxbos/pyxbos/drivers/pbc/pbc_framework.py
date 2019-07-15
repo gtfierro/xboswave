@@ -100,18 +100,32 @@ class SPBCProcess(XBOSProcess):
                 'Q': 31.12093090,
             },
             # true if P is saturated
-            'p_saturated': True,
+            'pSaturated': True,
             # true if Q is saturated
-            'q_saturated': True,
-            # if p_saturated is True, expect the p max value
-            'p_max': {'value': 1.4},
-            # if q_saturated is True, expect the q max value
-            'q_max': {'value': 11.4},
+            'qSaturated': True,
+            # if pSaturated is True, expect the p max value
+            'pMax': 1.4,
+            # if qSaturated is True, expect the q max value
+            'qMax': 11.4,
             # true if LPBc is doing control
             'do_control': True,
         }
         """
-        self.lpbcs[resp.uri] = resp
+        statuses = resp.values[-1]
+        timestamp = statuses['time']
+        for status in statuses['statuses']:
+            if status['nodeID'] not in self.lpbcs:
+                self.lpbcs[status['nodeID']] = {}
+            if 'pSaturated' not in status:
+                status['pSaturated'] = False
+            if 'qSaturated' not in status:
+                status['qSaturated'] = False
+            if 'pMax' in status:
+                status['pMax'] = status['pMax']['value']
+            if 'qMax' in status:
+                status['qMax'] = status['qMax']['value']
+            self.lpbcs[status['nodeID']][status['channelName']] = status
+        #self.lpbcs[resp.uri] = resp
 
     async def broadcast_target(self, nodeid, channels, vmags, vangs, kvbases=None):
         """
