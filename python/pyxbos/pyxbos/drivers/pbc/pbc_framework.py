@@ -1,7 +1,7 @@
 from pyxbos.process import XBOSProcess, b64decode, b64encode, schedule, run_loop
 from pyxbos.xbos_pb2 import XBOS
 from pyxbos.nullabletypes_pb2 import Double
-from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, EnergiseError, EnergisePhasorTarget
+from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, EnergiseError, EnergisePhasorTarget, ChannelStatus
 from pyxbos.c37_pb2 import Phasor, PhasorChannel
 from datetime import datetime
 from collections import deque
@@ -269,21 +269,36 @@ class LPBCProcess(XBOSProcess):
     SPBC targets: {phasor_targets}
         """)
         status = self.step(local_phasors, reference_phasors, phasor_targets)
+        if status is None:
+            return
 
-        p_max = Double(value=status.get('p_max')) if status.get('p_max') else None
-        q_max = Double(value=status.get('q_max')) if status.get('q_max') else None
+        for required in ['p_max','q_max','phases','phasor_errors','p_saturated','q_saturated']:
+            if required not in status:
+                raise Exception(f"Need {required} key in status dictionary")
+
+        statuses = []
+        for idx, phase_name in enumerate(status.pop('phases')):
+            p_max = Double(value=status['p_max'][idx]) if status['p_max'][idx] else None
+            q_max = Double(value=status['q_max'][idx]) if status['q_max'][idx] else None
+            channel_status = ChannelStatus(
+                nodeID=self.name,
+                channelName=phase_name,
+                phasor_errors=Phasor(
+                    magnitude=status['phasor_errors']['V'][idx],
+                    angle=status['phasor_errors']['delta'][idx],
+                ),
+                p_saturated=status['p_saturated'][idx],
+                q_saturated=status['q_saturated'][idx],
+                p_max=p_max,
+                q_max=q_max,
+            )
+            statuses.append(channel_status)
+
         msg = XBOS(
                 EnergiseMessage=EnergiseMessage(
                     LPBCStatus=LPBCStatus(
                         time=int(datetime.utcnow().timestamp()*1e9),
-                        phasor_errors=Phasor(
-                            magnitude=status['phasor_errors'].get('V',0),
-                            angle=status['phasor_errors'].get('delta',0),
-                        ),
-                        p_saturated=status.get('p_saturated', False),
-                        q_saturated=status.get('q_saturated', False),
-                        p_max=p_max,
-                        q_max=q_max,
+                        statuses=statuses,
                     )
                 ))
         await self.publish(self.namespace, f"lpbc/{self.name}", msg)
