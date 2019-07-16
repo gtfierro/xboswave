@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='xbospb',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0e\x65nergise.proto\x12\x06xbospb\x1a\tc37.proto\x1a\x13nullabletypes.proto\"\x7f\n\x0f\x45nergiseMessage\x12\x1a\n\x04SPBC\x18\x01 \x01(\x0b\x32\x0c.xbospb.SPBC\x12&\n\nLPBCStatus\x18\x02 \x01(\x0b\x32\x12.xbospb.LPBCStatus\x12(\n\x0bLPBCCommand\x18\x03 \x01(\x0b\x32\x13.xbospb.LPBCCommand\"\x1c\n\rEnergiseError\x12\x0b\n\x03msg\x18\x01 \x01(\t\"}\n\x14\x45nergisePhasorTarget\x12\x0e\n\x06nodeID\x18\x01 \x01(\t\x12\x13\n\x0b\x63hannelName\x18\x02 \x01(\t\x12\r\n\x05\x61ngle\x18\x03 \x01(\x01\x12\x11\n\tmagnitude\x18\x04 \x01(\x01\x12\x1e\n\x06kvbase\x18\x05 \x01(\x0b\x32\x0e.xbospb.Double\"p\n\x04SPBC\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12\x34\n\x0ephasor_targets\x18\x02 \x03(\x0b\x32\x1c.xbospb.EnergisePhasorTarget\x12$\n\x05\x65rror\x18\x03 \x01(\x0b\x32\x15.xbospb.EnergiseError\"\xe3\x01\n\nLPBCStatus\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12$\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x15.xbospb.EnergiseError\x12%\n\rphasor_errors\x18\x03 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x13\n\x0bp_saturated\x18\x04 \x01(\x08\x12\x13\n\x0bq_saturated\x18\x05 \x01(\x08\x12\x12\n\ndo_control\x18\x06 \x01(\x08\x12\x1d\n\x05p_max\x18\x07 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1d\n\x05q_max\x18\x08 \x01(\x0b\x32\x0e.xbospb.Double\"V\n\x0bLPBCCommand\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12%\n\rphasor_target\x18\x02 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x12\n\ndo_control\x18\x03 \x01(\x08\x62\x06proto3')
+  serialized_pb=_b('\n\x0e\x65nergise.proto\x12\x06xbospb\x1a\tc37.proto\x1a\x13nullabletypes.proto\"\x7f\n\x0f\x45nergiseMessage\x12\x1a\n\x04SPBC\x18\x01 \x01(\x0b\x32\x0c.xbospb.SPBC\x12&\n\nLPBCStatus\x18\x02 \x01(\x0b\x32\x12.xbospb.LPBCStatus\x12(\n\x0bLPBCCommand\x18\x03 \x01(\x0b\x32\x13.xbospb.LPBCCommand\"\x1c\n\rEnergiseError\x12\x0b\n\x03msg\x18\x01 \x01(\t\"}\n\x14\x45nergisePhasorTarget\x12\x0e\n\x06nodeID\x18\x01 \x01(\t\x12\x13\n\x0b\x63hannelName\x18\x02 \x01(\t\x12\r\n\x05\x61ngle\x18\x03 \x01(\x01\x12\x11\n\tmagnitude\x18\x04 \x01(\x01\x12\x1e\n\x06kvbase\x18\x05 \x01(\x0b\x32\x0e.xbospb.Double\"p\n\x04SPBC\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12\x34\n\x0ephasor_targets\x18\x02 \x03(\x0b\x32\x1c.xbospb.EnergisePhasorTarget\x12$\n\x05\x65rror\x18\x03 \x01(\x0b\x32\x15.xbospb.EnergiseError\"i\n\nLPBCStatus\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12$\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x15.xbospb.EnergiseError\x12\'\n\x08statuses\x18\x03 \x03(\x0b\x32\x15.xbospb.ChannelStatus\"\xd7\x01\n\rChannelStatus\x12\x0e\n\x06nodeID\x18\x01 \x01(\t\x12\x13\n\x0b\x63hannelName\x18\x02 \x01(\t\x12%\n\rphasor_errors\x18\x03 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x13\n\x0bp_saturated\x18\x04 \x01(\x08\x12\x13\n\x0bq_saturated\x18\x05 \x01(\x08\x12\x12\n\ndo_control\x18\x06 \x01(\x08\x12\x1d\n\x05p_max\x18\x07 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1d\n\x05q_max\x18\x08 \x01(\x0b\x32\x0e.xbospb.Double\"V\n\x0bLPBCCommand\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12%\n\rphasor_target\x18\x02 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x12\n\ndo_control\x18\x03 \x01(\x08\x62\x06proto3')
   ,
   dependencies=[c37__pb2.DESCRIPTOR,nullabletypes__pb2.DESCRIPTOR,])
 
@@ -230,42 +230,87 @@ _LPBCSTATUS = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='phasor_errors', full_name='xbospb.LPBCStatus.phasor_errors', index=2,
+      name='statuses', full_name='xbospb.LPBCStatus.statuses', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=458,
+  serialized_end=563,
+)
+
+
+_CHANNELSTATUS = _descriptor.Descriptor(
+  name='ChannelStatus',
+  full_name='xbospb.ChannelStatus',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='nodeID', full_name='xbospb.ChannelStatus.nodeID', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='channelName', full_name='xbospb.ChannelStatus.channelName', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='phasor_errors', full_name='xbospb.ChannelStatus.phasor_errors', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='p_saturated', full_name='xbospb.LPBCStatus.p_saturated', index=3,
+      name='p_saturated', full_name='xbospb.ChannelStatus.p_saturated', index=3,
       number=4, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='q_saturated', full_name='xbospb.LPBCStatus.q_saturated', index=4,
+      name='q_saturated', full_name='xbospb.ChannelStatus.q_saturated', index=4,
       number=5, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='do_control', full_name='xbospb.LPBCStatus.do_control', index=5,
+      name='do_control', full_name='xbospb.ChannelStatus.do_control', index=5,
       number=6, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='p_max', full_name='xbospb.LPBCStatus.p_max', index=6,
+      name='p_max', full_name='xbospb.ChannelStatus.p_max', index=6,
       number=7, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='q_max', full_name='xbospb.LPBCStatus.q_max', index=7,
+      name='q_max', full_name='xbospb.ChannelStatus.q_max', index=7,
       number=8, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -283,8 +328,8 @@ _LPBCSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=459,
-  serialized_end=686,
+  serialized_start=566,
+  serialized_end=781,
 )
 
 
@@ -328,8 +373,8 @@ _LPBCCOMMAND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=688,
-  serialized_end=774,
+  serialized_start=783,
+  serialized_end=869,
 )
 
 _ENERGISEMESSAGE.fields_by_name['SPBC'].message_type = _SPBC
@@ -339,15 +384,17 @@ _ENERGISEPHASORTARGET.fields_by_name['kvbase'].message_type = nullabletypes__pb2
 _SPBC.fields_by_name['phasor_targets'].message_type = _ENERGISEPHASORTARGET
 _SPBC.fields_by_name['error'].message_type = _ENERGISEERROR
 _LPBCSTATUS.fields_by_name['error'].message_type = _ENERGISEERROR
-_LPBCSTATUS.fields_by_name['phasor_errors'].message_type = c37__pb2._PHASOR
-_LPBCSTATUS.fields_by_name['p_max'].message_type = nullabletypes__pb2._DOUBLE
-_LPBCSTATUS.fields_by_name['q_max'].message_type = nullabletypes__pb2._DOUBLE
+_LPBCSTATUS.fields_by_name['statuses'].message_type = _CHANNELSTATUS
+_CHANNELSTATUS.fields_by_name['phasor_errors'].message_type = c37__pb2._PHASOR
+_CHANNELSTATUS.fields_by_name['p_max'].message_type = nullabletypes__pb2._DOUBLE
+_CHANNELSTATUS.fields_by_name['q_max'].message_type = nullabletypes__pb2._DOUBLE
 _LPBCCOMMAND.fields_by_name['phasor_target'].message_type = c37__pb2._PHASOR
 DESCRIPTOR.message_types_by_name['EnergiseMessage'] = _ENERGISEMESSAGE
 DESCRIPTOR.message_types_by_name['EnergiseError'] = _ENERGISEERROR
 DESCRIPTOR.message_types_by_name['EnergisePhasorTarget'] = _ENERGISEPHASORTARGET
 DESCRIPTOR.message_types_by_name['SPBC'] = _SPBC
 DESCRIPTOR.message_types_by_name['LPBCStatus'] = _LPBCSTATUS
+DESCRIPTOR.message_types_by_name['ChannelStatus'] = _CHANNELSTATUS
 DESCRIPTOR.message_types_by_name['LPBCCommand'] = _LPBCCOMMAND
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -385,6 +432,13 @@ LPBCStatus = _reflection.GeneratedProtocolMessageType('LPBCStatus', (_message.Me
   # @@protoc_insertion_point(class_scope:xbospb.LPBCStatus)
   ))
 _sym_db.RegisterMessage(LPBCStatus)
+
+ChannelStatus = _reflection.GeneratedProtocolMessageType('ChannelStatus', (_message.Message,), dict(
+  DESCRIPTOR = _CHANNELSTATUS,
+  __module__ = 'energise_pb2'
+  # @@protoc_insertion_point(class_scope:xbospb.ChannelStatus)
+  ))
+_sym_db.RegisterMessage(ChannelStatus)
 
 LPBCCommand = _reflection.GeneratedProtocolMessageType('LPBCCommand', (_message.Message,), dict(
   DESCRIPTOR = _LPBCCOMMAND,

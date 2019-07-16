@@ -1,9 +1,10 @@
 from pyxbos.process import XBOSProcess, b64decode, b64encode, schedule, run_loop
 from pyxbos.xbos_pb2 import XBOS
 from pyxbos.nullabletypes_pb2 import Double
-from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, EnergiseError, EnergisePhasorTarget
+from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, EnergiseError, EnergisePhasorTarget, ChannelStatus
 from pyxbos.c37_pb2 import Phasor, PhasorChannel
 from datetime import datetime
+from functools import partial
 from collections import deque
 import asyncio
 
@@ -42,10 +43,10 @@ class SPBCProcess(XBOSProcess):
         for channel in self._reference_channels:
             upmu_uri = f"upmu/{channel}"
             self._log.info(f"Subscribing to {channel} as reference phasor")
-            schedule(self.subscribe_extract(self.namespace, upmu_uri, ".C37DataFrame", self._upmucb))
+            schedule(self.subscribe_extract(self.namespace, upmu_uri, ".C37DataFrame", self._upmucb, "spbc_reference"))
 
         self.lpbcs = {}
-        schedule(self.subscribe_extract(self.namespace, "lpbc/*", ".EnergiseMessage.LPBCStatus", self._lpbccb))
+        schedule(self.subscribe_extract(self.namespace, "lpbc/*", ".EnergiseMessage.LPBCStatus", self._lpbccb, "lpbc_status"))
 
     def _upmucb(self, resp):
         """
@@ -100,18 +101,32 @@ class SPBCProcess(XBOSProcess):
                 'Q': 31.12093090,
             },
             # true if P is saturated
-            'p_saturated': True,
+            'pSaturated': True,
             # true if Q is saturated
-            'q_saturated': True,
-            # if p_saturated is True, expect the p max value
-            'p_max': {'value': 1.4},
-            # if q_saturated is True, expect the q max value
-            'q_max': {'value': 11.4},
+            'qSaturated': True,
+            # if pSaturated is True, expect the p max value
+            'pMax': 1.4,
+            # if qSaturated is True, expect the q max value
+            'qMax': 11.4,
             # true if LPBc is doing control
             'do_control': True,
         }
         """
-        self.lpbcs[resp.uri] = resp
+        statuses = resp.values[-1]
+        timestamp = statuses['time']
+        for status in statuses['statuses']:
+            if status['nodeID'] not in self.lpbcs:
+                self.lpbcs[status['nodeID']] = {}
+            if 'pSaturated' not in status:
+                status['pSaturated'] = False
+            if 'qSaturated' not in status:
+                status['qSaturated'] = False
+            if 'pMax' in status:
+                status['pMax'] = status['pMax']['value']
+            if 'qMax' in status:
+                status['qMax'] = status['qMax']['value']
+            self.lpbcs[status['nodeID']][status['channelName']] = status
+        #self.lpbcs[resp.uri] = resp
 
     async def broadcast_target(self, nodeid, channels, vmags, vangs, kvbases=None):
         """
@@ -190,14 +205,16 @@ class LPBCProcess(XBOSProcess):
 
         for local_channel in self.local_channels:
             self.local_phasor_data[local_channel] = []
-            schedule(self.subscribe_extract(self.namespace, f"upmu/{local_channel}", ".C37DataFrame", lambda x: self._local_upmucb(local_channel, x)))
+            cb = partial(self._local_upmucb, local_channel)
+            schedule(self.subscribe_extract(self.namespace, f"upmu/{local_channel}", ".C37DataFrame", cb, f"local_channel_{local_channel}"))
         for reference_channel in self.reference_channels:
             self.reference_phasor_data[reference_channel] = []
-            schedule(self.subscribe_extract(self.namespace, f"upmu/{reference_channel}", ".C37DataFrame", lambda x: self._reference_upmucb(reference_channel, x)))
+            cb = partial(self._reference_upmucb, reference_channel)
+            schedule(self.subscribe_extract(self.namespace, f"upmu/{reference_channel}", ".C37DataFrame", cb, f"reference_phasor_{reference_channel}"))
 
         # TODO: listen to SPBC
         print(f"spbc/{self.spbc}/node/{self.name}")
-        schedule(self.subscribe_extract(self.namespace, f"spbc/{self.spbc}/node/{self.name}", ".EnergiseMessage.SPBC", self._spbccb))
+        schedule(self.subscribe_extract(self.namespace, f"spbc/{self.spbc}/node/{self.name}", ".EnergiseMessage.SPBC", self._spbccb, "spbc_sub"))
 	
         schedule(self.call_periodic(self._rate, self._trigger, runfirst=False))
 
@@ -213,6 +230,12 @@ class LPBCProcess(XBOSProcess):
 
     def _reference_upmucb(self, channel, resp):
         """Stores the most recent reference upmu reading"""
+        if len(resp.values) == 0:
+            log.error("no content in UPMU message")
+            return
+        if len(resp.values[-1]['phasorChannels']) == 0:
+            log.error("no phasor channels in UPMU message")
+            return
         frame = resp.values[-1]['phasorChannels'][0]
         if channel not in self.reference_phasor_data:
             self.reference_phasor_data[channel] = []
@@ -220,6 +243,9 @@ class LPBCProcess(XBOSProcess):
 
     def _spbccb(self, resp):
         """Stores the most recent SPBC command"""
+        if len(resp.values) == 0:
+            log.error("no content in SPBC message")
+            return
         resp = resp.values[-1]
         resp['phasor_targets'] = resp.pop('phasorTargets')
         self.last_spbc_command = resp
@@ -233,13 +259,13 @@ class LPBCProcess(XBOSProcess):
         try:
             if not self._received_local_phasor_data():
                 self._log.warning(f"LPBC {self.name} has not received a local upmu reading")
-                return
+                #return
             if not self._received_reference_phasor_data():
                 self._log.warning(f"LPBC {self.name} has not received a reference upmu reading")
-                return
+                #return
             if self.last_spbc_command is None:
                 self._log.warning(f"LPBC {self.name} has not received an SPBC command")
-                return
+                #return
             #spbc_cmd = self.last_spbc_command.values[-1] # most recent
             #targets = spbc_cmd['phasor_targets']
             async with self._local_phasor_lock:
@@ -269,21 +295,36 @@ class LPBCProcess(XBOSProcess):
     SPBC targets: {phasor_targets}
         """)
         status = self.step(local_phasors, reference_phasors, phasor_targets)
+        if status is None:
+            return
 
-        p_max = Double(value=status.get('p_max')) if status.get('p_max') else None
-        q_max = Double(value=status.get('q_max')) if status.get('q_max') else None
+        for required in ['p_max','q_max','phases','phasor_errors','p_saturated','q_saturated']:
+            if required not in status:
+                raise Exception(f"Need {required} key in status dictionary")
+
+        statuses = []
+        for idx, phase_name in enumerate(status.pop('phases')):
+            p_max = Double(value=status['p_max'][idx]) if status['p_max'][idx] else None
+            q_max = Double(value=status['q_max'][idx]) if status['q_max'][idx] else None
+            channel_status = ChannelStatus(
+                nodeID=self.name,
+                channelName=phase_name,
+                phasor_errors=Phasor(
+                    magnitude=status['phasor_errors']['V'][idx],
+                    angle=status['phasor_errors']['delta'][idx],
+                ),
+                p_saturated=status['p_saturated'][idx],
+                q_saturated=status['q_saturated'][idx],
+                p_max=p_max,
+                q_max=q_max,
+            )
+            statuses.append(channel_status)
+
         msg = XBOS(
                 EnergiseMessage=EnergiseMessage(
                     LPBCStatus=LPBCStatus(
                         time=int(datetime.utcnow().timestamp()*1e9),
-                        phasor_errors=Phasor(
-                            magnitude=status['phasor_errors'].get('V',0),
-                            angle=status['phasor_errors'].get('delta',0),
-                        ),
-                        p_saturated=status.get('p_saturated', False),
-                        q_saturated=status.get('q_saturated', False),
-                        p_max=p_max,
-                        q_max=q_max,
+                        statuses=statuses,
                     )
                 ))
         await self.publish(self.namespace, f"lpbc/{self.name}", msg)

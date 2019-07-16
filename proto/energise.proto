@@ -51,12 +51,20 @@ message SPBC {
 message LPBCStatus {
     // current time of announcement in milliseconds
     int64 time = 1;
+
     // contains potential errors
     EnergiseError error = 2;
 
+    // statuses for each channel the LPBC is controlling
+    repeated ChannelStatus statuses = 3;
+}
+
+message ChannelStatus {
+    string nodeID = 1;
+    // name of the phase
+    string channelName = 2;
     // current P, Q errors of LPBC
     Phasor phasor_errors = 3;
-
     // true if LPBC P is saturated
     bool p_saturated = 4;
     // true if LPBC Q is saturated
@@ -67,7 +75,6 @@ message LPBCStatus {
     // gives the value at which p or q saturated
     Double p_max = 7;
     Double q_max = 8;
-
 }
 
 message LPBCCommand {
