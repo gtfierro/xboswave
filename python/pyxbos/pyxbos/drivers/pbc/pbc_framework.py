@@ -4,6 +4,7 @@ from pyxbos.nullabletypes_pb2 import Double
 from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, EnergiseError, EnergisePhasorTarget, ChannelStatus
 from pyxbos.c37_pb2 import Phasor, PhasorChannel
 from datetime import datetime
+from functools import partial
 from collections import deque
 import asyncio
 
@@ -42,10 +43,10 @@ class SPBCProcess(XBOSProcess):
         for channel in self._reference_channels:
             upmu_uri = f"upmu/{channel}"
             self._log.info(f"Subscribing to {channel} as reference phasor")
-            schedule(self.subscribe_extract(self.namespace, upmu_uri, ".C37DataFrame", self._upmucb))
+            schedule(self.subscribe_extract(self.namespace, upmu_uri, ".C37DataFrame", self._upmucb, "spbc_reference"))
 
         self.lpbcs = {}
-        schedule(self.subscribe_extract(self.namespace, "lpbc/*", ".EnergiseMessage.LPBCStatus", self._lpbccb))
+        schedule(self.subscribe_extract(self.namespace, "lpbc/*", ".EnergiseMessage.LPBCStatus", self._lpbccb, "lpbc_status"))
 
     def _upmucb(self, resp):
         """
@@ -204,14 +205,16 @@ class LPBCProcess(XBOSProcess):
 
         for local_channel in self.local_channels:
             self.local_phasor_data[local_channel] = []
-            schedule(self.subscribe_extract(self.namespace, f"upmu/{local_channel}", ".C37DataFrame", lambda x: self._local_upmucb(local_channel, x)))
+            cb = partial(self._local_upmucb, local_channel)
+            schedule(self.subscribe_extract(self.namespace, f"upmu/{local_channel}", ".C37DataFrame", cb, f"local_channel_{local_channel}"))
         for reference_channel in self.reference_channels:
             self.reference_phasor_data[reference_channel] = []
-            schedule(self.subscribe_extract(self.namespace, f"upmu/{reference_channel}", ".C37DataFrame", lambda x: self._reference_upmucb(reference_channel, x)))
+            cb = partial(self._reference_upmucb, reference_channel)
+            schedule(self.subscribe_extract(self.namespace, f"upmu/{reference_channel}", ".C37DataFrame", cb, f"reference_phasor_{reference_channel}"))
 
         # TODO: listen to SPBC
         print(f"spbc/{self.spbc}/node/{self.name}")
-        schedule(self.subscribe_extract(self.namespace, f"spbc/{self.spbc}/node/{self.name}", ".EnergiseMessage.SPBC", self._spbccb))
+        schedule(self.subscribe_extract(self.namespace, f"spbc/{self.spbc}/node/{self.name}", ".EnergiseMessage.SPBC", self._spbccb, "spbc_sub"))
 	
         schedule(self.call_periodic(self._rate, self._trigger, runfirst=False))
 
@@ -256,13 +259,13 @@ class LPBCProcess(XBOSProcess):
         try:
             if not self._received_local_phasor_data():
                 self._log.warning(f"LPBC {self.name} has not received a local upmu reading")
-                return
+                #return
             if not self._received_reference_phasor_data():
                 self._log.warning(f"LPBC {self.name} has not received a reference upmu reading")
-                return
+                #return
             if self.last_spbc_command is None:
                 self._log.warning(f"LPBC {self.name} has not received an SPBC command")
-                return
+                #return
             #spbc_cmd = self.last_spbc_command.values[-1] # most recent
             #targets = spbc_cmd['phasor_targets']
             async with self._local_phasor_lock:
