@@ -227,6 +227,12 @@ class LPBCProcess(XBOSProcess):
 
     def _reference_upmucb(self, channel, resp):
         """Stores the most recent reference upmu reading"""
+        if len(resp.values) == 0:
+            log.error("no content in UPMU message")
+            return
+        if len(resp.values[-1]['phasorChannels']) == 0:
+            log.error("no phasor channels in UPMU message")
+            return
         frame = resp.values[-1]['phasorChannels'][0]
         if channel not in self.reference_phasor_data:
             self.reference_phasor_data[channel] = []
@@ -234,6 +240,9 @@ class LPBCProcess(XBOSProcess):
 
     def _spbccb(self, resp):
         """Stores the most recent SPBC command"""
+        if len(resp.values) == 0:
+            log.error("no content in SPBC message")
+            return
         resp = resp.values[-1]
         resp['phasor_targets'] = resp.pop('phasorTargets')
         self.last_spbc_command = resp
