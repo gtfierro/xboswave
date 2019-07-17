@@ -4,6 +4,7 @@ Simple wrapper for a control process
 
 import asyncio
 import xxhash
+import toml
 from datetime import datetime
 import logging
 import base64
@@ -69,7 +70,7 @@ class XBOSProcess:
         # associate (ns, uri) => identifier
         self._subscription_ids = {}
 
-    def _get_identifier(self, namespace, resource):
+    def _get_identifier(self, namespace, resource, extra=None):
         """
         Assumes namespace is b64 encoded
         """
@@ -77,11 +78,13 @@ class XBOSProcess:
         h.update(self._ent)
         h.update(namespace)
         h.update(resource)
+        if extra:
+            h.update(extra)
         identifier = b64encode(h.digest())
         return identifier
 
 #        key = (namespace, resource)
-#        while self._subscription_ids.get(key) 
+#        while self._subscription_ids.get(key)
 #        if self._subscription_ids.get(key) is None:
 #            self._subscription_ids[key] = identifier
 #        else:
@@ -93,7 +96,7 @@ class XBOSProcess:
         wavemq_channel = insecure_channel(self._cfg['wavemq'])
         self._cl = WAVEMQStub(wavemq_channel)
 
-    async def subscribe_msg(self, namespace, resource, callback):
+    async def subscribe_msg(self, namespace, resource, callback, name=None):
         """
         callback takes mqpb_pb.SubscriptionMessage as an argument
         """
@@ -102,13 +105,13 @@ class XBOSProcess:
                 perspective=self._perspective,
                 namespace=ns,
                 uri=resource,
-                identifier=self._get_identifier(namespace, resource),
+                identifier=self._get_identifier(namespace, resource, extra=name),
                 expiry=self._subscription_expiry,
             )
             ):
             callback(msg)
 
-    async def subscribe_extract(self, namespace, resource, path, callback):
+    async def subscribe_extract(self, namespace, resource, path, callback, name=None):
         """
         extracts the submessage at the given path
         callback returns a Response object:
@@ -131,7 +134,7 @@ class XBOSProcess:
                 x = MessageToDict(x)
                 values.append(jq.jq(path).transform(x))
             callback(Response(namespace, uri, sent_timestamp, values))
-        await self.subscribe_msg(namespace, resource, cb)
+        await self.subscribe_msg(namespace, resource, cb, name=name)
 
     async def publish(self, namespace, resource, *msgs):
         """publishes msgs in list as payload objects"""
@@ -186,6 +189,11 @@ def ensure_b64encode(e):
 def b64encode(e):
     return base64.b64encode(e, altchars=bytes('-_', 'utf8'))
 
+def config_from_file(filename):
+    """
+    Returns XBOS process configuration from a file
+    """
+    return toml.load(open(filename))
 
 def schedule(f):
     """
@@ -200,4 +208,3 @@ def run_loop():
     loop = asyncio.get_event_loop()
     loop.run_forever()
     loop.close()
-

@@ -124,6 +124,16 @@ class WAVEStub(object):
         request_serializer=eapi__pb2.CompactProofParams.SerializeToString,
         response_deserializer=eapi__pb2.CompactProofResponse.FromString,
         )
+    self.Sign = channel.unary_unary(
+        '/mqpb.WAVE/Sign',
+        request_serializer=eapi__pb2.SignParams.SerializeToString,
+        response_deserializer=eapi__pb2.SignResponse.FromString,
+        )
+    self.VerifySignature = channel.unary_unary(
+        '/mqpb.WAVE/VerifySignature',
+        request_serializer=eapi__pb2.VerifySignatureParams.SerializeToString,
+        response_deserializer=eapi__pb2.VerifySignatureResponse.FromString,
+        )
 
 
 class WAVEServicer(object):
@@ -285,6 +295,20 @@ class WAVEServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def Sign(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def VerifySignature(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_WAVEServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -397,6 +421,16 @@ def add_WAVEServicer_to_server(servicer, server):
           servicer.CompactProof,
           request_deserializer=eapi__pb2.CompactProofParams.FromString,
           response_serializer=eapi__pb2.CompactProofResponse.SerializeToString,
+      ),
+      'Sign': grpc.unary_unary_rpc_method_handler(
+          servicer.Sign,
+          request_deserializer=eapi__pb2.SignParams.FromString,
+          response_serializer=eapi__pb2.SignResponse.SerializeToString,
+      ),
+      'VerifySignature': grpc.unary_unary_rpc_method_handler(
+          servicer.VerifySignature,
+          request_deserializer=eapi__pb2.VerifySignatureParams.FromString,
+          response_serializer=eapi__pb2.VerifySignatureResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

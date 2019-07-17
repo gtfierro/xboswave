@@ -16,6 +16,7 @@ _sym_db = _symbol_database.Default()
 from . import nullabletypes_pb2 as nullabletypes__pb2
 from . import weather_station_pb2 as weather__station__pb2
 from . import brick_pb2 as brick__pb2
+from . import hvac_pb2 as hvac__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -23,9 +24,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='xbospb',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\tiot.proto\x12\x06xbospb\x1a\x13nullabletypes.proto\x1a\x15weather_station.proto\x1a\x0b\x62rick.proto\"\x14\n\x05\x45rror\x12\x0b\n\x03msg\x18\x01 \x01(\t\"\xca\x02\n\x12XBOSIoTDeviceState\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x11\n\trequestid\x18\x02 \x01(\x03\x12\x1c\n\x05\x65rror\x18\x03 \x01(\x0b\x32\r.xbospb.Error\x12&\n\nthermostat\x18\x04 \x01(\x0b\x32\x12.xbospb.Thermostat\x12\x1c\n\x05meter\x18\x05 \x01(\x0b\x32\r.xbospb.Meter\x12\x1c\n\x05light\x18\x06 \x01(\x0b\x32\r.xbospb.Light\x12\x1a\n\x04\x65vse\x18\x07 \x01(\x0b\x32\x0c.xbospb.EVSE\x12/\n\x0fweather_station\x18\x08 \x01(\x0b\x32\x16.xbospb.WeatherStation\x12\x44\n\x1aweather_station_prediction\x18\t \x01(\x0b\x32 .xbospb.WeatherStationPrediction\"\xb9\x01\n\x16XBOSIoTDeviceActuation\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x11\n\trequestid\x18\x02 \x01(\x03\x12&\n\nthermostat\x18\x03 \x01(\x0b\x32\x12.xbospb.Thermostat\x12\x1c\n\x05meter\x18\x04 \x01(\x0b\x32\r.xbospb.Meter\x12\x1c\n\x05light\x18\x05 \x01(\x0b\x32\r.xbospb.Light\x12\x1a\n\x04\x65vse\x18\x06 \x01(\x0b\x32\x0c.xbospb.EVSE\"?\n\x0eXBOSIoTContext\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x1f\n\x07\x63ontext\x18\x02 \x03(\x0b\x32\x0e.xbospb.Triple\"\x8d\t\n\nThermostat\x12n\n\x0btemperature\x18\x01 \x01(\x0b\x32\x0e.xbospb.DoubleBI\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x14\x12\x12Temperature_Sensor\x12q\n\x11relative_humidity\x18\x02 \x01(\x0b\x32\x0e.xbospb.DoubleBF\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x11\x12\x0fHumidity_Sensor\x12g\n\x08override\x18\x03 \x01(\x0b\x32\x0c.xbospb.BoolBG\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x12\x12\x10Override_Command\x12\x62\n\tfan_state\x18\x04 \x01(\x0b\x32\x0c.xbospb.BoolBA\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x0c\x12\nFan_Status\x12\x65\n\x08\x66\x61n_mode\x18\x05 \x01(\x0b\x32\x0f.xbospb.FanModeBB\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\r\x12\x0b\x46\x61n_Command\x12\x63\n\x04mode\x18\x06 \x01(\x0b\x32\x10.xbospb.HVACModeBC\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x0e\x12\x0cMode_Command\x12j\n\x05state\x18\x07 \x01(\x0b\x32\x11.xbospb.HVACStateBH\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x13\x12\x11Thermostat_Status\x12*\n\x13\x65nabled_heat_stages\x18\x08 \x01(\x0b\x32\r.xbospb.Int32\x12*\n\x13\x65nabled_cool_stages\x18\t \x01(\x0b\x32\r.xbospb.Int32\x12}\n\x10heating_setpoint\x18\n \x01(\x0b\x32\x0e.xbospb.DoubleBS\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1e\x12\x1cHeating_Temperature_Setpoint\x12}\n\x10\x63ooling_setpoint\x18\x0b \x01(\x0b\x32\x0e.xbospb.DoubleBS\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1e\x12\x1c\x43ooling_Temperature_Setpoint:A\x82\xf1\x04-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xf1\x04\x0c\x12\nThermostat\"\xa9\x01\n\x12ThermostatSchedule\x12@\n\x0bscheduleMap\x18\x01 \x03(\x0b\x32+.xbospb.ThermostatSchedule.ScheduleMapEntry\x1aQ\n\x10ScheduleMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12,\n\x05value\x18\x02 \x01(\x0b\x32\x1d.xbospb.ThermostatScheduleDay:\x02\x38\x01\"H\n\x15ThermostatScheduleDay\x12/\n\x06\x62locks\x18\x01 \x03(\x0b\x32\x1f.xbospb.ThermostatScheduleBlock\"\x9b\x01\n\x17ThermostatScheduleBlock\x12(\n\x10heating_setpoint\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12(\n\x10\x63ooling_setpoint\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1e\n\x04mode\x18\x03 \x01(\x0b\x32\x10.xbospb.HVACMode\x12\x0c\n\x04time\x18\x04 \x01(\t\"\xe3\x01\n\x13\x44\x65mandResponseEvent\x12 \n\tevent_end\x18\x01 \x01(\x0b\x32\r.xbospb.Int64\x12\"\n\x0b\x65vent_start\x18\x02 \x01(\x0b\x32\r.xbospb.Int64\x12\x33\n\nevent_type\x18\x03 \x01(\x0e\x32\x1f.xbospb.DemandResponseEventType\x12\x34\n\tdr_status\x18\x04 \x01(\x0e\x32!.xbospb.DemandResponseEventStatus\x12\x1b\n\x04time\x18\x05 \x01(\x0b\x32\r.xbospb.Int64\"\x80\x0c\n\x05Meter\x12\x62\n\x05power\x18\x01 \x01(\x0b\x32\x0e.xbospb.DoubleBC\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x0e\x12\x0cPower_Sensor\x12\x66\n\x07voltage\x18\x02 \x01(\x0b\x32\x0e.xbospb.DoubleBE\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x10\x12\x0eVoltage_Sensor\x12t\n\x0e\x61pparent_power\x18\x03 \x01(\x0b\x32\x0e.xbospb.DoubleBL\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x17\x12\x15\x41pparent_Power_Sensor\x12\x64\n\x06\x65nergy\x18\x04 \x01(\x0b\x32\x0e.xbospb.DoubleBD\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x0f\x12\rEnergy_Sensor\x12t\n\x0ereactive_power\x18\x05 \x01(\x0b\x32\x0e.xbospb.DoubleBL\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x17\x12\x15Reactive_Power_Sensor\x12\x66\n\x07\x63urrent\x18\x06 \x01(\x0b\x32\x0e.xbospb.DoubleBE\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x10\x12\x0e\x43urrent_Sensor\x12\x64\n\x06\x64\x65mand\x18\x07 \x01(\x0b\x32\x0e.xbospb.DoubleBD\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x0f\x12\rDemand_Sensor\x12n\n\x0bwater_total\x18\x08 \x01(\x0b\x32\x0e.xbospb.DoubleBI\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x14\x12\x12Water_Total_Sensor\x12l\n\nwater_rate\x18\t \x01(\x0b\x32\x0e.xbospb.DoubleBH\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x13\x12\x11Water_Rate_Sensor\x12~\n\x13water_instantaneous\x18\n \x01(\x0b\x32\x0e.xbospb.DoubleBQ\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1c\x12\x1aWater_Instantaneous_Sensor\x12t\n\x0e\x63ondense_total\x18\x0b \x01(\x0b\x32\x0e.xbospb.DoubleBL\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x17\x12\x15\x43ondense_Total_Sensor\x12r\n\rcondense_rate\x18\x0c \x01(\x0b\x32\x0e.xbospb.DoubleBK\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x16\x12\x14\x43ondense_Rate_Sensor\x12\x84\x01\n\x16\x63ondense_instantaneous\x18\r \x01(\x0b\x32\x0e.xbospb.DoubleBT\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1f\x12\x1d\x43ondense_Instantaneous_Sensor:<\x82\xf1\x04-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xf1\x04\x07\x12\x05Meter\"\x9a\x02\n\x05Light\x12\x62\n\x05state\x18\x01 \x01(\x0b\x32\x0c.xbospb.BoolBE\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x10\x12\x0eLighting_State\x12k\n\nbrightness\x18\x02 \x01(\x0b\x32\r.xbospb.Int64BH\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x13\x12\x11Luminance_Command:@\x82\xf1\x04-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xf1\x04\x0b\x12\tLuminaire\"\xb7\x01\n\x04\x45VSE\x12%\n\rcurrent_limit\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07\x63urrent\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07voltage\x18\x03 \x01(\x0b\x32\x0e.xbospb.Double\x12)\n\x12\x63harging_time_left\x18\x04 \x01(\x0b\x32\r.xbospb.Int32\x12\x1b\n\x05state\x18\x05 \x01(\x0b\x32\x0c.xbospb.Bool*\xba\x01\n\x19\x44\x65mandResponseEventStatus\x12*\n&DemandResponseEventStatusNotConfigured\x10\x00\x12%\n!DemandResponseEventStatusUnusable\x10\x01\x12%\n!DemandResponseEventStatusInactive\x10\x02\x12#\n\x1f\x44\x65mandResponseEventStatusActive\x10\x03*\xca\x01\n\x17\x44\x65mandResponseEventType\x12\"\n\x1e\x44\x65mandResponseEventTypeNoEvent\x10\x00\x12!\n\x1d\x44\x65mandResponseEventTypeNormal\x10\x01\x12#\n\x1f\x44\x65mandResponseEventTypeModerate\x10\x02\x12\x1f\n\x1b\x44\x65mandResponseEventTypeHigh\x10\x03\x12\"\n\x1e\x44\x65mandResponseEventTypeSpecial\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\tiot.proto\x12\x06xbospb\x1a\x13nullabletypes.proto\x1a\x15weather_station.proto\x1a\x0b\x62rick.proto\x1a\nhvac.proto\"\x14\n\x05\x45rror\x12\x0b\n\x03msg\x18\x01 \x01(\t\"\xe0\x03\n\x12XBOSIoTDeviceState\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x11\n\trequestid\x18\x02 \x01(\x03\x12\x1c\n\x05\x65rror\x18\x03 \x01(\x0b\x32\r.xbospb.Error\x12&\n\nthermostat\x18\x04 \x01(\x0b\x32\x12.xbospb.Thermostat\x12\x1c\n\x05meter\x18\x05 \x01(\x0b\x32\r.xbospb.Meter\x12\x1c\n\x05light\x18\x06 \x01(\x0b\x32\r.xbospb.Light\x12\x1a\n\x04\x65vse\x18\x07 \x01(\x0b\x32\x0c.xbospb.EVSE\x12/\n\x0fweather_station\x18\x08 \x01(\x0b\x32\x16.xbospb.WeatherStation\x12\x44\n\x1aweather_station_prediction\x18\t \x01(\x0b\x32 .xbospb.WeatherStationPrediction\x12\x18\n\x03\x61hu\x18\n \x01(\x0b\x32\x0b.xbospb.AHU\x12&\n\neconomizer\x18\x0b \x01(\x0b\x32\x12.xbospb.Economizer\x12\x18\n\x03vav\x18\x0c \x01(\x0b\x32\x0b.xbospb.VAV\x12\x1e\n\x06\x64\x61mper\x18\r \x01(\x0b\x32\x0e.xbospb.Damper\x12\x18\n\x03\x66\x61n\x18\x0e \x01(\x0b\x32\x0b.xbospb.Fan\"\xb9\x01\n\x16XBOSIoTDeviceActuation\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x11\n\trequestid\x18\x02 \x01(\x03\x12&\n\nthermostat\x18\x03 \x01(\x0b\x32\x12.xbospb.Thermostat\x12\x1c\n\x05meter\x18\x04 \x01(\x0b\x32\r.xbospb.Meter\x12\x1c\n\x05light\x18\x05 \x01(\x0b\x32\r.xbospb.Light\x12\x1a\n\x04\x65vse\x18\x06 \x01(\x0b\x32\x0c.xbospb.EVSE\"?\n\x0eXBOSIoTContext\x12\x0c\n\x04time\x18\x01 \x01(\x04\x12\x1f\n\x07\x63ontext\x18\x02 \x03(\x0b\x32\x0e.xbospb.Triple\"\x8d\t\n\nThermostat\x12n\n\x0btemperature\x18\x01 \x01(\x0b\x32\x0e.xbospb.DoubleBI\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x14\x12\x12Temperature_Sensor\x12q\n\x11relative_humidity\x18\x02 \x01(\x0b\x32\x0e.xbospb.DoubleBF\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x11\x12\x0fHumidity_Sensor\x12g\n\x08override\x18\x03 \x01(\x0b\x32\x0c.xbospb.BoolBG\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x12\x12\x10Override_Command\x12\x62\n\tfan_state\x18\x04 \x01(\x0b\x32\x0c.xbospb.BoolBA\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x0c\x12\nFan_Status\x12\x65\n\x08\x66\x61n_mode\x18\x05 \x01(\x0b\x32\x0f.xbospb.FanModeBB\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\r\x12\x0b\x46\x61n_Command\x12\x63\n\x04mode\x18\x06 \x01(\x0b\x32\x10.xbospb.HVACModeBC\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x0e\x12\x0cMode_Command\x12j\n\x05state\x18\x07 \x01(\x0b\x32\x11.xbospb.HVACStateBH\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x13\x12\x11Thermostat_Status\x12*\n\x13\x65nabled_heat_stages\x18\x08 \x01(\x0b\x32\r.xbospb.Int32\x12*\n\x13\x65nabled_cool_stages\x18\t \x01(\x0b\x32\r.xbospb.Int32\x12}\n\x10heating_setpoint\x18\n \x01(\x0b\x32\x0e.xbospb.DoubleBS\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1e\x12\x1cHeating_Temperature_Setpoint\x12}\n\x10\x63ooling_setpoint\x18\x0b \x01(\x0b\x32\x0e.xbospb.DoubleBS\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1e\x12\x1c\x43ooling_Temperature_Setpoint:A\x82\xf1\x04-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xf1\x04\x0c\x12\nThermostat\"\xa9\x01\n\x12ThermostatSchedule\x12@\n\x0bscheduleMap\x18\x01 \x03(\x0b\x32+.xbospb.ThermostatSchedule.ScheduleMapEntry\x1aQ\n\x10ScheduleMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12,\n\x05value\x18\x02 \x01(\x0b\x32\x1d.xbospb.ThermostatScheduleDay:\x02\x38\x01\"H\n\x15ThermostatScheduleDay\x12/\n\x06\x62locks\x18\x01 \x03(\x0b\x32\x1f.xbospb.ThermostatScheduleBlock\"\x9b\x01\n\x17ThermostatScheduleBlock\x12(\n\x10heating_setpoint\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12(\n\x10\x63ooling_setpoint\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1e\n\x04mode\x18\x03 \x01(\x0b\x32\x10.xbospb.HVACMode\x12\x0c\n\x04time\x18\x04 \x01(\t\"\xe3\x01\n\x13\x44\x65mandResponseEvent\x12 \n\tevent_end\x18\x01 \x01(\x0b\x32\r.xbospb.Int64\x12\"\n\x0b\x65vent_start\x18\x02 \x01(\x0b\x32\r.xbospb.Int64\x12\x33\n\nevent_type\x18\x03 \x01(\x0e\x32\x1f.xbospb.DemandResponseEventType\x12\x34\n\tdr_status\x18\x04 \x01(\x0e\x32!.xbospb.DemandResponseEventStatus\x12\x1b\n\x04time\x18\x05 \x01(\x0b\x32\r.xbospb.Int64\"\x80\x0c\n\x05Meter\x12\x62\n\x05power\x18\x01 \x01(\x0b\x32\x0e.xbospb.DoubleBC\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x0e\x12\x0cPower_Sensor\x12\x66\n\x07voltage\x18\x02 \x01(\x0b\x32\x0e.xbospb.DoubleBE\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x10\x12\x0eVoltage_Sensor\x12t\n\x0e\x61pparent_power\x18\x03 \x01(\x0b\x32\x0e.xbospb.DoubleBL\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x17\x12\x15\x41pparent_Power_Sensor\x12\x64\n\x06\x65nergy\x18\x04 \x01(\x0b\x32\x0e.xbospb.DoubleBD\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x0f\x12\rEnergy_Sensor\x12t\n\x0ereactive_power\x18\x05 \x01(\x0b\x32\x0e.xbospb.DoubleBL\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x17\x12\x15Reactive_Power_Sensor\x12\x66\n\x07\x63urrent\x18\x06 \x01(\x0b\x32\x0e.xbospb.DoubleBE\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x10\x12\x0e\x43urrent_Sensor\x12\x64\n\x06\x64\x65mand\x18\x07 \x01(\x0b\x32\x0e.xbospb.DoubleBD\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x0f\x12\rDemand_Sensor\x12n\n\x0bwater_total\x18\x08 \x01(\x0b\x32\x0e.xbospb.DoubleBI\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x14\x12\x12Water_Total_Sensor\x12l\n\nwater_rate\x18\t \x01(\x0b\x32\x0e.xbospb.DoubleBH\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x13\x12\x11Water_Rate_Sensor\x12~\n\x13water_instantaneous\x18\n \x01(\x0b\x32\x0e.xbospb.DoubleBQ\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1c\x12\x1aWater_Instantaneous_Sensor\x12t\n\x0e\x63ondense_total\x18\x0b \x01(\x0b\x32\x0e.xbospb.DoubleBL\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x17\x12\x15\x43ondense_Total_Sensor\x12r\n\rcondense_rate\x18\x0c \x01(\x0b\x32\x0e.xbospb.DoubleBK\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x16\x12\x14\x43ondense_Rate_Sensor\x12\x84\x01\n\x16\x63ondense_instantaneous\x18\r \x01(\x0b\x32\x0e.xbospb.DoubleBT\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1f\x12\x1d\x43ondense_Instantaneous_Sensor:<\x82\xf1\x04-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xf1\x04\x07\x12\x05Meter\"\x9a\x02\n\x05Light\x12\x62\n\x05state\x18\x01 \x01(\x0b\x32\x0c.xbospb.BoolBE\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x10\x12\x0eLighting_State\x12k\n\nbrightness\x18\x02 \x01(\x0b\x32\r.xbospb.Int64BH\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x13\x12\x11Luminance_Command:@\x82\xf1\x04-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xf1\x04\x0b\x12\tLuminaire\"\xb7\x01\n\x04\x45VSE\x12%\n\rcurrent_limit\x18\x01 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07\x63urrent\x18\x02 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07voltage\x18\x03 \x01(\x0b\x32\x0e.xbospb.Double\x12)\n\x12\x63harging_time_left\x18\x04 \x01(\x0b\x32\r.xbospb.Int32\x12\x1b\n\x05state\x18\x05 \x01(\x0b\x32\x0c.xbospb.Bool*\xba\x01\n\x19\x44\x65mandResponseEventStatus\x12*\n&DemandResponseEventStatusNotConfigured\x10\x00\x12%\n!DemandResponseEventStatusUnusable\x10\x01\x12%\n!DemandResponseEventStatusInactive\x10\x02\x12#\n\x1f\x44\x65mandResponseEventStatusActive\x10\x03*\xca\x01\n\x17\x44\x65mandResponseEventType\x12\"\n\x1e\x44\x65mandResponseEventTypeNoEvent\x10\x00\x12!\n\x1d\x44\x65mandResponseEventTypeNormal\x10\x01\x12#\n\x1f\x44\x65mandResponseEventTypeModerate\x10\x02\x12\x1f\n\x1b\x44\x65mandResponseEventTypeHigh\x10\x03\x12\"\n\x1e\x44\x65mandResponseEventTypeSpecial\x10\x04\x62\x06proto3')
   ,
-  dependencies=[nullabletypes__pb2.DESCRIPTOR,weather__station__pb2.DESCRIPTOR,brick__pb2.DESCRIPTOR,])
+  dependencies=[nullabletypes__pb2.DESCRIPTOR,weather__station__pb2.DESCRIPTOR,brick__pb2.DESCRIPTOR,hvac__pb2.DESCRIPTOR,])
 
 _DEMANDRESPONSEEVENTSTATUS = _descriptor.EnumDescriptor(
   name='DemandResponseEventStatus',
@@ -52,8 +53,8 @@ _DEMANDRESPONSEEVENTSTATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4499,
-  serialized_end=4685,
+  serialized_start=4661,
+  serialized_end=4847,
 )
 _sym_db.RegisterEnumDescriptor(_DEMANDRESPONSEEVENTSTATUS)
 
@@ -87,8 +88,8 @@ _DEMANDRESPONSEEVENTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4688,
-  serialized_end=4890,
+  serialized_start=4850,
+  serialized_end=5052,
 )
 _sym_db.RegisterEnumDescriptor(_DEMANDRESPONSEEVENTTYPE)
 
@@ -131,8 +132,8 @@ _ERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=78,
-  serialized_end=98,
+  serialized_start=90,
+  serialized_end=110,
 )
 
 
@@ -206,6 +207,41 @@ _XBOSIOTDEVICESTATE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ahu', full_name='xbospb.XBOSIoTDeviceState.ahu', index=9,
+      number=10, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='economizer', full_name='xbospb.XBOSIoTDeviceState.economizer', index=10,
+      number=11, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='vav', full_name='xbospb.XBOSIoTDeviceState.vav', index=11,
+      number=12, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='damper', full_name='xbospb.XBOSIoTDeviceState.damper', index=12,
+      number=13, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='fan', full_name='xbospb.XBOSIoTDeviceState.fan', index=13,
+      number=14, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -218,8 +254,8 @@ _XBOSIOTDEVICESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=101,
-  serialized_end=431,
+  serialized_start=113,
+  serialized_end=593,
 )
 
 
@@ -284,8 +320,8 @@ _XBOSIOTDEVICEACTUATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=434,
-  serialized_end=619,
+  serialized_start=596,
+  serialized_end=781,
 )
 
 
@@ -322,8 +358,8 @@ _XBOSIOTCONTEXT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=621,
-  serialized_end=684,
+  serialized_start=783,
+  serialized_end=846,
 )
 
 
@@ -423,8 +459,8 @@ _THERMOSTAT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=687,
-  serialized_end=1852,
+  serialized_start=849,
+  serialized_end=2014,
 )
 
 
@@ -461,8 +497,8 @@ _THERMOSTATSCHEDULE_SCHEDULEMAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1943,
-  serialized_end=2024,
+  serialized_start=2105,
+  serialized_end=2186,
 )
 
 _THERMOSTATSCHEDULE = _descriptor.Descriptor(
@@ -491,8 +527,8 @@ _THERMOSTATSCHEDULE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1855,
-  serialized_end=2024,
+  serialized_start=2017,
+  serialized_end=2186,
 )
 
 
@@ -522,8 +558,8 @@ _THERMOSTATSCHEDULEDAY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2026,
-  serialized_end=2098,
+  serialized_start=2188,
+  serialized_end=2260,
 )
 
 
@@ -574,8 +610,8 @@ _THERMOSTATSCHEDULEBLOCK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2101,
-  serialized_end=2256,
+  serialized_start=2263,
+  serialized_end=2418,
 )
 
 
@@ -633,8 +669,8 @@ _DEMANDRESPONSEEVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2259,
-  serialized_end=2486,
+  serialized_start=2421,
+  serialized_end=2648,
 )
 
 
@@ -748,8 +784,8 @@ _METER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2489,
-  serialized_end=4025,
+  serialized_start=2651,
+  serialized_end=4187,
 )
 
 
@@ -786,8 +822,8 @@ _LIGHT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4028,
-  serialized_end=4310,
+  serialized_start=4190,
+  serialized_end=4472,
 )
 
 
@@ -845,8 +881,8 @@ _EVSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4313,
-  serialized_end=4496,
+  serialized_start=4475,
+  serialized_end=4658,
 )
 
 _XBOSIOTDEVICESTATE.fields_by_name['error'].message_type = _ERROR
@@ -856,6 +892,11 @@ _XBOSIOTDEVICESTATE.fields_by_name['light'].message_type = _LIGHT
 _XBOSIOTDEVICESTATE.fields_by_name['evse'].message_type = _EVSE
 _XBOSIOTDEVICESTATE.fields_by_name['weather_station'].message_type = weather__station__pb2._WEATHERSTATION
 _XBOSIOTDEVICESTATE.fields_by_name['weather_station_prediction'].message_type = weather__station__pb2._WEATHERSTATIONPREDICTION
+_XBOSIOTDEVICESTATE.fields_by_name['ahu'].message_type = hvac__pb2._AHU
+_XBOSIOTDEVICESTATE.fields_by_name['economizer'].message_type = hvac__pb2._ECONOMIZER
+_XBOSIOTDEVICESTATE.fields_by_name['vav'].message_type = hvac__pb2._VAV
+_XBOSIOTDEVICESTATE.fields_by_name['damper'].message_type = hvac__pb2._DAMPER
+_XBOSIOTDEVICESTATE.fields_by_name['fan'].message_type = hvac__pb2._FAN
 _XBOSIOTDEVICEACTUATION.fields_by_name['thermostat'].message_type = _THERMOSTAT
 _XBOSIOTDEVICEACTUATION.fields_by_name['meter'].message_type = _METER
 _XBOSIOTDEVICEACTUATION.fields_by_name['light'].message_type = _LIGHT

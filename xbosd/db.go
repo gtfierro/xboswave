@@ -64,6 +64,9 @@ func NewDB(cfg *Config) (*DB, error) {
         expires     DATETIME NOT NULL,
         policies    JSON
     );`)
+	if err != nil {
+		return nil, err
+	}
 	_, err = db.db.Exec(`CREATE TABLE IF NOT EXISTS policies (
         id          INTEGER PRIMARY KEY,
         namespace   TEXT NOT NULL,
@@ -75,9 +78,23 @@ func NewDB(cfg *Config) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = db.db.Exec(`CREATE TABLE IF NOT EXISTS entities (
+        id          INTEGER PRIMARY KEY,
+        hash        TEXT UNIQUE NOT NULL,
+        expires     DATETIME NOT NULL,
+        name        TEXT
+    );`)
+	if err != nil {
+		return nil, err
+	}
 
 	// resolve any names in the tables if we have new names
 	db.resolveHashesToNames()
+	db.removeDups()
+	// TODO: load in default entity
+	if err := db.LoadEntityFile(cfg.Perspective); err != nil {
+		return nil, errors.Wrap(err, "Could not insert default entity")
+	}
 
 	// setup interactive shell
 	db.setupShell()
@@ -85,12 +102,79 @@ func NewDB(cfg *Config) (*DB, error) {
 	return db, nil
 }
 
+func (db *DB) removeDups() {
+	var pending []*PolicyStatement
+	stmt := `select count(*), namespace, pset, resource, permissions, indirections from policies group by namespace, pset, resource, permissions, indirections;`
+	rows, err := db.db.Query(stmt)
+	if err != nil {
+		log.Error(err)
+		rows.Close()
+		return
+	}
+
+	for rows.Next() {
+		var count int
+		pol := &PolicyStatement{}
+		var _perm []byte
+		if err := rows.Scan(&count, &pol.Namespace, &pol.PermissionSet, &pol.Resource, &_perm, &pol.Indirections); err != nil {
+			log.Error(err)
+			continue
+		}
+		if err := json.Unmarshal(_perm, &pol.Permissions); err != nil {
+			log.Error(err)
+			continue
+		}
+		if count > 1 {
+			fmt.Println(count, "dups for", pol)
+			pending = append(pending, pol)
+		}
+	}
+	rows.Close()
+
+	for _, pol := range pending {
+		fmt.Println(pol.Namespace, pol.PermissionSet, pol.Resource, pol.permissionString(), pol.Indirections)
+		rows, err := db.db.Query("select id from policies where namespace=? AND pset=? AND resource=? AND permissions=? AND indirections=?;", pol.Namespace, pol.PermissionSet, pol.Resource, pol.permissionString(), pol.Indirections)
+
+		//rows, err := db.db.Query("select id from policies where namespace=? and resource=? and permissions=?;", pol.Namespace, pol.Resource, pol.permissionString())
+		if err != nil {
+			log.Error(err)
+			rows.Close()
+			return
+		}
+		var ids []int
+		for rows.Next() {
+			var id int
+			if err := rows.Scan(&id); err != nil {
+				log.Error(err)
+				continue
+			}
+			ids = append(ids, id)
+		}
+		rows.Close()
+
+		new_pol := ids[0]
+		for _, old_pol := range ids[1:] {
+			_, err = db.db.Exec("delete from policies where id=?", old_pol)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+			stmt := fmt.Sprintf("update attestations set policies=json_insert(json_remove(policies, '$.%d'), '$.%d', 0) where json_extract(policies, '$.%d')!='';", old_pol, new_pol, old_pol)
+			_, err = db.db.Exec(stmt)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+		}
+	}
+}
+
 func (db *DB) resolveHashesToNames() {
 	db.syncgraph()
 	stmt := `SELECT id, subject from attestations;`
 	rows, err := db.db.Query(stmt)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		rows.Close()
 		return
 	}
@@ -101,7 +185,7 @@ func (db *DB) resolveHashesToNames() {
 	for rows.Next() {
 		att := &Attestation{}
 		if err := rows.Scan(&att.id, &att.Subject); err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			continue
 		}
 		name := db.getNameFromHash(att.Subject)
@@ -117,7 +201,7 @@ func (db *DB) resolveHashesToNames() {
 	for _, update := range updateatts {
 		_, err := db.db.Exec("UPDATE attestations SET subject=? WHERE id=?", update.subject, update.id)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			continue
 		}
 	}
@@ -132,13 +216,13 @@ func (db *DB) resolveHashesToNames() {
 	prows, err := db.db.Query(stmt)
 	defer prows.Close()
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		return
 	}
 	for prows.Next() {
 		pol := &PolicyStatement{}
 		if err := prows.Scan(&pol.id, &pol.Namespace, &pol.PermissionSet); err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			continue
 		}
 		ns := db.getNameFromHash(pol.Namespace)
@@ -152,9 +236,43 @@ func (db *DB) resolveHashesToNames() {
 		}
 	}
 	for _, update := range updatepols {
-		_, err := db.db.Exec("UPDATE policies SET namespace=? , SET pset=? WHERE id=?", update.ns, update.pset, update.id)
+		_, err := db.db.Exec("UPDATE policies SET namespace=?, pset=? WHERE id=?", update.ns, update.pset, update.id)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err)
+			continue
+		}
+	}
+
+	var updateents []struct {
+		name string
+		id   int
+	}
+
+	stmt = `SELECT id, name, hash from entities;`
+	erows, err := db.db.Query(stmt)
+	defer erows.Close()
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	for erows.Next() {
+		ent := &Entity{}
+		if err := erows.Scan(&ent.id, &ent.Name, &ent.Hash); err != nil {
+			log.Error(err)
+			continue
+		}
+		n := db.getNameFromHash(ent.Hash)
+		if n != ent.Name {
+			updateents = append(updateents, struct {
+				name string
+				id   int
+			}{n, ent.id})
+		}
+	}
+	for _, update := range updateents {
+		_, err := db.db.Exec("UPDATE entities SET name=? WHERE id=?", update.name, update.id)
+		if err != nil {
+			log.Error(err)
 			continue
 		}
 	}
@@ -164,7 +282,7 @@ func (db *DB) watch(dir string) {
 	// load in existing
 	files, err := filepath.Glob("*.pem")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(errors.Wrap(err, "Could not glob *.pem"))
 	}
 	for _, filename := range files {
 		if err := db.LoadAttestationFile(filename); err != nil {
@@ -172,10 +290,21 @@ func (db *DB) watch(dir string) {
 		}
 	}
 
+	// load in existing entities
+	files, err = filepath.Glob("*.ent")
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "Could not glob *.ent"))
+	}
+	for _, filename := range files {
+		if err := db.LoadEntityFile(filename); err != nil {
+			log.Warning("Could not load detected entity: ", err)
+		}
+	}
+
 	// watch the directory!
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(errors.Wrap(err, "Could not create new file watcher"))
 	}
 	defer watcher.Close()
 
@@ -192,6 +321,11 @@ func (db *DB) watch(dir string) {
 						log.Warning("Could not load detected attestation: ", err)
 					}
 				}
+				if event.Op == fsnotify.Create && strings.HasSuffix(event.Name, ".ent") {
+					if err := db.LoadEntityFile(event.Name); err != nil {
+						log.Warning("Could not load detected entity: ", err)
+					}
+				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
@@ -203,7 +337,7 @@ func (db *DB) watch(dir string) {
 
 	err = watcher.Add(dir)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(errors.Wrap(err, "could not add dir to file watch"))
 	}
 	<-done
 }
@@ -369,6 +503,38 @@ func (db *DB) insertAttestation(att *Attestation) error {
 	return tx.Commit()
 }
 
+func (db *DB) insertEntity(ent *Entity) error {
+	if ent == nil {
+		return errors.New("could not insert empty entity")
+	}
+	if ent.Hash == "" {
+		return errors.New("Entity needs hash")
+	}
+
+	tx, err := db.db.BeginTx(context.Background(), &sql.TxOptions{
+		ReadOnly: false,
+	})
+	if err != nil {
+		return err
+	}
+
+	// resolve names (if any)
+	if ent.Name == "" {
+		ent.Name = db.getNameFromHash(ent.Hash)
+	}
+
+	stmt := "INSERT OR IGNORE INTO entities(name, hash, expires) VALUES (?, ?, ?)"
+	_, err = tx.Exec(stmt, ent.Name, ent.Hash, ent.Expires)
+	if err != nil {
+		log.Error(errors.Wrap(err, "upsert policy"))
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("update drivers: unable to rollback: %v", rollbackErr)
+		}
+	}
+
+	return tx.Commit()
+}
+
 func (db *DB) getUnique(attribute string, where map[string]string) ([]string, error) {
 	stmt := formQueryStr("attestations", attribute, where)
 	rows, err := db.db.Query(stmt)
@@ -471,6 +637,22 @@ func (db *DB) readPolicies(rows *sql.Rows) ([]PolicyStatement, error) {
 	return ret, nil
 }
 
+func (db *DB) readEntities(rows *sql.Rows) ([]Entity, error) {
+	var ret []Entity
+	for rows.Next() {
+		ent := &Entity{}
+		var expires interface{}
+		if err := rows.Scan(&ent.id, &ent.Name, &ent.Hash, &expires); err != nil {
+			return nil, err
+		}
+		if expires != nil {
+			ent.Expires = expires.(time.Time)
+		}
+		ret = append(ret, *ent)
+	}
+	return ret, nil
+}
+
 func (db *DB) getPoliciesById(ids []int) ([]PolicyStatement, error) {
 
 	var stmts []PolicyStatement
@@ -531,6 +713,27 @@ func (db *DB) listPolicy(filter *filter) ([]PolicyStatement, error) {
 		return nil, err
 	}
 	return db.readPolicies(rows)
+}
+
+func (db *DB) listEntity(filter *filter) ([]Entity, error) {
+	stmt := `SELECT id, name, hash, expires
+			 FROM entities
+			 `
+
+	where, err := filter.toSQL()
+	if err != nil {
+		return nil, err
+	}
+	if len(where) > 0 {
+		stmt += " WHERE " + where
+	}
+
+	rows, err := db.db.Query(stmt)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	return db.readEntities(rows)
 }
 
 type filter struct {
