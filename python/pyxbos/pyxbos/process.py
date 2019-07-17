@@ -4,6 +4,7 @@ Simple wrapper for a control process
 
 import asyncio
 import xxhash
+import toml
 from datetime import datetime
 import logging
 import base64
@@ -83,7 +84,7 @@ class XBOSProcess:
         return identifier
 
 #        key = (namespace, resource)
-#        while self._subscription_ids.get(key) 
+#        while self._subscription_ids.get(key)
 #        if self._subscription_ids.get(key) is None:
 #            self._subscription_ids[key] = identifier
 #        else:
@@ -188,6 +189,11 @@ def ensure_b64encode(e):
 def b64encode(e):
     return base64.b64encode(e, altchars=bytes('-_', 'utf8'))
 
+def config_from_file(filename):
+    """
+    Returns XBOS process configuration from a file
+    """
+    return toml.load(open(filename))
 
 def schedule(f):
     """
@@ -202,4 +208,3 @@ def run_loop():
     loop = asyncio.get_event_loop()
     loop.run_forever()
     loop.close()
-
