@@ -23,6 +23,7 @@ message EnergisePhasorTarget {
     double angle = 3;
     double magnitude = 4;
     Double kvbase = 5;
+    Double KVAbase = 6;
 }
 
 // SPBC sends a target (V mag + angle delta). This requires knowledge of the reference phasor
