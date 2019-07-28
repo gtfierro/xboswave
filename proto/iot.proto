@@ -53,7 +53,6 @@ message XBOSIoTDeviceState {
     VAV vav = 12;
     Damper damper = 13;
     Fan fan = 14;
-    
 }
 
 
