@@ -1,0 +1,1248 @@
+{
+    "AHU": {
+        "AHU-3.MA-T": {
+            "point_name": "AHU-3.MA-T",
+            "point_class": "Mixed_Air_Temperature_Sensor"
+        },
+        "AHU-3.RA-T": {
+            "point_name": "AHU-3.RA-T",
+            "point_class": "Return_Air_Temperature_Sensor"
+        },
+        "AHU-3.MALL": {
+            "point_name": "AHU-3.MALL",
+            "point_class": "Mixed_Air_Temperature_Low_Limit_Setpoint"
+        },
+        "AHU-3.ZNT-SP": {
+            "point_name": "AHU-3.ZNT-SP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "AHU-3.MINPOSSP": {
+            "point_name": "AHU-3.MINPOSSP",
+            "point_class": "Supply_Air_Damper_Min_Position_Setpoint"
+        },
+        "AHU-3.FLTR-S": {
+            "point_name": "AHU-3.FLTR-S",
+            "point_class": "Filter_Status"
+        },
+        "AHU-3.ZN-T": {
+            "point_name": "AHU-3.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "AHU-3.MAT-SP": {
+            "point_name": "AHU-3.MAT-SP",
+            "point_class": "Mixed_Air_Temperature_Setpoint"
+        },
+        "AHU-3.OCC-S": {
+            "point_name": "AHU-3.OCC-S",
+            "point_class": "Occupied_Mode_Status"
+        },
+        "AHU-3.SDWN-C": {
+            "point_name": "AHU-3.SDWN-C",
+            "point_class": "Shutdown_Command"
+        },
+        "AHU-3.OA-T": {
+            "point_name": "AHU-3.OA-T",
+            "point_class": "Outside_Air_Temperature_Sensor"
+        },
+        "AHU-2.BLDG-P": {
+            "point_name": "AHU-2.BLDG-P",
+            "point_class": "Building_Static_Pressure_Sensor"
+        },
+        "AHU-2.MA-T": {
+            "point_name": "AHU-2.MA-T",
+            "point_class": "Mixed_Air_Temperature_Sensor"
+        },
+        "AHU-2.DAP-SP": {
+            "point_name": "AHU-2.DAP-SP",
+            "point_class": "Discharge_Air_Static_Pressure_Setpoint"
+        },
+        "AHU-2.OA-T": {
+            "point_name": "AHU-2.OA-T",
+            "point_class": "Outside_Air_Temperature_Sensor"
+        },
+        "AHU-2.RA-T": {
+            "point_name": "AHU-2.RA-T",
+            "point_class": "Return_Air_Temperature_Sensor"
+        },
+        "AHU-2.DA-P": {
+            "point_name": "AHU-2.DA-P",
+            "point_class": "Discharge_Air_Static_Pressure_Sensor"
+        },
+        "AHU-2.VAV-CLG": {
+            "point_name": "AHU-2.VAV-CLG",
+            "point_class": "Cooling_Demand"
+        },
+        "AHU-2.FLTR-S": {
+            "point_name": "AHU-2.FLTR-S",
+            "point_class": "Filter_Status"
+        },
+        "AHU-2.OCC-C": {
+            "point_name": "AHU-2.OCC-C",
+            "point_class": "Occupancy_Command"
+        },
+        "AHU-2.DAT-WSP": {
+            "point_name": "AHU-2.DAT-WSP",
+            "point_class": "Discharge_Air_Temperature_Setpoint"
+        },
+        "AHU-2.BLDGP-SP": {
+            "point_name": "AHU-2.BLDGP-SP",
+            "point_class": "Building_Static_Pressure_Setpoint"
+        },
+        "AHU-2.HWV-O": {
+            "point_name": "AHU-2.HWV-O",
+            "point_class": "Heating_Valve_Command"
+        },
+        "AHU-2.DA-T": {
+            "point_name": "AHU-2.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "AHU-2.CHWV-O": {
+            "point_name": "AHU-2.CHWV-O",
+            "point_class": "Cooling_Valve_Command"
+        },
+        "AHU-1.FLTR-S": {
+            "point_name": "AHU-1.FLTR-S",
+            "point_class": "Filter_Status"
+        },
+        "AHU-1.MA-T": {
+            "point_name": "AHU-1.MA-T",
+            "point_class": "Mixed_Air_Temperature_Sensor"
+        },
+        "AHU-1.RA-T": {
+            "point_name": "AHU-1.RA-T",
+            "point_class": "Return_Air_Temperature_Sensor"
+        },
+        "AHU-1.DA-T": {
+            "point_name": "AHU-1.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "AHU-1.CHWV-O": {
+            "point_name": "AHU-1.CHWV-O",
+            "point_class": "Cooling_Valve_Command"
+        },
+        "AHU-1.HWV-O": {
+            "point_name": "AHU-1.HWV-O",
+            "point_class": "Heating_Valve_Command"
+        },
+        "AHU-1.OA-T": {
+            "point_name": "AHU-1.OA-T",
+            "point_class": "Outside_Air_Temperature_Sensor"
+        },
+        "AHU-1.VVTZN-T": {
+            "point_name": "AHU-1.VVTZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "AHU-1.OCC-C": {
+            "point_name": "AHU-1.OCC-C",
+            "point_class": "Occupancy_Command"
+        },
+        "AHU-1.DAT-WSP": {
+            "point_name": "AHU-1.DAT-WSP",
+            "point_class": "Discharge_Air_Temperature_Setpoint"
+        }
+    },
+    "Damper": {
+        "VAV2-9.DPR.DPR-C": {
+            "point_name": "VAV2-9.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-9.DPR.DPRPOS": {
+            "point_name": "VAV2-9.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-2.DPR.DPR-C": {
+            "point_name": "VAV2-2.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-2.DPR.DPRPOS": {
+            "point_name": "VAV2-2.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-8.DPR.DPR-C": {
+            "point_name": "VAV2-8.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-8.DPR.DPRPOS": {
+            "point_name": "VAV2-8.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV1-3.DPR.DPR-C": {
+            "point_name": "VAV1-3.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV1-3.DPR.DPRPOS": {
+            "point_name": "VAV1-3.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-12.DPR.DPR-C": {
+            "point_name": "VAV2-12.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-12.DPR.DPRPOS": {
+            "point_name": "VAV2-12.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-5.DPR.DPRPOS": {
+            "point_name": "VAV2-5.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-5.DPR.DPR-C": {
+            "point_name": "VAV2-5.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV1-1.DPR.DPR-C": {
+            "point_name": "VAV1-1.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV1-1.DPR.DPRPOS": {
+            "point_name": "VAV1-1.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV1-5.DPR.DPR-C": {
+            "point_name": "VAV1-5.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV1-5.DPR.DPRPOS": {
+            "point_name": "VAV1-5.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV1-2.DPR.DPR-C": {
+            "point_name": "VAV1-2.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV1-2.DPR.DPRPOS": {
+            "point_name": "VAV1-2.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-6.DPR.DPRPOS": {
+            "point_name": "VAV2-6.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-6.DPR.DPR-C": {
+            "point_name": "VAV2-6.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-3.DPR.DPR-C": {
+            "point_name": "VAV2-3.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-3.DPR.DPRPOS": {
+            "point_name": "VAV2-3.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VVT-7.DPR.DPR-C": {
+            "point_name": "VVT-7.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-7.DPR.DPR-C": {
+            "point_name": "VAV2-7.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-7.DPR.DPRPOS": {
+            "point_name": "VAV2-7.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VVT-6.DPR.DPR-C": {
+            "point_name": "VVT-6.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VVT-4.DPR.DPR-C": {
+            "point_name": "VVT-4.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-10.DPR.DPRPOS": {
+            "point_name": "VAV2-10.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-10.DPR.DPR-C": {
+            "point_name": "VAV2-10.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV1-4.DPR.DPR-C": {
+            "point_name": "VAV1-4.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV1-4.DPR.DPRPOS": {
+            "point_name": "VAV1-4.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "AHU-3.DPR.DPR-O": {
+            "point_name": "AHU-3.DPR.DPR-O",
+            "point_class": "Damper_Position_Command"
+        },
+        "VVT-2.DPR.DPR-C": {
+            "point_name": "VVT-2.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-4.DPR.DPRPOS": {
+            "point_name": "VAV2-4.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-4.DPR.DPR-C": {
+            "point_name": "VAV2-4.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VVT-1.DPR.DPR-C": {
+            "point_name": "VVT-1.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-11.DPR.DPRPOS": {
+            "point_name": "VAV2-11.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-11.DPR.DPR-C": {
+            "point_name": "VAV2-11.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VVT-3.DPR.DPR-C": {
+            "point_name": "VVT-3.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "AHU-1.DPR.DPR-O": {
+            "point_name": "AHU-1.DPR.DPR-O",
+            "point_class": "Damper_Position_Command"
+        },
+        "VVT-5.DPR.DPR-C": {
+            "point_name": "VVT-5.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "VAV2-1.DPR.DPRPOS": {
+            "point_name": "VAV2-1.DPR.DPRPOS",
+            "point_class": "Damper_Position_Sensor"
+        },
+        "VAV2-1.DPR.DPR-C": {
+            "point_name": "VAV2-1.DPR.DPR-C",
+            "point_class": "Damper_Position_Command"
+        },
+        "AHU-2.OAD.OAD-O": {
+            "point_name": "AHU-2.OAD.OAD-O",
+            "point_class": "Damper_Position_Command"
+        }
+    },
+    "Economizer": {
+        "AHU-3.ECON.ECONDIF": {
+            "point_name": "AHU-3.ECON.ECONDIF",
+            "point_class": "Economizer_Differential_Air_Temperature_Setpoint"
+        }
+    },
+    "Fan": {
+        "AHU-1.EF2-.EF2-A": {
+            "point_name": "AHU-1.EF2-.EF2-A",
+            "point_class": "Fan_Overload_Alarm"
+        },
+        "AHU-1.EF2-.EF2-C": {
+            "point_name": "AHU-1.EF2-.EF2-C",
+            "point_class": "On_Off_Command"
+        },
+        "AHU-1.EF2-.EF2-S": {
+            "point_name": "AHU-1.EF2-.EF2-S",
+            "point_class": "Fan_Status"
+        },
+        "AHU-1.EF-.EF-RESET": {
+            "point_name": "AHU-1.EF-.EF-RESET",
+            "point_class": "Fan_Reset_Command"
+        },
+        "VVT-7.EF5-.EF5-C": {
+            "point_name": "VVT-7.EF5-.EF5-C",
+            "point_class": "On_Off_Command"
+        },
+        "AHU-1.EF4-.EF4-C": {
+            "point_name": "AHU-1.EF4-.EF4-C",
+            "point_class": "On_Off_Command"
+        },
+        "AHU-1.EF4-.EF4-S": {
+            "point_name": "AHU-1.EF4-.EF4-S",
+            "point_class": "Fan_Status"
+        },
+        "AHU-1.EF4-.EF4-A": {
+            "point_name": "AHU-1.EF4-.EF4-A",
+            "point_class": "Fan_Overload_Alarm"
+        },
+        "AHU-1.RF-.RF-S": {
+            "point_name": "AHU-1.RF-.RF-S",
+            "point_class": "Fan_Status"
+        },
+        "AHU-1.RF-.RF-A": {
+            "point_name": "AHU-1.RF-.RF-A",
+            "point_class": "Fan_Overload_Alarm"
+        },
+        "AHU-1.RF-.RF-C": {
+            "point_name": "AHU-1.RF-.RF-C",
+            "point_class": "On_Off_Command"
+        },
+        "AHU-1.RF-.RF-RESET": {
+            "point_name": "AHU-1.RF-.RF-RESET",
+            "point_class": "Fan_Reset_Command"
+        },
+        "AHU-2.RF-.RF-C": {
+            "point_name": "AHU-2.RF-.RF-C",
+            "point_class": "On_Off_Command"
+        },
+        "AHU-2.RF-.RF-O": {
+            "point_name": "AHU-2.RF-.RF-O",
+            "point_class": "Fan_Speed_Setpoint"
+        },
+        "AHU-2.RF.RFVFD-A": {
+            "point_name": "AHU-2.RF.RFVFD-A",
+            "point_class": "VFD_Alarm"
+        },
+        "AHU-2.SF.SFVFD-A": {
+            "point_name": "AHU-2.SF.SFVFD-A",
+            "point_class": "VFD_Alarm"
+        },
+        "AHU-2.SF-.SF-C": {
+            "point_name": "AHU-2.SF-.SF-C",
+            "point_class": "On_Off_Command"
+        },
+        "AHU-2.SF-.SF-O": {
+            "point_name": "AHU-2.SF-.SF-O",
+            "point_class": "Fan_Speed_Setpoint"
+        },
+        "AHU-3.SF-.SF-S": {
+            "point_name": "AHU-3.SF-.SF-S",
+            "point_class": "Fan_Status"
+        },
+        "AHU-3.SF-.SF-C": {
+            "point_name": "AHU-3.SF-.SF-C",
+            "point_class": "On_Off_Command"
+        },
+        "AHU-3.SF-.SF-A": {
+            "point_name": "AHU-3.SF-.SF-A",
+            "point_class": "Fan_Overload_Alarm"
+        },
+        "AHU-1.SF-.SF-C": {
+            "point_name": "AHU-1.SF-.SF-C",
+            "point_class": "On_Off_Command"
+        },
+        "AHU-1.SF-.SF-S": {
+            "point_name": "AHU-1.SF-.SF-S",
+            "point_class": "Fan_Status"
+        },
+        "AHU-1.SF-.SF-RESET": {
+            "point_name": "AHU-1.SF-.SF-RESET",
+            "point_class": "Fan_Reset_Command"
+        },
+        "AHU-1.SF-.SF-A": {
+            "point_name": "AHU-1.SF-.SF-A",
+            "point_class": "Fan_Overload_Alarm"
+        }
+    },
+    "VAV": {
+        "VAV2-7.W-C-ADJ": {
+            "point_name": "VAV2-7.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-7.OCCHTGFL": {
+            "point_name": "VAV2-7.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-7.SUPFLOW": {
+            "point_name": "VAV2-7.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-7.CMAXFLO": {
+            "point_name": "VAV2-7.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-7.SUPFLOSP": {
+            "point_name": "VAV2-7.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-7.DA-T": {
+            "point_name": "VAV2-7.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-7.ZN-T": {
+            "point_name": "VAV2-7.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-7.COMMONSP": {
+            "point_name": "VAV2-7.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-7.BOXMODE": {
+            "point_name": "VAV2-7.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-7.S-VP": {
+            "point_name": "VAV2-7.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-7.BOXHTG": {
+            "point_name": "VAV2-7.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-7.CPIDPV": {
+            "point_name": "VAV2-7.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-3.BOXMODE": {
+            "point_name": "VAV2-3.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-3.COMMONSP": {
+            "point_name": "VAV2-3.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-3.SUPFLOW": {
+            "point_name": "VAV2-3.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-3.BOXHTG": {
+            "point_name": "VAV2-3.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-3.OCCHTGFL": {
+            "point_name": "VAV2-3.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-3.W-C-ADJ": {
+            "point_name": "VAV2-3.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-3.CPIDPV": {
+            "point_name": "VAV2-3.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-3.ZN-T": {
+            "point_name": "VAV2-3.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-3.SUPFLOSP": {
+            "point_name": "VAV2-3.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-3.CMAXFLO": {
+            "point_name": "VAV2-3.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-3.DA-T": {
+            "point_name": "VAV2-3.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-3.S-VP": {
+            "point_name": "VAV2-3.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-1.SUPFLOSP": {
+            "point_name": "VAV2-1.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-1.DA-T": {
+            "point_name": "VAV2-1.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-1.S-VP": {
+            "point_name": "VAV2-1.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-1.OCCHTGFL": {
+            "point_name": "VAV2-1.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-1.SUPFLOW": {
+            "point_name": "VAV2-1.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-1.COMMONSP": {
+            "point_name": "VAV2-1.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-1.ZN-T": {
+            "point_name": "VAV2-1.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-1.CPIDPV": {
+            "point_name": "VAV2-1.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-1.BOXHTG": {
+            "point_name": "VAV2-1.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-1.W-C-ADJ": {
+            "point_name": "VAV2-1.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-1.CMAXFLO": {
+            "point_name": "VAV2-1.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-1.BOXMODE": {
+            "point_name": "VAV2-1.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV1-3.COMMONSP": {
+            "point_name": "VAV1-3.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV1-3.W-C-ADJ": {
+            "point_name": "VAV1-3.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV1-3.DA-T": {
+            "point_name": "VAV1-3.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV1-3.CMAXFLO": {
+            "point_name": "VAV1-3.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-3.OCCHTGFL": {
+            "point_name": "VAV1-3.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-3.CPIDPV": {
+            "point_name": "VAV1-3.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV1-3.SUPFLOSP": {
+            "point_name": "VAV1-3.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-3.S-VP": {
+            "point_name": "VAV1-3.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV1-3.ZN-T": {
+            "point_name": "VAV1-3.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV1-3.BOXHTG": {
+            "point_name": "VAV1-3.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV1-3.SUPFLOW": {
+            "point_name": "VAV1-3.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV1-3.BOXMODE": {
+            "point_name": "VAV1-3.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-11.OCCHTGFL": {
+            "point_name": "VAV2-11.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-11.SUPFLOSP": {
+            "point_name": "VAV2-11.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-11.ZN-T": {
+            "point_name": "VAV2-11.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-11.BOXMODE": {
+            "point_name": "VAV2-11.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-11.BOXHTG": {
+            "point_name": "VAV2-11.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-11.COMMONSP": {
+            "point_name": "VAV2-11.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-11.S-VP": {
+            "point_name": "VAV2-11.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-11.DA-T": {
+            "point_name": "VAV2-11.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-11.CMAXFLO": {
+            "point_name": "VAV2-11.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-11.CPIDPV": {
+            "point_name": "VAV2-11.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-11.W-C-ADJ": {
+            "point_name": "VAV2-11.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-11.SUPFLOW": {
+            "point_name": "VAV2-11.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-12.DA-T": {
+            "point_name": "VAV2-12.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-12.S-VP": {
+            "point_name": "VAV2-12.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-12.CMAXFLO": {
+            "point_name": "VAV2-12.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-12.W-C-ADJ": {
+            "point_name": "VAV2-12.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-12.SUPFLOSP": {
+            "point_name": "VAV2-12.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-12.CPIDPV": {
+            "point_name": "VAV2-12.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-12.SUPFLOW": {
+            "point_name": "VAV2-12.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-12.ZN-T": {
+            "point_name": "VAV2-12.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-12.BOXHTG": {
+            "point_name": "VAV2-12.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-12.OCCHTGFL": {
+            "point_name": "VAV2-12.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-12.BOXMODE": {
+            "point_name": "VAV2-12.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-12.COMMONSP": {
+            "point_name": "VAV2-12.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-10.COMMONSP": {
+            "point_name": "VAV2-10.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-10.BOXHTG": {
+            "point_name": "VAV2-10.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-10.SUPFLOSP": {
+            "point_name": "VAV2-10.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-10.W-C-ADJ": {
+            "point_name": "VAV2-10.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-10.BOXMODE": {
+            "point_name": "VAV2-10.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-10.ZN-T": {
+            "point_name": "VAV2-10.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-10.CMAXFLO": {
+            "point_name": "VAV2-10.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-10.DA-T": {
+            "point_name": "VAV2-10.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-10.OCCHTGFL": {
+            "point_name": "VAV2-10.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-10.SUPFLOW": {
+            "point_name": "VAV2-10.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-10.S-VP": {
+            "point_name": "VAV2-10.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-10.CPIDPV": {
+            "point_name": "VAV2-10.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-9.S-VP": {
+            "point_name": "VAV2-9.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-9.ZN-T": {
+            "point_name": "VAV2-9.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-9.CPIDPV": {
+            "point_name": "VAV2-9.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-9.SUPFLOW": {
+            "point_name": "VAV2-9.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-9.W-C-ADJ": {
+            "point_name": "VAV2-9.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-9.DA-T": {
+            "point_name": "VAV2-9.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-9.CMAXFLO": {
+            "point_name": "VAV2-9.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-9.BOXMODE": {
+            "point_name": "VAV2-9.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-9.SUPFLOSP": {
+            "point_name": "VAV2-9.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-9.BOXHTG": {
+            "point_name": "VAV2-9.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-9.COMMONSP": {
+            "point_name": "VAV2-9.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-9.OCCHTGFL": {
+            "point_name": "VAV2-9.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-1.SUPFLOW": {
+            "point_name": "VAV1-1.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV1-1.BOXMODE": {
+            "point_name": "VAV1-1.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV1-1.S-VP": {
+            "point_name": "VAV1-1.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV1-1.CMAXFLO": {
+            "point_name": "VAV1-1.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-1.W-C-ADJ": {
+            "point_name": "VAV1-1.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV1-1.SUPFLOSP": {
+            "point_name": "VAV1-1.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-1.CPIDPV": {
+            "point_name": "VAV1-1.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV1-1.OCCHTGFL": {
+            "point_name": "VAV1-1.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-1.ZN-T": {
+            "point_name": "VAV1-1.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV1-1.DA-T": {
+            "point_name": "VAV1-1.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV1-1.BOXHTG": {
+            "point_name": "VAV1-1.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV1-1.COMMONSP": {
+            "point_name": "VAV1-1.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-6.COMMONSP": {
+            "point_name": "VAV2-6.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-6.SUPFLOSP": {
+            "point_name": "VAV2-6.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-6.BOXHTG": {
+            "point_name": "VAV2-6.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-6.OCCHTGFL": {
+            "point_name": "VAV2-6.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-6.SUPFLOW": {
+            "point_name": "VAV2-6.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-6.W-C-ADJ": {
+            "point_name": "VAV2-6.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-6.DA-T": {
+            "point_name": "VAV2-6.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-6.BOXMODE": {
+            "point_name": "VAV2-6.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-6.ZN-T": {
+            "point_name": "VAV2-6.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-6.S-VP": {
+            "point_name": "VAV2-6.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-6.CMAXFLO": {
+            "point_name": "VAV2-6.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-6.CPIDPV": {
+            "point_name": "VAV2-6.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV1-4.W-C-ADJ": {
+            "point_name": "VAV1-4.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV1-4.COMMONSP": {
+            "point_name": "VAV1-4.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV1-4.BOXHTG": {
+            "point_name": "VAV1-4.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV1-4.OCCHTGFL": {
+            "point_name": "VAV1-4.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-4.CMAXFLO": {
+            "point_name": "VAV1-4.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-4.ZN-T": {
+            "point_name": "VAV1-4.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV1-4.CPIDPV": {
+            "point_name": "VAV1-4.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV1-4.DA-T": {
+            "point_name": "VAV1-4.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV1-4.SUPFLOSP": {
+            "point_name": "VAV1-4.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-4.SUPFLOW": {
+            "point_name": "VAV1-4.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV1-4.BOXMODE": {
+            "point_name": "VAV1-4.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV1-4.S-VP": {
+            "point_name": "VAV1-4.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-2.W-C-ADJ": {
+            "point_name": "VAV2-2.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-2.BOXHTG": {
+            "point_name": "VAV2-2.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-2.OCCHTGFL": {
+            "point_name": "VAV2-2.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-2.S-VP": {
+            "point_name": "VAV2-2.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-2.SUPFLOSP": {
+            "point_name": "VAV2-2.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-2.ZN-T": {
+            "point_name": "VAV2-2.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-2.CMAXFLO": {
+            "point_name": "VAV2-2.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-2.CPIDPV": {
+            "point_name": "VAV2-2.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-2.COMMONSP": {
+            "point_name": "VAV2-2.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-2.DA-T": {
+            "point_name": "VAV2-2.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-2.BOXMODE": {
+            "point_name": "VAV2-2.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-2.SUPFLOW": {
+            "point_name": "VAV2-2.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-8.BOXHTG": {
+            "point_name": "VAV2-8.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-8.COMMONSP": {
+            "point_name": "VAV2-8.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-8.BOXMODE": {
+            "point_name": "VAV2-8.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-8.SUPFLOSP": {
+            "point_name": "VAV2-8.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-8.ZN-T": {
+            "point_name": "VAV2-8.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-8.SUPFLOW": {
+            "point_name": "VAV2-8.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-8.S-VP": {
+            "point_name": "VAV2-8.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-8.CMAXFLO": {
+            "point_name": "VAV2-8.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-8.OCCHTGFL": {
+            "point_name": "VAV2-8.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-8.W-C-ADJ": {
+            "point_name": "VAV2-8.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-8.DA-T": {
+            "point_name": "VAV2-8.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-8.CPIDPV": {
+            "point_name": "VAV2-8.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV1-5.BOXMODE": {
+            "point_name": "VAV1-5.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV1-5.W-C-ADJ": {
+            "point_name": "VAV1-5.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV1-5.SUPFLOSP": {
+            "point_name": "VAV1-5.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-5.CMAXFLO": {
+            "point_name": "VAV1-5.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-5.BOXHTG": {
+            "point_name": "VAV1-5.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV1-5.SUPFLOW": {
+            "point_name": "VAV1-5.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV1-5.DA-T": {
+            "point_name": "VAV1-5.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV1-5.COMMONSP": {
+            "point_name": "VAV1-5.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV1-5.ZN-T": {
+            "point_name": "VAV1-5.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV1-5.OCCHTGFL": {
+            "point_name": "VAV1-5.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-5.S-VP": {
+            "point_name": "VAV1-5.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV1-5.CPIDPV": {
+            "point_name": "VAV1-5.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-4.SUPFLOW": {
+            "point_name": "VAV2-4.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-4.OCCHTGFL": {
+            "point_name": "VAV2-4.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-4.BOXHTG": {
+            "point_name": "VAV2-4.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-4.BOXMODE": {
+            "point_name": "VAV2-4.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-4.CPIDPV": {
+            "point_name": "VAV2-4.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-4.W-C-ADJ": {
+            "point_name": "VAV2-4.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-4.COMMONSP": {
+            "point_name": "VAV2-4.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV2-4.S-VP": {
+            "point_name": "VAV2-4.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-4.SUPFLOSP": {
+            "point_name": "VAV2-4.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-4.CMAXFLO": {
+            "point_name": "VAV2-4.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-4.DA-T": {
+            "point_name": "VAV2-4.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-4.ZN-T": {
+            "point_name": "VAV2-4.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-5.S-VP": {
+            "point_name": "VAV2-5.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV2-5.ZN-T": {
+            "point_name": "VAV2-5.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV2-5.W-C-ADJ": {
+            "point_name": "VAV2-5.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV2-5.BOXMODE": {
+            "point_name": "VAV2-5.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV2-5.SUPFLOSP": {
+            "point_name": "VAV2-5.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-5.OCCHTGFL": {
+            "point_name": "VAV2-5.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-5.CPIDPV": {
+            "point_name": "VAV2-5.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV2-5.CMAXFLO": {
+            "point_name": "VAV2-5.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        },
+        "VAV2-5.SUPFLOW": {
+            "point_name": "VAV2-5.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV2-5.DA-T": {
+            "point_name": "VAV2-5.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV2-5.BOXHTG": {
+            "point_name": "VAV2-5.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV2-5.COMMONSP": {
+            "point_name": "VAV2-5.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV1-2.DA-T": {
+            "point_name": "VAV1-2.DA-T",
+            "point_class": "Discharge_Air_Temperature_Sensor"
+        },
+        "VAV1-2.BOXHTG": {
+            "point_name": "VAV1-2.BOXHTG",
+            "point_class": "Heating_Demand"
+        },
+        "VAV1-2.ZN-T": {
+            "point_name": "VAV1-2.ZN-T",
+            "point_class": "Zone_Temperature_Sensor"
+        },
+        "VAV1-2.CPIDPV": {
+            "point_name": "VAV1-2.CPIDPV",
+            "point_class": "Cooling_Demand"
+        },
+        "VAV1-2.COMMONSP": {
+            "point_name": "VAV1-2.COMMONSP",
+            "point_class": "Zone_Temperature_Setpoint"
+        },
+        "VAV1-2.SUPFLOW": {
+            "point_name": "VAV1-2.SUPFLOW",
+            "point_class": "Supply_Air_Flow_Sensor"
+        },
+        "VAV1-2.SUPFLOSP": {
+            "point_name": "VAV1-2.SUPFLOSP",
+            "point_class": "Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-2.W-C-ADJ": {
+            "point_name": "VAV1-2.W-C-ADJ",
+            "point_class": "Thermostat_Adjust_Setpoint"
+        },
+        "VAV1-2.S-VP": {
+            "point_name": "VAV1-2.S-VP",
+            "point_class": "Supply_Air_Velocity_Pressure_Sensor"
+        },
+        "VAV1-2.BOXMODE": {
+            "point_name": "VAV1-2.BOXMODE",
+            "point_class": "Box_Mode"
+        },
+        "VAV1-2.OCCHTGFL": {
+            "point_name": "VAV1-2.OCCHTGFL",
+            "point_class": "Occupied_Heating_Min_Supply_Air_Flow_Setpoint"
+        },
+        "VAV1-2.CMAXFLO": {
+            "point_name": "VAV1-2.CMAXFLO",
+            "point_class": "Cooling_Max_Supply_Air_Flow_Setpoint"
+        }
+    }
+}
