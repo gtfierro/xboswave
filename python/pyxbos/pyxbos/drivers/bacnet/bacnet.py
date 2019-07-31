@@ -37,7 +37,7 @@ class HVACDriver(Driver):
                     new_point = point
                     if len(pieces) > 2:
                         # This is to fix point names like "AHU-2.SF-.SF-O" to "AHU-2.SF-O"
-                        new_point = pieces[0] + "." + pieces[:-1]
+                        new_point = pieces[0] + "." + pieces[-1]
 
                     if "DPRPOS" in point:
                         # Pymortar may return point names with DPRPOS while BACnet's naming convention is DMPRPOS
@@ -193,8 +193,8 @@ if __name__ == '__main__':
     building = 'orinda-public-library'
 
     cfg = {
-        'wavemq': 'localhost:4516',
-        'waved': 'localhost:410',
+        'wavemq': 'localhost:4516', #orinda-public-library.xbos.io:4516
+        'waved': 'localhost:410', #orinda-public-library.xbos.io:410
         'namespace': 'GyCetklhSNcgsCKVKXxSuCUZP4M80z9NRxU1pwfb2XwGhg==',
         'base_resource': 'sriharsha',
         'entity': 'sriharsha.ent',
