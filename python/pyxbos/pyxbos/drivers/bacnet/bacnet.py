@@ -37,7 +37,7 @@ class HVACDriver(Driver):
                     new_point = point
                     if len(pieces) > 2:
                         # This is to fix point names like "AHU-2.SF-.SF-O" to "AHU-2.SF-O"
-                        new_point = pieces[0] + "." + pieces[:-1]
+                        new_point = pieces[0] + "." + pieces[-1]
 
                     if "DPRPOS" in point:
                         # Pymortar may return point names with DPRPOS while BACnet's naming convention is DMPRPOS
