@@ -193,8 +193,8 @@ if __name__ == '__main__':
     building = 'orinda-public-library'
 
     cfg = {
-        'wavemq': 'localhost:4516', #orinda-public-library.xbos.io:4516
-        'waved': 'localhost:410', #orinda-public-library.xbos.io:410
+        'wavemq': 'localhost:4516',
+        'waved': 'localhost:410',
         'namespace': 'GyCetklhSNcgsCKVKXxSuCUZP4M80z9NRxU1pwfb2XwGhg==',
         'base_resource': 'sriharsha',
         'entity': 'sriharsha.ent',

@@ -81,7 +81,7 @@ class SPBCProcess(XBOSProcess):
             ]
         }
         """
-        upmu = resp.uri.lstrip('upmu/')
+        upmu = resp.uri[5:]
         self.reference_phasors[upmu] = resp.values[-1]['phasorChannels'][0]['data']
 
     def _lpbccb(self, resp):
@@ -128,7 +128,7 @@ class SPBCProcess(XBOSProcess):
             self.lpbcs[status['nodeID']][status['channelName']] = status
         #self.lpbcs[resp.uri] = resp
 
-    async def broadcast_target(self, nodeid, channels, vmags, vangs, kvbases=None):
+    async def broadcast_target(self, nodeid, channels, vmags, vangs, kvbases=None, kvabases=None):
         """
         Publishes SPBC V and delta for a particular node
 
@@ -137,7 +137,8 @@ class SPBCProcess(XBOSProcess):
             channels (list of str): list of channel names for the node we are announcing targets to
             vmag (list of float): the 'V' target to be set for each channel
             vang (list of float): the 'delta' target to be set for each channel
-            kvbase (list of float or None): the KV base for each channel
+            kvbases (list of float or None): the KV base for each channel
+            kvabases (list of float or None): the KVA base for each channel
         """
         self._log.info(f"SPBC announcing channels {channels}, vmag {vmags}, vang {vangs} to node {nodeid}")
         # wrap value in nullable Double if provided
@@ -145,6 +146,7 @@ class SPBCProcess(XBOSProcess):
         targets = []
         for idx, channel in enumerate(channels):
             kvbase = Double(value=kvbases[idx]) if kvbases else None
+            kvabase = Double(value=kvabases[idx]) if kvabases else None
             targets.append(
                 EnergisePhasorTarget(
                     nodeID=nodeid,
@@ -152,6 +154,7 @@ class SPBCProcess(XBOSProcess):
                     angle=vangs[idx],
                     magnitude=vmags[idx], 
                     kvbase=kvbase,
+                    KVAbase=kvabase,
                 )
             )
 
@@ -231,10 +234,10 @@ class LPBCProcess(XBOSProcess):
     def _reference_upmucb(self, channel, resp):
         """Stores the most recent reference upmu reading"""
         if len(resp.values) == 0:
-            log.error("no content in UPMU message")
+            self._log.error("no content in UPMU message")
             return
         if len(resp.values[-1]['phasorChannels']) == 0:
-            log.error("no phasor channels in UPMU message")
+            self._log.error("no phasor channels in UPMU message")
             return
         frame = resp.values[-1]['phasorChannels'][0]
         if channel not in self.reference_phasor_data:
@@ -244,7 +247,7 @@ class LPBCProcess(XBOSProcess):
     def _spbccb(self, resp):
         """Stores the most recent SPBC command"""
         if len(resp.values) == 0:
-            log.error("no content in SPBC message")
+            self._log.error("no content in SPBC message")
             return
         resp = resp.values[-1]
         resp['phasor_targets'] = resp.pop('phasorTargets')
