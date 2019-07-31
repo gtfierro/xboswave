@@ -81,7 +81,7 @@ class SPBCProcess(XBOSProcess):
             ]
         }
         """
-        upmu = resp.uri.lstrip('upmu/')
+        upmu = resp.uri[5:]
         self.reference_phasors[upmu] = resp.values[-1]['phasorChannels'][0]['data']
 
     def _lpbccb(self, resp):
