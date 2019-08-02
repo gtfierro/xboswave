@@ -29,10 +29,10 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if phasor_target.KVAbase != nil {
 				extracted.Tags["KVAbase"] = fmt.Sprintf("%f", phasor_target.KVAbase.Value)
 			}
-			extracted.Collection = fmt.Sprintf("energise/%s/%s", uri.Resource, phasor_target.ChannelName)
 
 			// archive angle
 			extracted.Tags["name"] = "angle"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/angle", uri.Resource, phasor_target.ChannelName)
 			extracted.Values = []float64{phasor_target.Angle}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"angle"))
@@ -45,6 +45,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 
 			// archive magnitude
 			extracted.Tags["name"] = "magnitude"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/magnitude", uri.Resource, phasor_target.ChannelName)
 			extracted.Values = []float64{phasor_target.Magnitude}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"magnitude"))
@@ -67,11 +68,11 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 		for _, channel_status := range lpbc.Statuses {
 			extracted.Tags["node_id"] = channel_status.NodeID
 			extracted.Tags["channel_name"] = channel_status.ChannelName
-			extracted.Collection = fmt.Sprintf("energise/%s/%s", uri.Resource, channel_status.ChannelName)
 
 			// archive phasor_errors
 			// V == magnitude
 			extracted.Tags["name"] = "V"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/V", uri.Resource, channel_status.ChannelName)
 			extracted.Values = []float64{channel_status.PhasorErrors.Magnitude}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"V"))
@@ -84,6 +85,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 
 			// delta == Angle
 			extracted.Tags["name"] = "delta"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/delta", uri.Resource, channel_status.ChannelName)
 			extracted.Values = []float64{channel_status.PhasorErrors.Angle}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"delta"))
@@ -96,6 +98,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 
 			// archive p_saturated
 			extracted.Tags["name"] = "p_saturated"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/p_saturated", uri.Resource, channel_status.ChannelName)
 			var pSatVal = 0
 			if channel_status.PSaturated {
 				pSatVal = 1
@@ -112,6 +115,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 
 			// archive q_saturated
 			extracted.Tags["name"] = "q_saturated"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/q_saturated", uri.Resource, channel_status.ChannelName)
 			var qSatVal = 0
 			if channel_status.QSaturated {
 				qSatVal = 1
@@ -129,6 +133,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			// archive p_max
 			if channel_status.PMax != nil {
 				extracted.Tags["name"] = "p_max"
+				extracted.Collection = fmt.Sprintf("energise/%s/%s/p_max", uri.Resource, channel_status.ChannelName)
 				extracted.Values = []float64{channel_status.PMax.Value}
 				extracted.Times = []int64{timestamp}
 				extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"p_max"))
@@ -143,6 +148,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			// archive q_max
 			if channel_status.QMax != nil {
 				extracted.Tags["name"] = "q_max"
+				extracted.Collection = fmt.Sprintf("energise/%s/%s/q_max", uri.Resource, channel_status.ChannelName)
 				extracted.Values = []float64{channel_status.QMax.Value}
 				extracted.Times = []int64{timestamp}
 				extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"q_max"))
