@@ -7,7 +7,7 @@ import os,sys
 import json
 import time
 
-class HVACDriver(Driver):
+class BACnetDriver(Driver):
     def setup(self, cfg):
         self.pymortar_client = pymortar.Client({
             'username': cfg['mortar_api_username'],
@@ -22,7 +22,7 @@ class HVACDriver(Driver):
     def read(self, requestid=None):
         for dev in self.devices:
             # A dictionary mapping BACnet point names mapped their respective values
-            point_value_map = get_point_value_dict(dev.points)
+            point_value_map = dev.points_name
 
             #AHU-1.DPR-O Damper point MISSING from BACnet points for orinda-public-library
 
@@ -81,39 +81,6 @@ class HVACDriver(Driver):
 
                     msg = xbos_pb2.XBOS(XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(**device_state_data))
                     self.report(eq, msg)
-
-def get_point_value_dict(device_points):
-    """ Creates a dictionary of BACnet point names mapped to their respective values
-
-    e.g. { "AHU-1.SF-A": false, "VVT-4.MAXDMP": 75, "Garage.ZN2-Q": 1.77, .... }
-
-    :param device_points: List of all the point names in a particular BACnet device
-    :return: Dictionary of BACnet point names mapped to their respective values
-    """
-    points = [str(point).strip() for point in device_points]
-    point_value_dict = {}
-
-    for point in points:
-        point_name, point_value = point.split(" : ")
-
-        point_name = point_name.split(".", 1)[1]
-
-        if point_value.lower() in ["true", "occupied", "cooling"]:
-            # If the value is "occupied" or "cooling" then, converting the value to a boolean True to
-            # make it easier to track
-            point_value_dict[point_name] = True
-        elif point_value.lower() in ["false", "unknown", "unoccupied"]:
-            # If the value is "unknown" or "unoccupied" then, converting the value to a boolean False to
-            # make it easier to track
-            point_value_dict[point_name] = False
-        elif any(char.isdigit() for char in point_value):
-            # If the BACnet value contains any numbers, get rid of all 
-            # non-digit characters and convert to float
-            point_value_dict[point_name] = float(re.sub(r'[^0-9.]','', point_value))
-        else:
-            point_value_dict[point_name] = point_value
-
-    return point_value_dict
 
 def get_point_class_dict(pymortar_client, building):
     """ Creates a dictionary of BACnet point names mapped to their respective Brick classes.
@@ -205,5 +172,5 @@ if __name__ == '__main__':
         'mortar_api_password': os.environ['MORTAR_API_PASSWORD']
     }
 
-    current_driver = HVACDriver(cfg)
+    current_driver = BACnetDriver(cfg)
     current_driver.begin()
