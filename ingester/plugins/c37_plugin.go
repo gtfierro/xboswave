@@ -24,7 +24,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 		for _, phasor := range phasor_channel.Data {
 			extracted.Tags["unit"] = "degrees"
 			extracted.Tags["channel_name"] = phasor_channel.ChannelName
-			extracted.Collection = fmt.Sprintf("xbos/%s/%s/%s/%s", uri.Resource, extracted.Tags["station_name"], extracted.Tags["id_code"], extracted.Tags["channel_name"])
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/%s/%s", uri.Resource, extracted.Tags["station_name"], extracted.Tags["id_code"], extracted.Tags["channel_name"])
 			extracted.Tags["name"] = "angle"
 
 			time := phasor.Time
@@ -51,7 +51,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 		for _, phasor := range phasor_channel.Data {
 			extracted.Tags["unit"] = phasor_channel.Unit
 			extracted.Tags["channel_name"] = phasor_channel.ChannelName
-			extracted.Collection = fmt.Sprintf("xbos/%s/%s/%s/%s", uri.Resource, extracted.Tags["station_name"], extracted.Tags["id_code"], extracted.Tags["channel_name"])
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/%s/%s", uri.Resource, extracted.Tags["station_name"], extracted.Tags["id_code"], extracted.Tags["channel_name"])
 			extracted.Tags["name"] = "magnitude"
 
 			time := phasor.Time

@@ -29,7 +29,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if phasor_target.KVAbase != nil {
 				extracted.Tags["KVAbase"] = fmt.Sprintf("%f", phasor_target.KVAbase.Value)
 			}
-			extracted.Collection = fmt.Sprintf("xbos/%s/%s", uri.Resource, phasor_target.ChannelName)
+			extracted.Collection = fmt.Sprintf("energise/%s/%s", uri.Resource, phasor_target.ChannelName)
 
 			// archive angle
 			extracted.Tags["name"] = "angle"
@@ -67,7 +67,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 		for _, channel_status := range lpbc.Statuses {
 			extracted.Tags["nodeID"] = channel_status.NodeID
 			extracted.Tags["channel_name"] = channel_status.ChannelName
-			extracted.Collection = fmt.Sprintf("xbos/%s/%s", uri.Resource, channel_status.ChannelName)
+			extracted.Collection = fmt.Sprintf("energise/%s/%s", uri.Resource, channel_status.ChannelName)
 
 			// archive phasor_errors
 			// V == magnitude
