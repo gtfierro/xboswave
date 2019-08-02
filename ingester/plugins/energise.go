@@ -21,7 +21,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 		var extracted types.ExtractedTimeseries
 		extracted.Tags = make(map[string]string)
 		for _, phasor_target := range spbc.PhasorTargets {
-			extracted.Tags["nodeID"] = phasor_target.NodeID
+			extracted.Tags["node_id"] = phasor_target.NodeID
 			extracted.Tags["channel_name"] = phasor_target.ChannelName
 			if phasor_target.Kvbase != nil {
 				extracted.Tags["kvbase"] = fmt.Sprintf("%f", phasor_target.Kvbase.Value)
@@ -65,7 +65,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 		var extracted types.ExtractedTimeseries
 		extracted.Tags = make(map[string]string)
 		for _, channel_status := range lpbc.Statuses {
-			extracted.Tags["nodeID"] = channel_status.NodeID
+			extracted.Tags["node_id"] = channel_status.NodeID
 			extracted.Tags["channel_name"] = channel_status.ChannelName
 			extracted.Collection = fmt.Sprintf("energise/%s/%s", uri.Resource, channel_status.ChannelName)
 
