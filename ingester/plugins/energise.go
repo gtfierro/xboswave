@@ -43,6 +43,8 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 				}
 			}
 
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
 			// archive magnitude
 			extracted.Tags["name"] = "magnitude"
 			extracted.Collection = fmt.Sprintf("energise/%s/%s/magnitude", uri.Resource, phasor_target.ChannelName)
