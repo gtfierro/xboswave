@@ -19,8 +19,11 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 		timestamp := spbc.Time
 
 		var extracted types.ExtractedTimeseries
-		extracted.Tags = make(map[string]string)
 		for _, phasor_target := range spbc.PhasorTargets {
+
+			// archive angle
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
 			extracted.Tags["node_id"] = phasor_target.NodeID
 			extracted.Tags["channel_name"] = phasor_target.ChannelName
 			if phasor_target.Kvbase != nil {
@@ -29,8 +32,6 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if phasor_target.KVAbase != nil {
 				extracted.Tags["KVAbase"] = fmt.Sprintf("%f", phasor_target.KVAbase.Value)
 			}
-
-			// archive angle
 			extracted.Tags["name"] = "angle"
 			extracted.Collection = fmt.Sprintf("energise/%s/%s/angle", uri.Resource, phasor_target.ChannelName)
 			extracted.Values = []float64{phasor_target.Angle}
@@ -43,9 +44,17 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 				}
 			}
 
+			// archive magnitude
 			extracted = types.ExtractedTimeseries{}
 			extracted.Tags = make(map[string]string)
-			// archive magnitude
+			extracted.Tags["node_id"] = phasor_target.NodeID
+			extracted.Tags["channel_name"] = phasor_target.ChannelName
+			if phasor_target.Kvbase != nil {
+				extracted.Tags["kvbase"] = fmt.Sprintf("%f", phasor_target.Kvbase.Value)
+			}
+			if phasor_target.KVAbase != nil {
+				extracted.Tags["KVAbase"] = fmt.Sprintf("%f", phasor_target.KVAbase.Value)
+			}
 			extracted.Tags["name"] = "magnitude"
 			extracted.Collection = fmt.Sprintf("energise/%s/%s/magnitude", uri.Resource, phasor_target.ChannelName)
 			extracted.Values = []float64{phasor_target.Magnitude}
@@ -66,13 +75,14 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 		timestamp := lpbc.Time
 
 		var extracted types.ExtractedTimeseries
-		extracted.Tags = make(map[string]string)
 		for _, channel_status := range lpbc.Statuses {
-			extracted.Tags["node_id"] = channel_status.NodeID
-			extracted.Tags["channel_name"] = channel_status.ChannelName
 
 			// archive phasor_errors
 			// V == magnitude
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = channel_status.NodeID
+			extracted.Tags["channel_name"] = channel_status.ChannelName
 			extracted.Tags["name"] = "V"
 			extracted.Collection = fmt.Sprintf("energise/%s/%s/V", uri.Resource, channel_status.ChannelName)
 			extracted.Values = []float64{channel_status.PhasorErrors.Magnitude}
@@ -86,6 +96,10 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			}
 
 			// delta == Angle
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = channel_status.NodeID
+			extracted.Tags["channel_name"] = channel_status.ChannelName
 			extracted.Tags["name"] = "delta"
 			extracted.Collection = fmt.Sprintf("energise/%s/%s/delta", uri.Resource, channel_status.ChannelName)
 			extracted.Values = []float64{channel_status.PhasorErrors.Angle}
@@ -99,6 +113,10 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			}
 
 			// archive p_saturated
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = channel_status.NodeID
+			extracted.Tags["channel_name"] = channel_status.ChannelName
 			extracted.Tags["name"] = "p_saturated"
 			extracted.Collection = fmt.Sprintf("energise/%s/%s/p_saturated", uri.Resource, channel_status.ChannelName)
 			var pSatVal = 0
@@ -116,6 +134,10 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			}
 
 			// archive q_saturated
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = channel_status.NodeID
+			extracted.Tags["channel_name"] = channel_status.ChannelName
 			extracted.Tags["name"] = "q_saturated"
 			extracted.Collection = fmt.Sprintf("energise/%s/%s/q_saturated", uri.Resource, channel_status.ChannelName)
 			var qSatVal = 0
@@ -134,6 +156,10 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 
 			// archive p_max
 			if channel_status.PMax != nil {
+				extracted = types.ExtractedTimeseries{}
+				extracted.Tags = make(map[string]string)
+				extracted.Tags["node_id"] = channel_status.NodeID
+				extracted.Tags["channel_name"] = channel_status.ChannelName
 				extracted.Tags["name"] = "p_max"
 				extracted.Collection = fmt.Sprintf("energise/%s/%s/p_max", uri.Resource, channel_status.ChannelName)
 				extracted.Values = []float64{channel_status.PMax.Value}
@@ -149,6 +175,10 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 
 			// archive q_max
 			if channel_status.QMax != nil {
+				extracted = types.ExtractedTimeseries{}
+				extracted.Tags = make(map[string]string)
+				extracted.Tags["node_id"] = channel_status.NodeID
+				extracted.Tags["channel_name"] = channel_status.ChannelName
 				extracted.Tags["name"] = "q_max"
 				extracted.Collection = fmt.Sprintf("energise/%s/%s/q_max", uri.Resource, channel_status.ChannelName)
 				extracted.Values = []float64{channel_status.QMax.Value}
