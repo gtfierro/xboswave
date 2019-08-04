@@ -83,11 +83,11 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			extracted.Tags = make(map[string]string)
 			extracted.Tags["node_id"] = channel_status.NodeID
 			extracted.Tags["channel_name"] = channel_status.ChannelName
-			extracted.Tags["name"] = "V"
-			extracted.Collection = fmt.Sprintf("energise/%s/%s/V", uri.Resource, channel_status.ChannelName)
+			extracted.Tags["name"] = "magnitude_error"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/magnitude_error", uri.Resource, channel_status.ChannelName)
 			extracted.Values = []float64{channel_status.PhasorErrors.Magnitude}
 			extracted.Times = []int64{timestamp}
-			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"V"))
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"magnitude_error"))
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
@@ -100,11 +100,11 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			extracted.Tags = make(map[string]string)
 			extracted.Tags["node_id"] = channel_status.NodeID
 			extracted.Tags["channel_name"] = channel_status.ChannelName
-			extracted.Tags["name"] = "delta"
-			extracted.Collection = fmt.Sprintf("energise/%s/%s/delta", uri.Resource, channel_status.ChannelName)
+			extracted.Tags["name"] = "angle_error"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/angle_error", uri.Resource, channel_status.ChannelName)
 			extracted.Values = []float64{channel_status.PhasorErrors.Angle}
 			extracted.Times = []int64{timestamp}
-			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"delta"))
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+"angle_error"))
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
