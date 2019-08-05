@@ -7,7 +7,7 @@ import os,sys
 import json
 import time
 
-class HVACDriver(Driver):
+class BACnetDriver(Driver):
     def setup(self, cfg):
         self.pymortar_client = pymortar.Client({
             'username': cfg['mortar_api_username'],
@@ -205,5 +205,5 @@ if __name__ == '__main__':
         'mortar_api_password': os.environ['MORTAR_API_PASSWORD']
     }
 
-    current_driver = HVACDriver(cfg)
+    current_driver = BACnetDriver(cfg)
     current_driver.begin()
