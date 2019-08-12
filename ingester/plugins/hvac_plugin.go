@@ -6,7 +6,7 @@ import xbospb "github.com/gtfierro/xboswave/proto"
 import "fmt"
 
 func has_ahu(msg xbospb.XBOS) bool {
-	return msg.XBOSIoTDeviceState.AHU != nil
+	return msg.XBOSIoTDeviceState.Ahu != nil
 }
 
 func has_economizer(msg xbospb.XBOS) bool {
@@ -14,7 +14,7 @@ func has_economizer(msg xbospb.XBOS) bool {
 }
 
 func has_vav(msg xbospb.XBOS) bool {
-	return msg.XBOSIoTDeviceState.VAV != nil
+	return msg.XBOSIoTDeviceState.Vav != nil
 }
 
 func has_damper(msg xbospb.XBOS) bool {
@@ -28,134 +28,134 @@ func has_fan(msg xbospb.XBOS) bool {
 var ahu_lookup = map[string]func(msg xbospb.XBOS) (float64, bool){
 	//"discharge_air_temperature_setpoint":
 	"discharge_air_temperature_setpoint": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.DischargeAirTemperatureSetpoint != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.DischargeAirTemperatureSetpoint.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.DischargeAirTemperatureSetpoint != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.DischargeAirTemperatureSetpoint.Value), true
 		}
 		return 0, false
 	},
 	"outside_air_temperature_sensor": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.OutsideAirTemperatureSensor != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.OutsideAirTemperatureSensor.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.OutsideAirTemperatureSensor != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.OutsideAirTemperatureSensor.Value), true
 		}
 		return 0, false
 	},
 	"heating_valve_command": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.HeatingValveCommand != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.HeatingValveCommand.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.HeatingValveCommand != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.HeatingValveCommand.Value), true
 		}
 		return 0, false
 	},
 	"discharge_air_static_pressure_sensor": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.DischargeAirStaticPressureSensor != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.DischargeAirStaticPressureSensor.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.DischargeAirStaticPressureSensor != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.DischargeAirStaticPressureSensor.Value), true
 		}
 		return 0, false
 	},
 	"cooling_demand": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.CoolingDemand != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.CoolingDemand.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.CoolingDemand != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.CoolingDemand.Value), true
 		}
 		return 0, false
 	},
 	"cooling_valve_command": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.CoolingValveCommand != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.CoolingValveCommand.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.CoolingValveCommand != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.CoolingValveCommand.Value), true
 		}
 		return 0, false
 	},
 	"mixed_air_temperature_sensor": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.MixedAirTemperatureSensor != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.MixedAirTemperatureSensor.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.MixedAirTemperatureSensor != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.MixedAirTemperatureSensor.Value), true
 		}
 		return 0, false
 	},
 	"building_static_pressure_sensor": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.BuildingStaticPressureSensor != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.BuildingStaticPressureSensor.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.BuildingStaticPressureSensor != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.BuildingStaticPressureSensor.Value), true
 		}
 		return 0, false
 	},
 	"filter_status": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.FilterStatus != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.FilterStatus.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.FilterStatus != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.FilterStatus.Value), true
 		}
 		return 0, false
 	},
 	"discharge_air_temperature_sensor": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.DischargeAirTemperatureSensor != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.DischargeAirTemperatureSensor.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.DischargeAirTemperatureSensor != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.DischargeAirTemperatureSensor.Value), true
 		}
 		return 0, false
 	},
 	"building_static_pressure_setpoint": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.BuildingStaticPressureSetpoint != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.BuildingStaticPressureSetpoint.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.BuildingStaticPressureSetpoint != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.BuildingStaticPressureSetpoint.Value), true
 		}
 		return 0, false
 	},
 	"discharge_air_static_pressure_setpoint": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.DischargeAirStaticPressureSetpoint != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.DischargeAirStaticPressureSetpoint.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.DischargeAirStaticPressureSetpoint != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.DischargeAirStaticPressureSetpoint.Value), true
 		}
 		return 0, false
 	},
 	"occupancy_command": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.OccupancyCommand != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.OccupancyCommand.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.OccupancyCommand != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.OccupancyCommand.Value), true
 		}
 		return 0, false
 	},
 	"return_air_temperature_sensor": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.ReturnAirTemperatureSensor != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.ReturnAirTemperatureSensor.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.ReturnAirTemperatureSensor != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.ReturnAirTemperatureSensor.Value), true
 		}
 		return 0, false
 	},
 	"zone_temperature_sensor": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.ZoneTemperatureSensor != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.ZoneTemperatureSensor.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.ZoneTemperatureSensor != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.ZoneTemperatureSensor.Value), true
 		}
 		return 0, false
 	},
 	"supply_air_damper_min_position_setpoint": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.SupplyAirDamperMinPositionSetpoint != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.SupplyAirDamperMinPositionSetpoint.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.SupplyAirDamperMinPositionSetpoint != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.SupplyAirDamperMinPositionSetpoint.Value), true
 		}
 		return 0, false
 	},
 	"mixed_air_temperature_setpoint": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.MixedAirTemperatureSetpoint != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.MixedAirTemperatureSetpoint.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.MixedAirTemperatureSetpoint != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.MixedAirTemperatureSetpoint.Value), true
 		}
 		return 0, false
 	},
 	"occupied_mode_status": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.OccupiedModeStatus != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.OccupiedModeStatus.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.OccupiedModeStatus != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.OccupiedModeStatus.Value), true
 		}
 		return 0, false
 	},
 	"shutdown_command": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.ShutdownCommand != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.ShutdownCommand.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.ShutdownCommand != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.ShutdownCommand.Value), true
 		}
 		return 0, false
 	},
 	"mixed_air_temperature_low_limit_setpoint": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.MixedAirTemperatureLowLimitSetpoint != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.MixedAirTemperatureLowLimitSetpoint.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.MixedAirTemperatureLowLimitSetpoint != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.MixedAirTemperatureLowLimitSetpoint.Value), true
 		}
 		return 0, false
 	},
 	"zone_temperature_setpoint": func(msg xbospb.XBOS) (float64, bool) {
-		if has_ahu(msg) && msg.XBOSIoTDeviceState.AHU.ZoneTemperatureSetpoint != nil {
-			return float64(msg.XBOSIoTDeviceState.AHU.ZoneTemperatureSetpoint.Value), true
+		if has_ahu(msg) && msg.XBOSIoTDeviceState.Ahu.ZoneTemperatureSetpoint != nil {
+			return float64(msg.XBOSIoTDeviceState.Ahu.ZoneTemperatureSetpoint.Value), true
 		}
 		return 0, false
 	},
 }
 
-var units = map[string]string{
+var ahu_units = map[string]string{
 	"discharge_air_temperature_setpoint":       "unknown",
 	"outside_air_temperature_sensor":           "unknown",
 	"heating_valve_command":                    "unknown",
@@ -206,8 +206,8 @@ func build(uri types.SubscriptionURI, name string, msg xbospb.XBOS) types.Extrac
 
 func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.ExtractedTimeseries) error) error {
 	if msg.XBOSIoTDeviceState != nil {
-		if has_meter(msg) || has_light(msg) || has_tstat(msg) {
-			for name := range lookup {
+		if has_ahu(msg) {
+			for name := range ahu_lookup {
 				extracted := build(uri, name, msg)
 				if extracted.Empty() {
 					continue
