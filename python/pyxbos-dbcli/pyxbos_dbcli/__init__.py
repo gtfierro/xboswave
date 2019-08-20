@@ -26,9 +26,7 @@ def get(key, default=None):
     Retrieve the value of a variable stored in this db.
     Defaults to the provided 'default' value if the key is not found
     """
-    global _pending_vars, _vars
-    if key in _pending_vars:
-        return f'(uncommitted) {_pending_vars[key]}'
+    global _vars
     return _vars.get(key)
 
 def put(key, value):
@@ -59,15 +57,17 @@ async def run(inp):
     cmd, *args = inp.split(' ')
     if cmd == 'get':
         result = await session.prompt('  [key]: ', async_=True, lexer=None)
-        return get(result)
+        if key in _pending_vars:
+            return f'(uncommitted) {_pending_vars[key]}'
+        return _vars.get(key)
     elif cmd == 'set':
         key = await session.prompt('  [key]: ', async_=True, lexer=None)
         value = await session.prompt('  [value]: ', async_=True, lexer=PygmentsLexer(PythonLexer))
         session.lexer = None
         return put(key, value)
     elif cmd == 'list':
-        keys = set(_pending_vars.keys())
-        keys.union(set(_vars.keys()))
+        keys = set(list(_pending_vars.keys()))
+        keys = keys.union(set(list(_vars.keys())))
         return '\n'.join(keys)
     elif cmd == 'pending':
         res = []
