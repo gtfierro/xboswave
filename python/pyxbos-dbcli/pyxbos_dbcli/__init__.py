@@ -56,9 +56,9 @@ async def run(inp):
     global _pending_vars, _vars
     cmd, *args = inp.split(' ')
     if cmd == 'get':
-        result = await session.prompt('  [key]: ', async_=True, lexer=None)
+        key = await session.prompt('  [key]: ', async_=True, lexer=None)
         if key in _pending_vars:
-            return f'(uncommitted) {_pending_vars[key]}'
+            print(f'(uncommitted) {_pending_vars[key]}')
         return _vars.get(key)
     elif cmd == 'set':
         key = await session.prompt('  [key]: ', async_=True, lexer=None)
