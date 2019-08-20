@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
@@ -30,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	conn, err := grpc.Dial("localhost:4516", grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:4716", grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,47 +44,52 @@ func main() {
 	}
 
 	// Create the WAVEMQ client
-	client := mqpb.NewWAVEMQClient(conn)
-	perspective := &mqpb.Perspective{
-		EntitySecret: &mqpb.EntitySecret{
-			DER: entity,
-		},
-	}
-
-	sub, err := client.Subscribe(context.Background(), &mqpb.SubscribeParams{
-		Perspective: perspective,
-		Namespace:   namespace,
-		Uri:         os.Args[3],
-		Identifier:  uuid.NewRandom().String(),
-		Expiry:      10,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
 	for {
-		m, err := sub.Recv()
-		if err != nil && err != io.EOF {
+		client := mqpb.NewWAVEMQClient(conn)
+		perspective := &mqpb.Perspective{
+			EntitySecret: &mqpb.EntitySecret{
+				DER: entity,
+			},
+		}
+
+		sub, err := client.Subscribe(context.Background(), &mqpb.SubscribeParams{
+			Perspective: perspective,
+			Namespace:   namespace,
+			Uri:         os.Args[3],
+			Identifier:  uuid.NewRandom().String(),
+			Expiry:      10,
+		})
+		if err != nil {
 			log.Println(err)
+			time.Sleep(10 * time.Second)
+			log.Println("reconnecting...")
 			continue
 		}
-		if m.Error != nil {
-			log.Println(m.Error)
-			continue
-		}
-		for _, po := range m.Message.Tbs.Payload {
-			var msg xbospb.XBOS
-			err := proto.Unmarshal(po.Content, &msg)
-			if err != nil {
+		for {
+			m, err := sub.Recv()
+			if err != nil && err != io.EOF {
 				log.Println(err)
-				continue
+				break
 			}
-			s, err := marshaler.MarshalToString(&msg)
-			if err != nil {
-				log.Println(err)
-				continue
+			if m.Error != nil {
+				log.Println(m.Error)
+				break
 			}
-			log.Println(base64.URLEncoding.EncodeToString(m.Message.Tbs.Namespace), m.Message.Tbs.Uri)
-			log.Println(s)
+			for _, po := range m.Message.Tbs.Payload {
+				var msg xbospb.XBOS
+				err := proto.Unmarshal(po.Content, &msg)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				s, err := marshaler.MarshalToString(&msg)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				log.Println(base64.URLEncoding.EncodeToString(m.Message.Tbs.Namespace), m.Message.Tbs.Uri)
+				log.Println(s)
+			}
 		}
 	}
 }

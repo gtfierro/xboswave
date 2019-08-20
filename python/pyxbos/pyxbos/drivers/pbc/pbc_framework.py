@@ -145,8 +145,8 @@ class SPBCProcess(XBOSProcess):
 
         targets = []
         for idx, channel in enumerate(channels):
-            kvbase = Double(value=kvbases[idx]) if kvbases else None
-            kvabase = Double(value=kvabases[idx]) if kvabases else None
+            kvbase = Double(value=kvbases[idx]) if kvbases is not None else None
+            kvabase = Double(value=kvabases[idx]) if kvabases is not None else None
             targets.append(
                 EnergisePhasorTarget(
                     nodeID=nodeid,
