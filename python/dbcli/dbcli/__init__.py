@@ -21,20 +21,50 @@ completer = WordCompleter(["get","set","list","pending","commit"])
 _pending_vars = {}
 _vars = {}
 
+def get(key, default=None):
+    """
+    Retrieve the value of a variable stored in this db.
+    Defaults to the provided 'default' value if the key is not found
+    """
+    global _pending_vars, _vars
+    if key in _pending_vars:
+        return f'(uncommitted) {_pending_vars[key]}'
+    return _vars.get(key)
+
+def put(key, value):
+    """
+    Set the value of 'key' to the result of evaluating the Python expression in
+    'value'.
+    """
+    global _pending_vars, _vars
+    _pending_vars[key] = eval(value)
+    return _pending_vars[key]
+
+def commit():
+    global _pending_vars, _vars
+    committed = []
+    _newvars = _vars.copy()
+    for k,v in _pending_vars.items():
+        print(f'{k} = {v}')
+        _newvars[k] = v
+        committed.append(k)
+    for k in committed:
+        _pending_vars.pop(k)
+    _pending_vars = {}
+    _vars = _newvars
+    return f'committed: {len(committed)}'
+
 async def run(inp):
     global _pending_vars, _vars
     cmd, *args = inp.split(' ')
     if cmd == 'get':
         result = await session.prompt('  [key]: ', async_=True, lexer=None)
-        if result in _pending_vars:
-            return f'(uncommitted) {_pending_vars[result]}'
-        return _vars.get(result)
+        return get(result)
     elif cmd == 'set':
         key = await session.prompt('  [key]: ', async_=True, lexer=None)
         value = await session.prompt('  [value]: ', async_=True, lexer=PygmentsLexer(PythonLexer))
         session.lexer = None
-        _pending_vars[key] = eval(value)
-        return _pending_vars[key]
+        return put(key, value)
     elif cmd == 'list':
         return '\n'.join(_pending_vars.keys())
     elif cmd == 'pending':
@@ -43,17 +73,7 @@ async def run(inp):
             res.append(f"{k} => {v} (type: {type(v)})")
         return '\n'.join(res)
     elif cmd == 'commit':
-        committed = []
-        _newvars = _vars.copy()
-        for k,v in _pending_vars.items():
-            print(f'{k} = {v}')
-            _newvars[k] = eval(f'{v}')
-            committed.append(k)
-        for k in committed:
-            _pending_vars.pop(k)
-        _pending_vars = {}
-        _vars = _newvars
-        return f'committed: {len(committed)}'
+        return commit()
     elif  cmd == 'help':
         return """
 Commands:
@@ -92,14 +112,10 @@ def prompt():
     """
     asyncio.ensure_future(prompt_coroutine())
 
-def get(key, default=None):
-    """
-    Retrieve the value of a variable stored in this db.
-    Defaults to the provided 'default' value if the key is not found
-    """
-    return _vars.get(key, default)
-
 if __name__ == '__main__':
+    put('a', "123")
+    put('b', '"hello"')
+    commit()
     asyncio.ensure_future(prompt_coroutine())
     loop = asyncio.get_event_loop()
     loop.run_forever()
