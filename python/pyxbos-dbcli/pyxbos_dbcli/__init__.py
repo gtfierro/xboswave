@@ -66,7 +66,9 @@ async def run(inp):
         session.lexer = None
         return put(key, value)
     elif cmd == 'list':
-        return '\n'.join(_pending_vars.keys())
+        keys = set(_pending_vars.keys())
+        keys.union(set(_vars.keys()))
+        return '\n'.join(keys)
     elif cmd == 'pending':
         res = []
         for k,v in _pending_vars.items():
