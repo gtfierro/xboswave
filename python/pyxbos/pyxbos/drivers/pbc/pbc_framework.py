@@ -7,6 +7,7 @@ from datetime import datetime
 from functools import partial
 from collections import deque
 import asyncio
+import traceback
 
 class ConfigMissingError(Exception): pass
 
@@ -288,8 +289,8 @@ class LPBCProcess(XBOSProcess):
                     self.reference_phasor_data[reference_channel] = []
 
             await self.do_trigger(local_phasors, reference_phasors, phasor_targets)
-        except IndexError:
-            return # no upmu readings
+        except Exception as e:
+            self._log.error(f"Error in processing trigger: {traceback.format_exc()}")
 
     async def do_trigger(self, local_phasors, reference_phasors, phasor_targets):
         self._log.info(f"""LPBC {self.name} received call at {datetime.now()}:
