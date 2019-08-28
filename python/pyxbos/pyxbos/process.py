@@ -3,6 +3,7 @@ Simple wrapper for a control process
 """
 
 import asyncio
+import traceback
 import xxhash
 import toml
 from datetime import datetime
@@ -109,7 +110,10 @@ class XBOSProcess:
                 expiry=self._subscription_expiry,
             )
             ):
-            callback(msg)
+            try:
+                callback(msg)
+            except:
+                self._log.error(f"Error in processing callback: {traceback.format_exc()}")
 
     async def subscribe_extract(self, namespace, resource, path, callback, name=None):
         """
@@ -164,10 +168,16 @@ class XBOSProcess:
         the function once before starting the timer
         """
         if runfirst:
-            await cb(*args)
+            try:
+                await cb(*args)
+            except:
+                self._log.error(f"Error in processing callback: {traceback.format_exc()}")
         while True:
             await asyncio.sleep(seconds)
-            await cb(*args)
+            try:
+                await cb(*args)
+            except:
+                self._log.error(f"Error in processing callback: {traceback.format_exc()}")
 
 class Response():
     def __init__(self, ns, uri, ts, values):
@@ -199,7 +209,13 @@ def schedule(f):
     """
     Runs task asynchronously (subscribe, publish)
     """
-    asyncio.ensure_future(f)
+    fut = asyncio.ensure_future(f)
+    def handle_exception(f=None):
+        print('handle arg:', f)
+        exc = fun.exception()
+        if exc is not None:
+            self._log.error(exc)
+    fut.add_done_callback(handle_exception)
 
 def run_loop():
     """
