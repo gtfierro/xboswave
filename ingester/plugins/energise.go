@@ -203,5 +203,141 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 
 	}
 
+	// archive LPBC Status
+	if msg.EnergiseMessage.ActuatorCommand != nil {
+		var extracted types.ExtractedTimeseries
+		_msg := msg.EnergiseMessage.ActuatorCommand
+		timestamp := _msg.Time
+		for idx, phase := range _msg.Phases {
+
+			// pcmd
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = _msg.NodeID
+			extracted.Tags["channel_name"] = phase
+			extracted.Tags["name"] = "p_cmd"
+			extracted.Tags["unit"] = "kVA"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Values = []float64{_msg.PCmd[idx]}
+			extracted.Times = []int64{timestamp}
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
+			if !extracted.Empty() {
+				if err := add(extracted); err != nil {
+					fmt.Println(err)
+					return err
+				}
+			}
+
+			// qcmd
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = _msg.NodeID
+			extracted.Tags["channel_name"] = phase
+			extracted.Tags["name"] = "q_cmd"
+			extracted.Tags["unit"] = "kVA"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Values = []float64{_msg.QCmd[idx]}
+			extracted.Times = []int64{timestamp}
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
+			if !extracted.Empty() {
+				if err := add(extracted); err != nil {
+					fmt.Println(err)
+					return err
+				}
+			}
+
+			// pact
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = _msg.NodeID
+			extracted.Tags["channel_name"] = phase
+			extracted.Tags["name"] = "p_act"
+			extracted.Tags["unit"] = "kVA"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Values = []float64{_msg.PAct[idx]}
+			extracted.Times = []int64{timestamp}
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
+			if !extracted.Empty() {
+				if err := add(extracted); err != nil {
+					fmt.Println(err)
+					return err
+				}
+			}
+
+			// qact
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = _msg.NodeID
+			extracted.Tags["channel_name"] = phase
+			extracted.Tags["name"] = "q_act"
+			extracted.Tags["unit"] = "kVA"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Values = []float64{_msg.QAct[idx]}
+			extracted.Times = []int64{timestamp}
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
+			if !extracted.Empty() {
+				if err := add(extracted); err != nil {
+					fmt.Println(err)
+					return err
+				}
+			}
+
+			// P_pv
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = _msg.NodeID
+			extracted.Tags["channel_name"] = phase
+			extracted.Tags["name"] = "p_pv"
+			extracted.Tags["unit"] = "kW"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Values = []float64{_msg.P_PV[idx]}
+			extracted.Times = []int64{timestamp}
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
+			if !extracted.Empty() {
+				if err := add(extracted); err != nil {
+					fmt.Println(err)
+					return err
+				}
+			}
+
+			// BattCmd
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = _msg.NodeID
+			extracted.Tags["channel_name"] = phase
+			extracted.Tags["name"] = "batt_cmd"
+			extracted.Tags["unit"] = "W"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Values = []float64{_msg.BattCmd[idx]}
+			extracted.Times = []int64{timestamp}
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
+			if !extracted.Empty() {
+				if err := add(extracted); err != nil {
+					fmt.Println(err)
+					return err
+				}
+			}
+
+			// pfctrl
+			extracted = types.ExtractedTimeseries{}
+			extracted.Tags = make(map[string]string)
+			extracted.Tags["node_id"] = _msg.NodeID
+			extracted.Tags["channel_name"] = phase
+			extracted.Tags["name"] = "pf_ctrl"
+			extracted.Tags["unit"] = "pf"
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Values = []float64{_msg.PfCtrl[idx]}
+			extracted.Times = []int64{timestamp}
+			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
+			if !extracted.Empty() {
+				if err := add(extracted); err != nil {
+					fmt.Println(err)
+					return err
+				}
+			}
+
+		}
+	}
+
 	return nil
 }
