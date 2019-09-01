@@ -209,13 +209,12 @@ def schedule(f):
     """
     Runs task asynchronously (subscribe, publish)
     """
-    fut = asyncio.ensure_future(f)
+    fun = asyncio.ensure_future(f)
     def handle_exception(f=None):
-        print('handle arg:', f)
         exc = fun.exception()
         if exc is not None:
             self._log.error(exc)
-    fut.add_done_callback(handle_exception)
+    fun.add_done_callback(handle_exception)
 
 def run_loop():
     """

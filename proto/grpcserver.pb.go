@@ -11,8 +11,6 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	any "github.com/golang/protobuf/ptypes/any"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -598,17 +596,6 @@ func (x *testTestStreamClient) Recv() (*TestResponse, error) {
 type TestServer interface {
 	TestUnary(context.Context, *TestParams) (*TestResponse, error)
 	TestStream(*TestParams, Test_TestStreamServer) error
-}
-
-// UnimplementedTestServer can be embedded to have forward compatible implementations.
-type UnimplementedTestServer struct {
-}
-
-func (*UnimplementedTestServer) TestUnary(ctx context.Context, req *TestParams) (*TestResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TestUnary not implemented")
-}
-func (*UnimplementedTestServer) TestStream(req *TestParams, srv Test_TestStreamServer) error {
-	return status.Errorf(codes.Unimplemented, "method TestStream not implemented")
 }
 
 func RegisterTestServer(s *grpc.Server, srv TestServer) {
