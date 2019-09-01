@@ -1,7 +1,7 @@
 from pyxbos.process import XBOSProcess, b64decode, b64encode, schedule, run_loop
 from pyxbos.xbos_pb2 import XBOS
 from pyxbos.nullabletypes_pb2 import Double
-from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, EnergiseError, EnergisePhasorTarget, ChannelStatus
+from pyxbos.energise_pb2 import EnergiseMessage, LPBCStatus, LPBCCommand, SPBC, EnergiseError, EnergisePhasorTarget, ChannelStatus, ActuatorCommand
 from pyxbos.c37_pb2 import Phasor, PhasorChannel
 from datetime import datetime
 from functools import partial
@@ -16,7 +16,7 @@ class SPBCProcess(XBOSProcess):
     Wrapper process for supervisory phasor-based control in Python.
 
     An SPBC subscribes to a set of LPBCs and receives status mesages from them.
-    These status messages consist of an error quantity and saturation state. 
+    These status messages consist of an error quantity and saturation state.
     In the current implementation, the SPBC subscribes to all LPBCs that it has
     permission to see.
 
@@ -153,7 +153,7 @@ class SPBCProcess(XBOSProcess):
                     nodeID=nodeid,
                     channelName=channels[idx],
                     angle=vangs[idx],
-                    magnitude=vmags[idx], 
+                    magnitude=vmags[idx],
                     kvbase=kvbase,
                     KVAbase=kvabase,
                 )
@@ -219,7 +219,7 @@ class LPBCProcess(XBOSProcess):
         # TODO: listen to SPBC
         print(f"spbc/{self.spbc}/node/{self.name}")
         schedule(self.subscribe_extract(self.namespace, f"spbc/{self.spbc}/node/{self.name}", ".EnergiseMessage.SPBC", self._spbccb, "spbc_sub"))
-	
+
         schedule(self.call_periodic(self._rate, self._trigger, runfirst=False))
 
         self._log.info(f"initialized LPBC: {cfg}")
@@ -332,3 +332,49 @@ class LPBCProcess(XBOSProcess):
                     )
                 ))
         await self.publish(self.namespace, f"lpbc/{self.name}", msg)
+
+    def log_actuation(self, actuation):
+        """
+        Publish an EnergiseMessage.ActuatorCommand message containing the parameters that were
+        sent to and received from the inverters, etc.
+        The 'actuation' argument has the following structure, and is expected to be a dictionary:
+
+            {
+                "phases": ["a","b","c"],
+                "P_cmd": [10.1, 20.2, 30.3],
+                "Q_cmd": [10.9, 20.9, 30.9],
+                "P_act": [.1, .2, .3],
+                "Q_act": [.1, .2, .3],
+                "P_PV": [11.1,22.2,33.3],
+                "Batt_cmd": [99.1, 99.2, 99.3],
+                "pf_ctrl": [8.7,6.5,5.4]
+            }
+
+        All of the values are lists of floats and should have the same length as the 'phases' key.
+        """
+        components = ['phases','P_cmd','Q_cmd','P_act','Q_act','P_PV','Batt_cmd','pf_ctrl']
+        for required in components:
+            if required not in actuation:
+                raise Exception(f"Need {required} key in dictionary")
+        num_components = len(actuation['phases'])
+        for component in components:
+            if len(actuation[component]) != num_components:
+                raise Exception(f"Field {component} needs to be of length {num_components} to match number of phases")
+
+        msg = XBOS(
+            EnergiseMessage=EnergiseMessage(
+                ActuatorCommand=ActuatorCommand(
+                    time=int(datetime.utcnow().timestamp()*1e9),
+                    nodeID=self.name,
+                    phases=actuation["phases"],
+                    P_cmd=actuation["P_cmd"],
+                    Q_cmd=actuation["Q_cmd"],
+                    P_act=actuation["P_act"],
+                    Q_act=actuation["Q_act"],
+                    P_PV=actuation["P_PV"],
+                    Batt_cmd=actuation["Batt_cmd"],
+                    pf_ctrl=actuation["pf_ctrl"],
+                )
+            )
+        )
+        schedule(self.publish(self.namespace, f"lpbc/{self.name}/actuation", msg))
