@@ -217,7 +217,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			extracted.Tags["channel_name"] = phase
 			extracted.Tags["name"] = "p_cmd"
 			extracted.Tags["unit"] = "kVA"
-			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/%s", uri.Resource, phase, extracted.Tags["name"])
 			extracted.Values = []float64{_msg.PCmd[idx]}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
@@ -235,7 +235,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			extracted.Tags["channel_name"] = phase
 			extracted.Tags["name"] = "q_cmd"
 			extracted.Tags["unit"] = "kVA"
-			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/%s", uri.Resource, phase, extracted.Tags["name"])
 			extracted.Values = []float64{_msg.QCmd[idx]}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
@@ -253,7 +253,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			extracted.Tags["channel_name"] = phase
 			extracted.Tags["name"] = "p_act"
 			extracted.Tags["unit"] = "kVA"
-			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/%s", uri.Resource, phase, extracted.Tags["name"])
 			extracted.Values = []float64{_msg.PAct[idx]}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
@@ -271,7 +271,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			extracted.Tags["channel_name"] = phase
 			extracted.Tags["name"] = "q_act"
 			extracted.Tags["unit"] = "kVA"
-			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/%s", uri.Resource, phase, extracted.Tags["name"])
 			extracted.Values = []float64{_msg.QAct[idx]}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
@@ -289,7 +289,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			extracted.Tags["channel_name"] = phase
 			extracted.Tags["name"] = "p_pv"
 			extracted.Tags["unit"] = "kW"
-			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/%s", uri.Resource, phase, extracted.Tags["name"])
 			extracted.Values = []float64{_msg.P_PV[idx]}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
@@ -307,7 +307,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			extracted.Tags["channel_name"] = phase
 			extracted.Tags["name"] = "batt_cmd"
 			extracted.Tags["unit"] = "W"
-			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/%s", uri.Resource, phase, extracted.Tags["name"])
 			extracted.Values = []float64{_msg.BattCmd[idx]}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
@@ -325,7 +325,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			extracted.Tags["channel_name"] = phase
 			extracted.Tags["name"] = "pf_ctrl"
 			extracted.Tags["unit"] = "pf"
-			extracted.Collection = fmt.Sprintf("energise/%s/%s/actuation/%s", uri.Resource, phase, extracted.Tags["name"])
+			extracted.Collection = fmt.Sprintf("energise/%s/%s/%s", uri.Resource, phase, extracted.Tags["name"])
 			extracted.Values = []float64{_msg.PfCtrl[idx]}
 			extracted.Times = []int64{timestamp}
 			extracted.UUID = types.GenerateUUID(uri, []byte(extracted.Collection+extracted.Tags["name"]))
