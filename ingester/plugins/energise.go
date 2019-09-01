@@ -30,7 +30,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 				extracted.Tags["kvbase"] = fmt.Sprintf("%f", phasor_target.Kvbase.Value)
 			}
 			if phasor_target.KVAbase != nil {
-				extracted.Tags["KVAbase"] = fmt.Sprintf("%f", phasor_target.KVAbase.Value)
+				extracted.Tags["kvabase"] = fmt.Sprintf("%f", phasor_target.KVAbase.Value)
 			}
 			extracted.Tags["name"] = "angle"
 			extracted.Tags["unit"] = "degrees"
@@ -41,7 +41,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -54,7 +54,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 				extracted.Tags["kvbase"] = fmt.Sprintf("%f", phasor_target.Kvbase.Value)
 			}
 			if phasor_target.KVAbase != nil {
-				extracted.Tags["KVAbase"] = fmt.Sprintf("%f", phasor_target.KVAbase.Value)
+				extracted.Tags["kvabase"] = fmt.Sprintf("%f", phasor_target.KVAbase.Value)
 			}
 			extracted.Tags["name"] = "magnitude"
 			extracted.Tags["unit"] = "per unit"
@@ -65,7 +65,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 		}
@@ -94,7 +94,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -112,7 +112,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -134,7 +134,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -156,7 +156,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -175,7 +175,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 				if !extracted.Empty() {
 					if err := add(extracted); err != nil {
 						fmt.Println(err)
-						return err
+						//return err
 					}
 				}
 			}
@@ -195,7 +195,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 				if !extracted.Empty() {
 					if err := add(extracted); err != nil {
 						fmt.Println(err)
-						return err
+						//return err
 					}
 				}
 			}
@@ -224,7 +224,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -242,7 +242,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -260,7 +260,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -278,7 +278,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -296,7 +296,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -314,7 +314,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
@@ -332,7 +332,7 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 			if !extracted.Empty() {
 				if err := add(extracted); err != nil {
 					fmt.Println(err)
-					return err
+					//return err
 				}
 			}
 
