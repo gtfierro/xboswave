@@ -43,6 +43,60 @@ var lookup = map[string]func(msg xbospb.XBOS) (float64, bool){
 		}
 		return 0, false
 	},
+	"demand": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.Demand != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.Demand.Value), true
+		}
+		return 0, false
+	},
+	"reactive_power": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.ReactivePower != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.ReactivePower.Value), true
+		}
+		return 0, false
+	},
+	"current": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.Current != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.Current.Value), true
+		}
+		return 0, false
+	},
+	"water_total": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.WaterTotal != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.WaterTotal.Value), true
+		}
+		return 0, false
+	},
+	"water_rate": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.WaterRate != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.WaterRate.Value), true
+		}
+		return 0, false
+	},
+	"water_instantaneous": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.WaterInstantaneous != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.WaterInstantaneous.Value), true
+		}
+		return 0, false
+	},
+	"condense_total": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.CondenseTotal != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.CondenseTotal.Value), true
+		}
+		return 0, false
+	},
+	"condense_rate": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.CondenseRate != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.CondenseRate.Value), true
+		}
+		return 0, false
+	},
+	"condense_instantaneous": func(msg xbospb.XBOS) (float64, bool) {
+		if has_meter(msg) && msg.XBOSIoTDeviceState.Meter.CondenseInstantaneous != nil {
+			return float64(msg.XBOSIoTDeviceState.Meter.CondenseInstantaneous.Value), true
+		}
+		return 0, false
+	},
 
 	// XBOSIoTDeviceState.Light
 	"brightness": func(msg xbospb.XBOS) (float64, bool) {
