@@ -9,6 +9,7 @@ message EnergiseMessage {
     SPBC SPBC = 1;
     LPBCStatus LPBCStatus = 2;
     LPBCCommand LPBCCommand = 3;
+    ActuatorCommand ActuatorCommand = 4;
 }
 
 message EnergiseError {
@@ -23,6 +24,7 @@ message EnergisePhasorTarget {
     double angle = 3;
     double magnitude = 4;
     Double kvbase = 5;
+    Double KVAbase = 6;
 }
 
 // SPBC sends a target (V mag + angle delta). This requires knowledge of the reference phasor
@@ -85,4 +87,24 @@ message LPBCCommand {
     Phasor phasor_target = 2;
     // set whether or not the LPBC is performing control
     bool do_control = 3;
+}
+
+message ActuatorCommand {
+    int64 time = 8;
+    string nodeID = 9;
+    repeated string phases = 10;
+
+    // unit: kVA
+    repeated double P_cmd = 1;
+    // unit: kVA
+    repeated double Q_cmd = 2;
+    // unit: kVA
+    repeated double P_act = 3;
+    // unit: kVA
+    repeated double Q_act = 4;
+    // unit: kW
+    repeated double P_PV = 5;
+    // unit: W
+    repeated double Batt_cmd = 6;
+    repeated double pf_ctrl = 7;
 }

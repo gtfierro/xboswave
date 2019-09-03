@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='xbospb',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0e\x65nergise.proto\x12\x06xbospb\x1a\tc37.proto\x1a\x13nullabletypes.proto\"\x7f\n\x0f\x45nergiseMessage\x12\x1a\n\x04SPBC\x18\x01 \x01(\x0b\x32\x0c.xbospb.SPBC\x12&\n\nLPBCStatus\x18\x02 \x01(\x0b\x32\x12.xbospb.LPBCStatus\x12(\n\x0bLPBCCommand\x18\x03 \x01(\x0b\x32\x13.xbospb.LPBCCommand\"\x1c\n\rEnergiseError\x12\x0b\n\x03msg\x18\x01 \x01(\t\"}\n\x14\x45nergisePhasorTarget\x12\x0e\n\x06nodeID\x18\x01 \x01(\t\x12\x13\n\x0b\x63hannelName\x18\x02 \x01(\t\x12\r\n\x05\x61ngle\x18\x03 \x01(\x01\x12\x11\n\tmagnitude\x18\x04 \x01(\x01\x12\x1e\n\x06kvbase\x18\x05 \x01(\x0b\x32\x0e.xbospb.Double\"p\n\x04SPBC\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12\x34\n\x0ephasor_targets\x18\x02 \x03(\x0b\x32\x1c.xbospb.EnergisePhasorTarget\x12$\n\x05\x65rror\x18\x03 \x01(\x0b\x32\x15.xbospb.EnergiseError\"i\n\nLPBCStatus\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12$\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x15.xbospb.EnergiseError\x12\'\n\x08statuses\x18\x03 \x03(\x0b\x32\x15.xbospb.ChannelStatus\"\xd7\x01\n\rChannelStatus\x12\x0e\n\x06nodeID\x18\x01 \x01(\t\x12\x13\n\x0b\x63hannelName\x18\x02 \x01(\t\x12%\n\rphasor_errors\x18\x03 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x13\n\x0bp_saturated\x18\x04 \x01(\x08\x12\x13\n\x0bq_saturated\x18\x05 \x01(\x08\x12\x12\n\ndo_control\x18\x06 \x01(\x08\x12\x1d\n\x05p_max\x18\x07 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1d\n\x05q_max\x18\x08 \x01(\x0b\x32\x0e.xbospb.Double\"V\n\x0bLPBCCommand\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12%\n\rphasor_target\x18\x02 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x12\n\ndo_control\x18\x03 \x01(\x08\x62\x06proto3')
+  serialized_pb=_b('\n\x0e\x65nergise.proto\x12\x06xbospb\x1a\tc37.proto\x1a\x13nullabletypes.proto\"\xb1\x01\n\x0f\x45nergiseMessage\x12\x1a\n\x04SPBC\x18\x01 \x01(\x0b\x32\x0c.xbospb.SPBC\x12&\n\nLPBCStatus\x18\x02 \x01(\x0b\x32\x12.xbospb.LPBCStatus\x12(\n\x0bLPBCCommand\x18\x03 \x01(\x0b\x32\x13.xbospb.LPBCCommand\x12\x30\n\x0f\x41\x63tuatorCommand\x18\x04 \x01(\x0b\x32\x17.xbospb.ActuatorCommand\"\x1c\n\rEnergiseError\x12\x0b\n\x03msg\x18\x01 \x01(\t\"\x9e\x01\n\x14\x45nergisePhasorTarget\x12\x0e\n\x06nodeID\x18\x01 \x01(\t\x12\x13\n\x0b\x63hannelName\x18\x02 \x01(\t\x12\r\n\x05\x61ngle\x18\x03 \x01(\x01\x12\x11\n\tmagnitude\x18\x04 \x01(\x01\x12\x1e\n\x06kvbase\x18\x05 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07KVAbase\x18\x06 \x01(\x0b\x32\x0e.xbospb.Double\"p\n\x04SPBC\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12\x34\n\x0ephasor_targets\x18\x02 \x03(\x0b\x32\x1c.xbospb.EnergisePhasorTarget\x12$\n\x05\x65rror\x18\x03 \x01(\x0b\x32\x15.xbospb.EnergiseError\"i\n\nLPBCStatus\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12$\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x15.xbospb.EnergiseError\x12\'\n\x08statuses\x18\x03 \x03(\x0b\x32\x15.xbospb.ChannelStatus\"\xd7\x01\n\rChannelStatus\x12\x0e\n\x06nodeID\x18\x01 \x01(\t\x12\x13\n\x0b\x63hannelName\x18\x02 \x01(\t\x12%\n\rphasor_errors\x18\x03 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x13\n\x0bp_saturated\x18\x04 \x01(\x08\x12\x13\n\x0bq_saturated\x18\x05 \x01(\x08\x12\x12\n\ndo_control\x18\x06 \x01(\x08\x12\x1d\n\x05p_max\x18\x07 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1d\n\x05q_max\x18\x08 \x01(\x0b\x32\x0e.xbospb.Double\"V\n\x0bLPBCCommand\x12\x0c\n\x04time\x18\x01 \x01(\x03\x12%\n\rphasor_target\x18\x02 \x01(\x0b\x32\x0e.xbospb.Phasor\x12\x12\n\ndo_control\x18\x03 \x01(\x08\"\xac\x01\n\x0f\x41\x63tuatorCommand\x12\x0c\n\x04time\x18\x08 \x01(\x03\x12\x0e\n\x06nodeID\x18\t \x01(\t\x12\x0e\n\x06phases\x18\n \x03(\t\x12\r\n\x05P_cmd\x18\x01 \x03(\x01\x12\r\n\x05Q_cmd\x18\x02 \x03(\x01\x12\r\n\x05P_act\x18\x03 \x03(\x01\x12\r\n\x05Q_act\x18\x04 \x03(\x01\x12\x0c\n\x04P_PV\x18\x05 \x03(\x01\x12\x10\n\x08\x42\x61tt_cmd\x18\x06 \x03(\x01\x12\x0f\n\x07pf_ctrl\x18\x07 \x03(\x01\x62\x06proto3')
   ,
   dependencies=[c37__pb2.DESCRIPTOR,nullabletypes__pb2.DESCRIPTOR,])
 
@@ -56,6 +56,13 @@ _ENERGISEMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ActuatorCommand', full_name='xbospb.EnergiseMessage.ActuatorCommand', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -68,8 +75,8 @@ _ENERGISEMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=58,
-  serialized_end=185,
+  serialized_start=59,
+  serialized_end=236,
 )
 
 
@@ -99,8 +106,8 @@ _ENERGISEERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=187,
-  serialized_end=215,
+  serialized_start=238,
+  serialized_end=266,
 )
 
 
@@ -146,6 +153,13 @@ _ENERGISEPHASORTARGET = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='KVAbase', full_name='xbospb.EnergisePhasorTarget.KVAbase', index=5,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -158,8 +172,8 @@ _ENERGISEPHASORTARGET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=217,
-  serialized_end=342,
+  serialized_start=269,
+  serialized_end=427,
 )
 
 
@@ -203,8 +217,8 @@ _SPBC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=344,
-  serialized_end=456,
+  serialized_start=429,
+  serialized_end=541,
 )
 
 
@@ -248,8 +262,8 @@ _LPBCSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=458,
-  serialized_end=563,
+  serialized_start=543,
+  serialized_end=648,
 )
 
 
@@ -328,8 +342,8 @@ _CHANNELSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=566,
-  serialized_end=781,
+  serialized_start=651,
+  serialized_end=866,
 )
 
 
@@ -373,14 +387,110 @@ _LPBCCOMMAND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=783,
-  serialized_end=869,
+  serialized_start=868,
+  serialized_end=954,
+)
+
+
+_ACTUATORCOMMAND = _descriptor.Descriptor(
+  name='ActuatorCommand',
+  full_name='xbospb.ActuatorCommand',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='time', full_name='xbospb.ActuatorCommand.time', index=0,
+      number=8, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='nodeID', full_name='xbospb.ActuatorCommand.nodeID', index=1,
+      number=9, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='phases', full_name='xbospb.ActuatorCommand.phases', index=2,
+      number=10, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='P_cmd', full_name='xbospb.ActuatorCommand.P_cmd', index=3,
+      number=1, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='Q_cmd', full_name='xbospb.ActuatorCommand.Q_cmd', index=4,
+      number=2, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='P_act', full_name='xbospb.ActuatorCommand.P_act', index=5,
+      number=3, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='Q_act', full_name='xbospb.ActuatorCommand.Q_act', index=6,
+      number=4, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='P_PV', full_name='xbospb.ActuatorCommand.P_PV', index=7,
+      number=5, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='Batt_cmd', full_name='xbospb.ActuatorCommand.Batt_cmd', index=8,
+      number=6, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='pf_ctrl', full_name='xbospb.ActuatorCommand.pf_ctrl', index=9,
+      number=7, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=957,
+  serialized_end=1129,
 )
 
 _ENERGISEMESSAGE.fields_by_name['SPBC'].message_type = _SPBC
 _ENERGISEMESSAGE.fields_by_name['LPBCStatus'].message_type = _LPBCSTATUS
 _ENERGISEMESSAGE.fields_by_name['LPBCCommand'].message_type = _LPBCCOMMAND
+_ENERGISEMESSAGE.fields_by_name['ActuatorCommand'].message_type = _ACTUATORCOMMAND
 _ENERGISEPHASORTARGET.fields_by_name['kvbase'].message_type = nullabletypes__pb2._DOUBLE
+_ENERGISEPHASORTARGET.fields_by_name['KVAbase'].message_type = nullabletypes__pb2._DOUBLE
 _SPBC.fields_by_name['phasor_targets'].message_type = _ENERGISEPHASORTARGET
 _SPBC.fields_by_name['error'].message_type = _ENERGISEERROR
 _LPBCSTATUS.fields_by_name['error'].message_type = _ENERGISEERROR
@@ -396,6 +506,7 @@ DESCRIPTOR.message_types_by_name['SPBC'] = _SPBC
 DESCRIPTOR.message_types_by_name['LPBCStatus'] = _LPBCSTATUS
 DESCRIPTOR.message_types_by_name['ChannelStatus'] = _CHANNELSTATUS
 DESCRIPTOR.message_types_by_name['LPBCCommand'] = _LPBCCOMMAND
+DESCRIPTOR.message_types_by_name['ActuatorCommand'] = _ACTUATORCOMMAND
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 EnergiseMessage = _reflection.GeneratedProtocolMessageType('EnergiseMessage', (_message.Message,), dict(
@@ -446,6 +557,13 @@ LPBCCommand = _reflection.GeneratedProtocolMessageType('LPBCCommand', (_message.
   # @@protoc_insertion_point(class_scope:xbospb.LPBCCommand)
   ))
 _sym_db.RegisterMessage(LPBCCommand)
+
+ActuatorCommand = _reflection.GeneratedProtocolMessageType('ActuatorCommand', (_message.Message,), dict(
+  DESCRIPTOR = _ACTUATORCOMMAND,
+  __module__ = 'energise_pb2'
+  # @@protoc_insertion_point(class_scope:xbospb.ActuatorCommand)
+  ))
+_sym_db.RegisterMessage(ActuatorCommand)
 
 
 # @@protoc_insertion_point(module_scope)
