@@ -24,6 +24,7 @@ class ObviusDriver(Driver):
         self.auth = (cfg['obvius']['username'], cfg['obvius']['password'])
         self.devices = {}
         self.conf = {}
+        self.rate = cfg['rate']
         self.discoverMeters()
 
     def discoverMeters(self):
@@ -84,7 +85,7 @@ class ObviusDriver(Driver):
 
     def read(self, requestid=None):
         endtime = datetime.now()
-        starttime = endtime - timedelta(minutes=15)
+        starttime = endtime - timedelta(seconds=self.rate)
 
         for building in self.conf:
             building_path = '/' + self.to_pathname(building)
@@ -184,7 +185,7 @@ if __name__ == '__main__':
             'username': driverConfig['username'],
             'password': driverConfig['password'],
         },
-        'wavemq': 'localhost:4516',
+        'wavemq': 'localhost:9516',
         'namespace': 'GyBnl_UdduxPIcOwkrnZfqJGQiztUWKyHj9m5zHiFHS1uQ==',
         'base_resource': 'obvius',
         'entity': 'obvius.ent',
