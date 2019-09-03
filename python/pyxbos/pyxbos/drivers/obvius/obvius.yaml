@@ -1,5 +1,4 @@
-obvius:
-  bmoroot: 'bmoroot'
-  statuspage: 'statuspage'
-  username: 'username'
-  password: 'password'
+bmoroot: 'bmoroot'
+statuspage: 'statuspage'
+username: 'username'
+password: 'password'

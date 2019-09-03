@@ -1,9 +1,10 @@
 from pyxbos.driver import *
 import logging
-import os, re
+import os, re, io
 import requests
 import time
 import urllib
+import yaml
 
 from bs4 import BeautifulSoup as bs
 from datetime import datetime, timedelta
@@ -41,8 +42,8 @@ class ObviusDriver(Driver):
                 'href' : tds[0].a['href'],
                 }
 
-         # look at all the meters hanging off each of them
-         for location in self.devices:
+        # look at all the meters hanging off each of them
+        for location in self.devices:
              response = requests.get(self.bmoroot + self.devices[location]['href'], auth=self.auth)
              soup = bs(response.content, features="html.parser")
              subdevices = []
@@ -83,58 +84,81 @@ class ObviusDriver(Driver):
 
     def read(self, requestid=None):
         endtime = datetime.now()
-        starttime = end - timedelta(minutes=15)
+        starttime = endtime - timedelta(minutes=15)
 
         for building in self.conf:
             building_path = '/' + self.to_pathname(building)
             for metername in self.conf[building].keys():
+                metertype, url = self.conf[building][metername]
                 meter_path = building_path + '/' + self.to_pathname(metername)
-                req_url = url.format(start, end) \
-                    + "&mnuStartMonth=" + starttime.month + "&mnuStartDay=" + starttime.day \
-                    + "&mnuStartYear=" + starttime.year + "&mnuStartTime=" + starttime.hour + "%3A" + starttime.minute \
-                    + "&mnuEndMonth=" + endtime.month + "&mnuEndDay=" + endtime,day \
-                    + "&mnuEndYear=" + endtime.year + "&mnuEndTime=" + endtime.hour + "%3A" + endtime.minute \
+                req_url = url.format(starttime, endtime) \
+                    + "&mnuStartMonth=" + str(starttime.month) + "&mnuStartDay=" + str(starttime.day) \
+                    + "&mnuStartYear=" + str(starttime.year) + "&mnuStartTime=" + str(starttime.hour) + "%3A" + str(starttime.minute) \
+                    + "&mnuEndMonth=" + str(endtime.month) + "&mnuEndDay=" + str(endtime.day) \
+                    + "&mnuEndYear=" + str(endtime.year) + "&mnuEndTime=" + str(endtime.hour) + "%3A" + str(endtime.minute) \
 
                 response = requests.get(url=req_url, auth=self.auth)
                 if response:
                     data = response.content.decode('utf-8')
                     if "No data found within range" in data:
-                        print("[Warning] No data found for "+meter_path+" within given date range")
+                        print("No data found for "+meter_path+" within given date range")
                         continue
                     csv_df = pd.read_csv(io.StringIO(data))
 
-                    if "water" in metername:
-                        meter_data = iot_pb2.Meter(
-                            water_total = types.Double(value=csv_df['Water (Gallons)'].mean()),
-                            water_rate = types.Double(value=csv_df['Water Ave Rate (Gpm)'].mean()),
-                            water_instantaneous = types.Double(value=csv_df['Water Instantaneous (Gpm)'].mean()),
-                        )
-                    if "electric_meter" in metername:
-                        meter_data = iot_pb2.Meter(
-                            power = types.Double(value=csv_df['Real Power (kW)'].mean()),
-                            apparent_power = types.Double(value=csv_df['Apparent Power (kVA)'].mean()),
-                            reactive_power = types.Double(value=csv_df['Reactive Power (kVAR)'].mean()),
-                            voltage = types.Double(value=csv_df['Voltage'].mean()),
-                            energy = types.Double(value=csv_df['Current (Amps)'].mean()),
-                            demand = types.Double(value=csv_df['Present Demand (kW)'].mean()),
-                        )
-                    if "condensate" in metername:
-                        meter_data = iot_pb2.Meter(
-                            condense_total = types.Double(value=csv_df['Steam Condensate Meter (Gallons)'].mean()),
-                            condense_rate = types.Double(value=csv_df['Steam Condensate Meter Ave Rate (Gpm)'].mean()),
-                            condense_instantaneous = types.Double(value=csv_df['Steam Condensate Meter Instantaneous (Gpm)'].mean()),
-                        )
+                    if "water" in meter_path:
+                        for index, row in csv_df.iterrows():
+                            rowDict = dict(row)
+                            meter_data = iot_pb2.Meter(
+                                water_total = types.Double(value=rowDict.get('Water (Gallons)')),
+                                water_rate = types.Double(value=rowDict.get('Water Ave Rate (Gpm)')),
+                                water_instantaneous = types.Double(value=rowDict.get('Water Instantaneous (Gpm)')),
+                            )
+                            msg = xbos_pb2.XBOS(
+                                XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
+                                    time = int(time.time()*1e9),
+                                    meter = meter_data
+                                )
+                            )
+                            self.report(self.hostname, msg)
+
+                    if "condensate" in meter_path:
+                        for index, row in csv_df.iterrows():
+                            rowDict = dict(row)
+                            meter_data = iot_pb2.Meter(
+                                condense_total = types.Double(value=rowDict.get('Steam Condensate Meter (Gallons)')),
+                                condense_rate = types.Double(value=rowDict.get('Steam Condensate Meter Ave Rate (Gpm)')),
+                                condense_instantaneous = types.Double(value=rowDict.get('Steam Condensate Meter Instantaneous (Gpm))')),
+                            )
+                            msg = xbos_pb2.XBOS(
+                                XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
+                                    time = int(time.time()*1e9),
+                                    meter = meter_data
+                                )
+                            )
+                            self.report(self.hostname, msg)
+
+                    if "electric" in meter_path:
+                        for index, row in csv_df.iterrows():
+                            rowDict = dict(row)
+                            meter_data = iot_pb2.Meter(
+                                power = types.Double(value=rowDict.get('Real Power (kW)')),
+                                apparent_power = types.Double(value=rowDict.get('Apparent Power (kVA)')),
+                                reactive_power = types.Double(value=rowDict.get('Reactive Power (kVAR)')),
+                                voltage = types.Double(value=rowDict.get('Voltage')),
+                                energy = types.Double(value=rowDict.get('Current (Amps)')),
+                                demand = types.Double(value=rowDict.get('Present Demand (kW)'))
+                            )
+                            msg = xbos_pb2.XBOS(
+                                XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
+                                    time = int(time.time()*1e9),
+                                    meter = meter_data
+                                )
+                            )
+                            self.report(self.hostname, msg)
+
                     else:
                         print("Unrecognized type of meter: "+meter_path)
                         continue
-
-                    msg = xbos_pb2.XBOS(
-                        XBOSIoTDeviceState = iot_pb2.XBOSIoTDeviceState(
-                            time = int(time.time()*1e9),
-                            meter = meter_data
-                        )
-                    )
-                    self.report(self.hostname, msg)
                 else:
                     print("Received", response.status_code, "response for request:", req_url)
 
