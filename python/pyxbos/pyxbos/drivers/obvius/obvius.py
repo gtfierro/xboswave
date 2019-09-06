@@ -18,7 +18,6 @@ except ImportError:
 
 class ObviusDriver(Driver):
     def setup(self, cfg):
-        self.hostname = os.uname()[1]
         self.bmoroot = cfg['obvius']['bmoroot']
         self.statuspage = cfg['obvius']['statuspage']
         self.auth = (cfg['obvius']['username'], cfg['obvius']['password'])
@@ -120,7 +119,7 @@ class ObviusDriver(Driver):
                                     meter = meter_data
                                 )
                             )
-                            self.report(self.hostname, msg)
+                            self.report(building_path + '/water_meter', msg)
 
                     if "condensate" in meter_path:
                         for index, row in csv_df.iterrows():
@@ -136,7 +135,7 @@ class ObviusDriver(Driver):
                                     meter = meter_data
                                 )
                             )
-                            self.report(self.hostname, msg)
+                            self.report(building_path + '/condensation_meter', msg)
 
                     if "electric" in meter_path:
                         for index, row in csv_df.iterrows():
@@ -155,7 +154,7 @@ class ObviusDriver(Driver):
                                     meter = meter_data
                                 )
                             )
-                            self.report(self.hostname, msg)
+                            self.report(building_path + '/electric_meter', msg)
 
                     else:
                         print("Unrecognized type of meter: "+meter_path)
