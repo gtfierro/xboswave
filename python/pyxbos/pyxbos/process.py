@@ -169,13 +169,13 @@ class XBOSProcess:
         """
         if runfirst:
             try:
-                await cb(*args)
+                schedule(cb(*args))
             except:
                 self._log.error(f"Error in processing callback: {traceback.format_exc()}")
         while True:
             await asyncio.sleep(seconds)
             try:
-                await cb(*args)
+                schedule(cb(*args))
             except:
                 self._log.error(f"Error in processing callback: {traceback.format_exc()}")
 
