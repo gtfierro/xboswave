@@ -4,7 +4,7 @@ Description="WAVED"
 [Service]
 Restart=always
 RestartSec=30
-ExecStart=${BIN_LOCATION}/waved --config ${WAVED_CFG_LOCATION}/wave.toml
+ExecStart=${BIN_LOCATION}/waved --config ${WAVED_CFG_LOCATION}/waved.toml
 
 [Install]
 WantedBy=multi-user.target
