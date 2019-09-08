@@ -1,5 +1,5 @@
 [WaveConfig]
-  database = "/var/lib/wavemq/wave"
+  database = "${WAVEMQ_STORAGE_LOCATION}/wave"
   # this is optional, but required if you want your site to operate with no internet
   defaultToUnrevoked = true
 
@@ -10,12 +10,15 @@
     url = "https://standalone.storage.bwave.io/v1"
     version = "1"
 
+[StorageConfig]
+dataStore = "${WAVEMQ_STORAGE_LOCATION}/persist+queue"
+spinningMetal = false
+
 [QueueConfig]
-  queueDataStore = "/var/lib/wavemq/queue"
-  # This is one day in seconds
-  queueExpiry = 86400
+  # 10 minutes
+  queueExpiry = 600
   # 10k items (it will hit 100MB first)
-  subscriptionQueueMaxLength = 10000
+  subscriptionQueueMaxLength = 1000
   # 100MB
   subscriptionQueueMaxSize = 100
   # 100k items (it will hit 1GB first)
@@ -27,16 +30,19 @@
 
 [LocalConfig]
   # the address to connect to as an agent
-  listenAddr = "127.0.0.1:4516"
+  listenAddr = "0.0.0.0:4516"
 
 [PeerConfig]
   # the address to connect to as a peer (not used for site router)
   listenAddr = "127.0.0.1:4515"
 
 [RoutingConfig]
-  PersistDataStore = "/var/lib/wavemq/persist"
   # This will be created for you
-  RouterEntityFile = "/etc/wavemq/router.ent"
-	[[RoutingConfig.Router]]
-	  Namespace = "GyAlyQyfJuai4MCyg6Rx9KkxnZZXWyDaIo0EXGY9-WEq6w=="
-	  Address = "wavemq.xbos.io:4515"
+  RouterEntityFile = "${WAVEMQ_CFG_LOCATION}/router.ent"
+  #DesignatedNamespaceFiles = [
+  #  "/etc/wavemq/xbos-demo-namespace-routeproof.pem",
+  #]
+  [[RoutingConfig.Router]]
+  # energise
+  Namespace = "GyDX55sFnbr9yCB-mPyXsy4kAUPUY8ftpWX62s6UcnvfIQ=="
+  Address = "wavemq.xbos.io:4515"

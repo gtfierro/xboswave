@@ -4,7 +4,8 @@ Description="WAVEMQ"
 [Service]
 Restart=always
 RestartSec=30
-ExecStart=/usr/local/bin/wavemq /etc/wavemq/wavemq.toml
+ExecStart=${BIN_LOCATION}/wavemq ${WAVED_CFG_LOCATION}/wavemq.toml
 
 [Install]
 WantedBy=multi-user.target
+
