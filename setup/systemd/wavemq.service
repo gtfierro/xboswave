@@ -1,0 +1,11 @@
+[Unit]
+Description="WAVEMQ"
+
+[Service]
+Restart=always
+RestartSec=30
+ExecStart=${BIN_LOCATION}/wavemq ${WAVED_CFG_LOCATION}/wavemq.toml
+
+[Install]
+WantedBy=multi-user.target
+
