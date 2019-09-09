@@ -1,0 +1,23 @@
+= Graph Definition =
+
+basic ontology:
+- entities
+- deployments
+- processes:
+    - controllers
+- resources:
+    - URIS
+    - namespaces
+
+What does this representation afford us?:
+- does the existing WAVE graph meet these permissions?:
+    - requires visibility into all entities...
+- what processes should exist?:
+    - needs config information embedded in the graph
+    - driver type/URL (standard installation?)
+    - IP address, user/pass? (would keep this protected)
+- this tells us what entities + permissions to create:
+    - entities for sure: one per process. Process label gives us the entity name
+    - we cannot generate the permission structure:
+        - unless the entity running this process has permissions
+        - we can generate the 1-hop structure
