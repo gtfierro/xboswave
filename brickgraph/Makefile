@@ -3,5 +3,5 @@ generate:
 
 viz: generate
 	python ontology-visualization/ontology_viz.py -o test.dot test.ttl
-	dot -Tpdf -o test.pdf test.dot
+	dot -Kfdp -Tpdf -o test.pdf test.dot
 
