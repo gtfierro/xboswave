@@ -1,0 +1,43 @@
+[graph]
+namespaces = ["myns"]
+entity_expiry = "10y"
+grant_expiry = "3y"
+
+[[policies]]
+name = "all"
+edge = "myns:*"
+permissions = "wavemq:publish,subscribe"
+
+
+[[edges]]
+from = "myns"
+to = "entity1"
+policy = "all"
+ttl = 3
+
+[[edges]]
+from = "myns"
+to = "entity2"
+policy = "all"
+ttl = 3
+
+[[edges]]
+from = "entity1"
+to = "entity3"
+edge = "myns:a/b/*"
+permissions = "wavemq:publish"
+ttl = 1
+
+[[edges]]
+from = "entity3"
+to = "entity4"
+edge = "myns:a/b/c"
+permissions = "wavemq:publish"
+ttl = 0
+
+[[edges]]
+from = "entity5"
+to = "entity6"
+edge = "myns:a/b/c"
+permissions = "wavemq:publish"
+ttl = 0
