@@ -17,11 +17,14 @@ import (
 	"github.com/immesys/wave/eapi/pb"
 
 	"github.com/BurntSushi/toml"
+	"github.com/fatih/color"
+	"github.com/gtfierro/hoddb/hod"
 	"google.golang.org/grpc"
 )
 
 type GraphEngine struct {
 	wave     pb.WAVEClient
+	hod      *hod.HodDB
 	policies map[string]policy
 	// map entity name -> contents
 	entities map[string][]byte
@@ -34,7 +37,41 @@ func GraphEngineFromSpecFile(filename string) *GraphEngine {
 	if _, err := toml.DecodeFile(filename, &spec); err != nil {
 		log.Fatal(err)
 	}
+
 	return GraphEngineFromSpec(spec)
+}
+
+// loads in a TTL file capturing the application flows
+func (eng *GraphEngine) AddApplicationGraph(filename string) error {
+	dir, err := ioutil.TempDir("", "_brickhod_")
+	if err != nil {
+		return err
+	}
+
+	cfgStr := fmt.Sprintf(`
+database:
+    path: %s
+output:
+    loglevel: critical`, dir)
+	cfg, err := hod.ReadConfigFromString(cfgStr)
+	if err != nil {
+		return err
+	}
+
+	eng.hod, err = hod.MakeHodDB(cfg)
+	if err != nil {
+		return err
+	}
+
+	bundle := hod.FileBundle{
+		GraphName: "test",
+		TTLFile:   filename,
+	}
+	if err = eng.hod.Load(bundle); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GraphEngineFromSpec(spec Spec) *GraphEngine {
@@ -88,7 +125,7 @@ func GraphEngineFromSpec(spec Spec) *GraphEngine {
 			pol.Pset = parts[0]
 			pol.Permissions = parts[1]
 			eng.spec.Policies[idx] = pol
-			fmt.Printf("Policy: %+v\n", pol)
+			//fmt.Printf("Policy: %+v\n", pol)
 		}
 		eng.policies[pol.Name] = pol
 	}
@@ -100,7 +137,7 @@ func GraphEngineFromSpec(spec Spec) *GraphEngine {
 			if !found {
 				log.Fatal(xerrors.Errorf("Policy %s not found. Make sure it is declared", att.Policy))
 			}
-			fmt.Println(pol)
+			//fmt.Println(pol)
 			att.Namespace = pol.Namespace
 			att.Resource = pol.Resource
 			att.Permissions = pol.Permissions
@@ -115,7 +152,7 @@ func GraphEngineFromSpec(spec Spec) *GraphEngine {
 		}
 	}
 
-	fmt.Printf("%+v\n", eng.spec)
+	//fmt.Printf("%+v\n", eng.spec)
 	return eng
 }
 
@@ -219,7 +256,7 @@ func (eng *GraphEngine) ValidateConnectivity() (bool, []string) {
 // and do not create names.
 func (eng *GraphEngine) PrepareEntities(publish bool) error {
 	all_entities := eng.spec.Entities()
-	fmt.Println(all_entities)
+	//fmt.Println(all_entities)
 
 	any_new := false
 
@@ -333,9 +370,6 @@ func (eng *GraphEngine) PrepareEntities(publish bool) error {
 }
 
 func (eng *GraphEngine) PrepareEdges() error {
-	for _, e := range eng.spec.Edges {
-		fmt.Printf("%+v\n", e)
-	}
 
 	//create + publish attestations
 	for _, att := range eng.spec.Edges {
@@ -405,15 +439,25 @@ func getConn(agent string) pb.WAVEClient {
 // - terminal nodes can be hashes; we don't create these, just grant to the hash
 func main() {
 	g := GraphEngineFromSpecFile("energise.toml")
+	if err := g.AddApplicationGraph("test.ttl"); err != nil {
+		log.Fatal(err)
+	}
 	all_visited, unreachable := g.ValidateConnectivity()
 	fmt.Println("Fully connected?", all_visited, "unreachable:", unreachable)
 	fmt.Println("Prepare entities")
 
-	//t := newTraversal(g.spec, "lpbc_675")
-	//t.traverse()
 	for _, ent := range g.spec.Entities() {
-		t := newTraversal(g.spec, ent)
-		t.traverse()
+		t := newTraversal(g.spec, g.hod, ent)
+		granted, refused := t.traverse()
+		fmt.Printf("For Entity %s:\n", ent)
+		//good := color.New(color.Fg, color.Bold)
+		bad := color.New(color.FgRed, color.Bold)
+		for _, gedge := range granted {
+			fmt.Printf("  Granted> %s:%s@%s/%s\n", gedge.Pset, gedge.Permissions, gedge.Namespace, gedge.Resource)
+		}
+		for _, redge := range refused {
+			bad.Printf("  Refused> %s:%s@%s/%s\n", redge.Pset, redge.Permissions, redge.Namespace, redge.Resource)
+		}
 	}
 
 	return

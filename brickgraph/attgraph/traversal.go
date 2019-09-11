@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 
 	"github.com/gtfierro/hoddb/hod"
@@ -23,40 +22,12 @@ type traversal struct {
 	start string
 }
 
-func newTraversal(spec Spec, start string) *traversal {
-
-	t := &traversal{
+func newTraversal(spec Spec, hod *hod.HodDB, start string) *traversal {
+	return &traversal{
 		start: start,
 		spec:  spec,
+		hod:   hod,
 	}
-
-	dir, err := ioutil.TempDir("", "_brickhod_")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cfgStr := fmt.Sprintf(`
-database:
-    path: %s`, dir)
-	cfg, err := hod.ReadConfigFromString(cfgStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	t.hod, err = hod.MakeHodDB(cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	bundle := hod.FileBundle{
-		GraphName: "test",
-		TTLFile:   "test.ttl",
-	}
-	if err = t.hod.Load(bundle); err != nil {
-		log.Fatal(err)
-	}
-
-	return t
 }
 
 // returns edges
@@ -69,7 +40,7 @@ func (t *traversal) findIncomingEdges(to string) (edges []edge) {
 	return
 }
 
-func (t *traversal) traverse() {
+func (t *traversal) traverse() (granted, refused []edge) {
 
 	// 1. make a list of all of the permissions we need
 	permissions := t.permissionsRequired(t.start)
@@ -78,18 +49,23 @@ func (t *traversal) traverse() {
 	// the namespace entity, taking the intersetion of the permissions along the way
 	for _, perm := range permissions {
 		terminates_at_root := false
-		fmt.Println("---")
-		fmt.Println("try to prove", perm, "for", t.start)
+		//fmt.Println("---")
+		//fmt.Println("try to prove", perm, "for", t.start)
+
+		// use a stack of edges to explore the graph. Edges
+		// have permissions and the "from" and "to" of the
+		// permissions so this is sufficient to explore.
 		var edges = newEdgeStack()
 		for _, edge := range t.findIncomingEdges(t.start) {
 			edges.push(edge)
 		}
 
+		// We use a stack to do a breadth-first search
 		for edges.length() > 0 {
 			edge := edges.pop()
 
+			// skip edges with the wrong namespace
 			if edge.Namespace != perm.Namespace {
-				// skip edges with the wrong namespace
 				continue
 			}
 
@@ -98,10 +74,11 @@ func (t *traversal) traverse() {
 			// We get
 			granted, ok := RestrictBy(perm.Resource, edge.Resource)
 			if !ok {
+				_ = granted
 				// in this case, the permission granted on this
 				// edge isn't sufficient for what we want to build
 				// so we continue on
-				fmt.Printf("bad edge %s (restricted to %s)\n", edge, granted)
+				//fmt.Printf("bad edge %s (restricted to %s)\n", edge, granted)
 				continue
 			}
 
@@ -118,12 +95,14 @@ func (t *traversal) traverse() {
 			}
 		}
 		if terminates_at_root {
-			fmt.Printf("Permission %+v permitted\n", perm)
+			granted = append(granted, perm)
+			//fmt.Printf("Permission %+v permitted\n", perm)
 		} else {
-			fmt.Printf("Permission %+v NOT GRANTED\n", perm)
+			refused = append(refused, perm)
+			//fmt.Printf("Permission %+v NOT GRANTED\n", perm)
 		}
 	}
-
+	return
 }
 
 // get the set of permissions that the entity requires.
@@ -196,10 +175,6 @@ func (t *traversal) permissionsRequired(entity string) []edge {
 			Permissions: "publish,subscribe",
 			Pset:        "wavemq",
 		})
-	}
-
-	for _, perm := range permissions {
-		fmt.Printf("%+v\n", perm)
 	}
 
 	return permissions
