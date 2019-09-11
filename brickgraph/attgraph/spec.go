@@ -14,7 +14,7 @@ type Spec struct {
 }
 
 // returns list of all entities in the spec
-func (spec Spec) getAllEntities() []string {
+func (spec Spec) Entities() []string {
 	var ents = make(map[string]struct{})
 
 	// graph namespaces
@@ -83,6 +83,10 @@ type edge struct {
 	Pset        string
 	TTL         int
 	Expiry      *duration
+}
+
+func (e edge) String() string {
+	return fmt.Sprintf("%s => %s %s:%s@%s/%s", e.From, e.To, e.Pset, e.Permissions, e.Namespace, e.Resource)
 }
 
 //ParseDuration is a little like the existing time.ParseDuration
