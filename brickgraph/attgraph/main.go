@@ -17,11 +17,14 @@ import (
 	"github.com/immesys/wave/eapi/pb"
 
 	"github.com/BurntSushi/toml"
+	"github.com/fatih/color"
+	"github.com/gtfierro/hoddb/hod"
 	"google.golang.org/grpc"
 )
 
 type GraphEngine struct {
 	wave     pb.WAVEClient
+	hod      *hod.HodDB
 	policies map[string]policy
 	// map entity name -> contents
 	entities map[string][]byte
@@ -34,8 +37,41 @@ func GraphEngineFromSpecFile(filename string) *GraphEngine {
 	if _, err := toml.DecodeFile(filename, &spec); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%+v\n", spec)
+
 	return GraphEngineFromSpec(spec)
+}
+
+// loads in a TTL file capturing the application flows
+func (eng *GraphEngine) AddApplicationGraph(filename string) error {
+	dir, err := ioutil.TempDir("", "_brickhod_")
+	if err != nil {
+		return err
+	}
+
+	cfgStr := fmt.Sprintf(`
+database:
+    path: %s
+output:
+    loglevel: critical`, dir)
+	cfg, err := hod.ReadConfigFromString(cfgStr)
+	if err != nil {
+		return err
+	}
+
+	eng.hod, err = hod.MakeHodDB(cfg)
+	if err != nil {
+		return err
+	}
+
+	bundle := hod.FileBundle{
+		GraphName: "test",
+		TTLFile:   filename,
+	}
+	if err = eng.hod.Load(bundle); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GraphEngineFromSpec(spec Spec) *GraphEngine {
@@ -89,7 +125,7 @@ func GraphEngineFromSpec(spec Spec) *GraphEngine {
 			pol.Pset = parts[0]
 			pol.Permissions = parts[1]
 			eng.spec.Policies[idx] = pol
-			fmt.Printf("Policy: %+v\n", pol)
+			//fmt.Printf("Policy: %+v\n", pol)
 		}
 		eng.policies[pol.Name] = pol
 	}
@@ -101,7 +137,7 @@ func GraphEngineFromSpec(spec Spec) *GraphEngine {
 			if !found {
 				log.Fatal(xerrors.Errorf("Policy %s not found. Make sure it is declared", att.Policy))
 			}
-			fmt.Println(pol)
+			//fmt.Println(pol)
 			att.Namespace = pol.Namespace
 			att.Resource = pol.Resource
 			att.Permissions = pol.Permissions
@@ -116,7 +152,7 @@ func GraphEngineFromSpec(spec Spec) *GraphEngine {
 		}
 	}
 
-	fmt.Printf("%+v\n", eng.spec)
+	//fmt.Printf("%+v\n", eng.spec)
 	return eng
 }
 
@@ -139,36 +175,58 @@ func (eng *GraphEngine) getEntityHash(content []byte) ([]byte, error) {
 func (eng *GraphEngine) ValidateConnectivity() (bool, []string) {
 
 	// keep track of which entities are visited
-	entities := make(map[string]bool)
+	visited_entities := make(map[string]bool)
 	for _, edge := range eng.spec.Edges {
-		entities[edge.From] = false
-		entities[edge.To] = false
+		visited_entities[edge.From] = false
+		visited_entities[edge.To] = false
 	}
 
 	// convenience method to get outgoing edges from an entity
 	// in the context of this graph
-	find1Hop := func(from string) []string {
-		var res []string
+	find1Hop := func(from string) ([]string, []string, []string) {
+		var entities []string
+		var permissions []string
+		var uris []string
 		for _, edge := range eng.spec.Edges {
 			if edge.From == from {
-				res = append(res, edge.To)
+				entities = append(entities, edge.To)
+				permissions = append(entities, edge.Permissions)
+				uris = append(entities, edge.Resource)
 			}
 		}
-		return res
+		return entities, permissions, uris
 	}
 
 	// do a BFS to check if the graph is fully connected across all of the namespaces
 	for _, ns := range eng.spec.Graph.Namespaces {
-		var s = newStack()
-		s.push(ns)
-		for s.length() > 0 {
-			active := s.pop()
-			if entities[active] {
+		var nodes = newStack()
+		var perms = newStack()
+		var uris = newStack()
+		nodes.push(ns)
+		perms.push("publish,subcribe")
+		uris.push("*")
+		for nodes.length() > 0 {
+			active_entity := nodes.pop()
+			//active_perms := perms.pop()
+			perms.pop()
+			active_uri := uris.pop()
+
+			if visited_entities[active_entity] {
 				continue
 			}
-			entities[active] = true
-			for _, reachable := range find1Hop(active) {
-				s.push(reachable)
+
+			visited_entities[active_entity] = true
+
+			_entities, _permissions, _uris := find1Hop(active_entity)
+			for idx, reachable_entity := range _entities {
+				nodes.push(reachable_entity)
+				restricted, ok := RestrictBy(active_uri, _uris[idx])
+				if !ok {
+					break
+				}
+				uris.push(restricted)
+				//TODO: restrict permissions
+				perms.push(_permissions[idx])
 			}
 		}
 
@@ -177,7 +235,7 @@ func (eng *GraphEngine) ValidateConnectivity() (bool, []string) {
 	// check which entities were visited, keeping track of unreachable nodes
 	all_visited := true
 	var unreachable []string
-	for ent, reachable := range entities {
+	for ent, reachable := range visited_entities {
 		if !reachable {
 			all_visited = false
 			unreachable = append(unreachable, ent)
@@ -197,8 +255,8 @@ func (eng *GraphEngine) ValidateConnectivity() (bool, []string) {
 // created and have them name each other; otherwise, keep them offline
 // and do not create names.
 func (eng *GraphEngine) PrepareEntities(publish bool) error {
-	all_entities := eng.spec.getAllEntities()
-	fmt.Println(all_entities)
+	all_entities := eng.spec.Entities()
+	//fmt.Println(all_entities)
 
 	any_new := false
 
@@ -292,7 +350,7 @@ func (eng *GraphEngine) PrepareEntities(publish bool) error {
 						DER: entitybytes,
 					},
 				},
-				Name:       namedentity,
+				Name:       strings.ToLower(namedentity),
 				Subject:    eng.hashes[namedentity],
 				ValidFrom:  time.Now().UnixNano() / 1e6,
 				ValidUntil: time.Now().Add(5*365*24*time.Hour).UnixNano() / 1e6,
@@ -312,9 +370,6 @@ func (eng *GraphEngine) PrepareEntities(publish bool) error {
 }
 
 func (eng *GraphEngine) PrepareEdges() error {
-	for _, e := range eng.spec.Edges {
-		fmt.Printf("%+v\n", e)
-	}
 
 	//create + publish attestations
 	for _, att := range eng.spec.Edges {
@@ -384,9 +439,28 @@ func getConn(agent string) pb.WAVEClient {
 // - terminal nodes can be hashes; we don't create these, just grant to the hash
 func main() {
 	g := GraphEngineFromSpecFile("energise.toml")
+	if err := g.AddApplicationGraph("test.ttl"); err != nil {
+		log.Fatal(err)
+	}
 	all_visited, unreachable := g.ValidateConnectivity()
 	fmt.Println("Fully connected?", all_visited, "unreachable:", unreachable)
 	fmt.Println("Prepare entities")
+
+	for _, ent := range g.spec.Entities() {
+		t := newTraversal(g.spec, g.hod, ent)
+		granted, refused := t.traverse()
+		fmt.Printf("For Entity %s:\n", ent)
+		//good := color.New(color.Fg, color.Bold)
+		bad := color.New(color.FgRed, color.Bold)
+		for _, gedge := range granted {
+			fmt.Printf("  Granted> %s:%s@%s/%s\n", gedge.Pset, gedge.Permissions, gedge.Namespace, gedge.Resource)
+		}
+		for _, redge := range refused {
+			bad.Printf("  Refused> %s:%s@%s/%s\n", redge.Pset, redge.Permissions, redge.Namespace, redge.Resource)
+		}
+	}
+
+	return
 	if err := g.PrepareEntities(true); err != nil {
 		log.Fatal(err)
 	}
@@ -400,4 +474,89 @@ func main() {
 func fileDoesNotExist(filename string) bool {
 	_, err := os.Stat(filename)
 	return os.IsNotExist(err)
+}
+
+// Copied verbatim from bosswave
+// RestrictBy takes a topic, and a permission, and returns the intersection
+// that represents the from topic restricted by the permission. It took a
+// looong time to work out this logic...
+func RestrictBy(from string, by string) (string, bool) {
+	fp := strings.Split(from, "/")
+	bp := strings.Split(by, "/")
+	fout := make([]string, 0, len(fp)+len(bp))
+	bout := make([]string, 0, len(fp)+len(bp))
+	var fsx, bsx int
+	for fsx = 0; fsx < len(fp) && fp[fsx] != "*"; fsx++ {
+	}
+	for bsx = 0; bsx < len(bp) && bp[bsx] != "*"; bsx++ {
+	}
+	fi, bi := 0, 0
+	fni, bni := len(fp)-1, len(bp)-1
+	emit := func() (string, bool) {
+		for i := 0; i < len(bout); i++ {
+			fout = append(fout, bout[len(bout)-i-1])
+		}
+		return strings.Join(fout, "/"), true
+	}
+	//phase 1
+	//emit matching prefix
+	for ; fi < len(fp) && bi < len(bp); fi, bi = fi+1, bi+1 {
+		if fp[fi] != "*" && (fp[fi] == bp[bi] || (bp[bi] == "+" && fp[fi] != "*")) {
+			fout = append(fout, fp[fi])
+		} else if fp[fi] == "+" && bp[bi] != "*" {
+			fout = append(fout, bp[bi])
+		} else {
+			break
+		}
+	}
+	//phase 2
+	//emit matching suffix
+	for ; fni >= fi && bni >= bi; fni, bni = fni-1, bni-1 {
+		if bp[bni] != "*" && (fp[fni] == bp[bni] || (bp[bni] == "+" && fp[fni] != "*")) {
+			bout = append(bout, fp[fni])
+		} else if fp[fni] == "+" && bp[bni] != "*" {
+			bout = append(bout, bp[bni])
+		} else {
+			break
+		}
+	}
+	//phase 3
+	//emit front
+	if fi < len(fp) && fp[fi] == "*" {
+		for ; bi < len(bp) && bp[bi] != "*" && bi <= bni; bi++ {
+			fout = append(fout, bp[bi])
+		}
+	} else if bi < len(bp) && bp[bi] == "*" {
+		for ; fi < len(fp) && fp[fi] != "*" && fi <= fni; fi++ {
+			fout = append(fout, fp[fi])
+		}
+	}
+	//phase 4
+	//emit back
+	if fni >= 0 && fp[fni] == "*" {
+		for ; bni >= 0 && bp[bni] != "*" && bni >= bi; bni-- {
+			bout = append(bout, bp[bni])
+		}
+	} else if bni >= 0 && bp[bni] == "*" {
+		for ; fni >= 0 && fp[fni] != "*" && fni >= fi; fni-- {
+			bout = append(bout, fp[fni])
+		}
+	}
+	//phase 5
+	//emit star if they both have it
+	if fi == fni && fp[fi] == "*" && bi == bni && bp[bi] == "*" {
+		fout = append(fout, "*")
+		return emit()
+	}
+	//Remove any stars
+	if fi < len(fp) && fp[fi] == "*" {
+		fi++
+	}
+	if bi < len(bp) && bp[bi] == "*" {
+		bi++
+	}
+	if (fi == fni+1 || fi == len(fp)) && (bi == bni+1 || bi == len(bp)) {
+		return emit()
+	}
+	return "", false
 }

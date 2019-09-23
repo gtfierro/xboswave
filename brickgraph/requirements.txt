@@ -1,2 +1,4 @@
 rdflib
 owlrl
+numpy
+pyxbos

@@ -4,6 +4,7 @@ import owlrl
 import eapi_pb2, eapi_pb2_grpc
 from grpc import insecure_channel
 import logging
+import time
 
 WAVEMQPSET = bytes(b"\x1b\x20\x14\x33\x74\xb3\x2f\xd2\x74\x39\x54\xfe\x47\x86\xf6\xcf\x86\xd4\x03\x72\x0f\x5e\xc4\x42\x36\xb6\x58\xc2\x6a\x1e\x68\x0f\x6e\x01")
 XBOS = Namespace("https://xbos.io/schema/tmp/XBOS#")
@@ -49,6 +50,7 @@ class GraphChecker:
             entitySecret=eapi_pb2.EntitySecret(DER=self._ent),
         )
 
+        self.sync()
 
         self.G = Graph()
         self.G.bind('rdf', RDF)
@@ -63,26 +65,29 @@ class GraphChecker:
         wavemq_channel = insecure_channel(self._cfg['waved'])
         self._cl = eapi_pb2_grpc.WAVEStub(wavemq_channel)
 
-    @property
-    def proofs(self):
-        """
-        Generate the set of proofs that should exist
-        """
-        res = self.G.query("""SELECT ?ent ?name ?namespace ?uri WHERE {
-        ?proc xbos:hasEntity ?ent .
-        ?ent rdf:type xbos:Entity .
-        ?ent rdfs:label ?name .
-        ?proc xbos:usesResource ?res .
-        ?res xbos:hasNamespace ?namespace .
-        ?res xbos:hasURI ?uri
-        }""")
+    def sync(self):
+        resp = self._cl.ResyncPerspectiveGraph(eapi_pb2.ResyncPerspectiveGraphParams(
+            perspective=self._perspective,
+        ))
+        while True:
+            r = self._cl.SyncStatus(eapi_pb2.SyncParams(
+                perspective=self._perspective,
+            ))
+            print(f"Syncing: {r.completedSyncs}/{r.totalSyncRequests}")
+            if r.totalSyncRequests == r.completedSyncs: break
+            time.sleep(1)
+
+
+    def generate_proofs_for(self, query, permissions):
+        res = self.G.query(query)
+        proof_requests = {}
         for row in res:
             (ent, name, ns, uri) = row
-            print(row)
             # resolve ent name into a hash
+            print(name.lower(), ns, uri)
             result = self._cl.ResolveName(eapi_pb2.ResolveNameParams(
                 perspective=self._perspective,
-                name=name.value,
+                name=name.lower(),
             ))
             if result.error.message != '':
                 raise Exception(result.error.message)
@@ -91,7 +96,7 @@ class GraphChecker:
 
             result = self._cl.ResolveName(eapi_pb2.ResolveNameParams(
                 perspective=self._perspective,
-                name=ns,
+                name=ns.lower(),
             ))
             if result.error.message != '':
                 raise Exception(result.error.message)
@@ -100,21 +105,51 @@ class GraphChecker:
 
             statement = eapi_pb2.RTreePolicyStatement(
                 permissionSet = WAVEMQPSET,
-                permissions = ["subscribe"],
+                permissions = permissions,
                 resource = uri,
             )
-            cli = f"wv rtprove --subject {name}.ent wavemq:subscribe@{ns}/{uri}"
-            print(cli)
-            #proof = self._cl.BuildRTreeProof(eapi_pb2.BuildRTreeProofParams(
-            #        perspective=self._perspective,
-            #        subjectHash=subjectHash,
-            #        namespace=namespace,
-            #        statements=[statement],
-            #        resyncFirst=True,
-            #    )
-            #)
-            #print(proof)
-            
+            cli = f"wv rtprove --subject {name}.ent wavemq:{','.join(permissions)}@{ns}/{uri}"
+            if ent not in proof_requests:
+                proof_requests[name] = []
+            proof_requests[name].append(cli)
+        
+        from mako.template import Template
+
+        shell_template = Template("""
+#!/bin/bash
+echo "Checking proofs for ${entity}.ent"
+% for line in lines:
+${line}
+% endfor""")
+
+        for entity, proofs in proof_requests.items():
+            print(f"Proofs for {entity}.ent")
+
+            with open(f"check_{entity}.sh", "w") as f:
+                f.write(shell_template.render(entity=entity, lines=proofs))
+
+
 
 checker = GraphChecker({'entity': 'attgraph/gabe.ent', 'graph': 'test.ttl'})
-print(checker.proofs)
+
+sub_resources = """SELECT ?ent ?name ?namespace ?uri WHERE {
+    ?proc xbos:hasEntity ?ent .
+    ?ent rdf:type xbos:Entity .
+    ?ent rdfs:label ?name .
+    ?proc xbos:usesResource ?res .
+    ?res xbos:hasNamespace ?namespace .
+    ?res xbos:hasURI ?uri
+}"""
+
+checker.generate_proofs_for(sub_resources, ['subscribe'])
+
+pub_resources = """SELECT ?ent ?name ?namespace ?uri WHERE {
+    ?proc xbos:hasEntity ?ent .
+    ?ent rdf:type xbos:Entity .
+    ?ent rdfs:label ?name .
+    ?proc xbos:hasResource ?res .
+    ?res xbos:hasNamespace ?namespace .
+    ?res xbos:hasURI ?uri
+}"""
+
+checker.generate_proofs_for(pub_resources, ['publish', 'subscribe'])

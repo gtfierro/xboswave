@@ -112,6 +112,8 @@ for spbc in ['spbc_0']:
     for row in G.query(pred):
         print(row[1])
         G.add( (DEP[spbc], XBOS.usesResource, row[1]) )
+        #TODO: add target topic: spbc HAS resource the target
+        #G.add( (DEP[spbc], XBOS.hasResource, 
 
     # which uPMUs does the SPBC need?
 
