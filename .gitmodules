@@ -1,3 +1,6 @@
 [submodule "proto/googleapis"]
 	path = proto/googleapis
 	url = https://github.com/googleapis/googleapis
+[submodule "brickgraph/ontology-visualization"]
+	path = brickgraph/ontology-visualization
+	url = https://github.com/fatestigma/ontology-visualization
