@@ -1,4 +1,6 @@
-# XBOS(2) 
+# XBOS(2)
+
+[![Build Status](https://travis-ci.org/gtfierro/xboswave.svg?branch=master)](https://travis-ci.org/gtfierro/xboswave)
 
 ## Looking for a Quick Start?
 
@@ -9,6 +11,27 @@ Take a gander at the [demo installation](https://github.com/gtfierro/xboswave/tr
 Requirements:
 1. go [install](https://golang.org/doc/install)
 2. bzr `sudo apt-get install bzr`
+
+## PyXBOS
+
+On Mac OSX, first install Brew (https://brew.sh/)
+
+
+```bash
+$ brew install autoconf automake libtool jq
+```
+
+On Linux, first install
+
+```bash
+$ apt-get install autoconf automake build-essential libtool python-dev
+```
+
+Then,
+
+```bash
+$ pip3 install pyxbos
+```
 
 ### BTrDB Setup
 

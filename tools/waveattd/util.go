@@ -47,7 +47,7 @@ func resolveEntityNameOrHashOrFile(conn pb.WAVEClient, perspective *pb.Perspecti
 			Name:        in,
 		})
 		if err != nil {
-			fmt.Printf("could not resolve name: %v\n", err)
+			fmt.Printf("could not resolve name: %v (%s)\n", err, msg)
 			os.Exit(1)
 		}
 		if resp.Error != nil {

@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"time"
@@ -66,7 +67,8 @@ func (db *DB) CreateAttestation(subjectHashOrFile string, ValidUntil time.Time, 
 	if len(policies) == 0 {
 		return fmt.Errorf("Need > 0 policies")
 	}
-	subject := resolveEntityNameOrHashOrFile(db.wave, db.perspective, subjectHashOrFile, "missing subject entity")
+	possiblename := db.getHashFromName(subjectHashOrFile)
+	subject := resolveEntityNameOrHashOrFile(db.wave, db.perspective, possiblename, "missing subject entity")
 
 	subjresp, err := db.wave.ResolveHash(context.Background(), &pb.ResolveHashParams{
 		Hash: subject,
@@ -207,4 +209,65 @@ func (db *DB) ListExpiring(within_next time.Duration) ([]Attestation, error) {
 		return nil, err
 	}
 	return atts, nil
+}
+
+func (db *DB) syncgraph() error {
+	resp, err := db.wave.ResyncPerspectiveGraph(context.Background(), &pb.ResyncPerspectiveGraphParams{
+		Perspective: db.perspective,
+	})
+	if err != nil {
+		return err
+	}
+	if resp.Error != nil {
+		return fmt.Errorf("error: %v\n", resp.Error.Message)
+	}
+	srv, err := db.wave.WaitForSyncComplete(context.Background(), &pb.SyncParams{
+		Perspective: db.perspective,
+	})
+	for {
+		rv, err := srv.Recv()
+		if err == io.EOF {
+			break
+		}
+		fmt.Printf("Synchronized %d/%d entities\n", rv.CompletedSyncs, rv.TotalSyncRequests)
+	}
+	fmt.Printf("Perspective graph sync complete\n")
+	return nil
+}
+
+func (db *DB) getNameFromHash(hash string) (name string) {
+	bytehash, err := base64.URLEncoding.DecodeString(hash)
+	if err != nil {
+		fmt.Printf("Hash %v was not base64 (%v)", hash, err)
+		return hash
+	}
+	resp, err := db.wave.ResolveReverseName(context.Background(), &pb.ResolveReverseNameParams{
+		Perspective: db.perspective,
+		Hash:        bytehash,
+	})
+	if err != nil {
+		fmt.Printf("Could not resolve name of hash %s %v\n", hash, err)
+		return hash
+	}
+	if resp.Error != nil {
+		fmt.Printf("Could not resolve name of hash %s %v\n", hash, resp.Error.Message)
+		return hash
+	}
+	return resp.Name
+}
+
+func (db *DB) getHashFromName(name string) (hash string) {
+	resp, err := db.wave.ResolveName(context.Background(), &pb.ResolveNameParams{
+		Perspective: db.perspective,
+		Name:        name,
+	})
+	if err != nil {
+		fmt.Printf("Could not resolve hash for name %v\n", err)
+		return name
+	}
+	if resp.Error != nil {
+		fmt.Printf("Could not resolve hash for name %v\n", resp.Error.Message)
+		return name
+	}
+	return base64.URLEncoding.EncodeToString(resp.Entity.Hash)
 }

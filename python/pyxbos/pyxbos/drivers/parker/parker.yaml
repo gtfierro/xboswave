@@ -1,0 +1,171 @@
+xbos:
+    service_name: parker
+wavemq:
+    namespace: GyAm0amHIojg5RIMu6tj4oHHIURc_B4j30sguB6JghTi7g==
+modbus:
+    UNIT_ID: 0xf7
+    byte_order: big
+    word_order: little
+    #                          ### Modbus typ ###
+    # This can be set to 'tcp' or 'serial' and determines the modbus method that
+    # the driver will use.  The appropriate settings will be used below and the
+    # irrelevant ones will be ignored
+    modbus_type: serial
+    #modbus_type: tcp
+    enable_logging: False
+
+    #                          ### Serial Settings ###
+    method: rtu
+    stopbits: 1
+    bytesize: 8
+    parity: E
+    baudrate: 9600
+    #                          ### Modbus TCP Settings ###
+    ip: 127.0.0.1
+    port: 578
+    serial_port: /dev/ttyUSB0
+    #                          ### OFFSET Regitsers
+    # This controls how much will be subtracted from all of the register addresses
+    # Some device specs will list the register address as 1, but when being accessed
+    # It will actually need to be sent addressed as 0.
+    OFFSET_REGISTERS: 0
+    #                          ### Target registers ###
+    # These registers will be accessed when the get_data() function is called
+    # the function will return a dictionary with the data for each register
+    # Register names must be unique or data will be overwritten. The
+    # write_registers() function will also use the register names defined here.
+    coil_registers: {}
+    discrete_registers: {}
+    input_registers: {}
+    holding_registers: {
+    # Each dictionary entry:
+    # register_name: [register_type, register_address, default_value, new_value]
+                        # commented out registers would not read!
+                        # HAACP Alarms command
+                        #clear_HACCP_historian: [0x465, 16int, 0, 1],
+                        #clear_HACCP_new_alarm_flag: [0x490, 16int, 0, 1],
+                        # HAACP record
+                        HAACP_0_0: [0x501,16uint],
+                        HAACP_0_1: [0x502,16uint],
+                        HAACP_0_2: [0x503,16uint],
+                        #HAACP_0_temp: [0x504,16int],
+                        # Compressor data
+                        compressor_working_hours: [0x2896,16int],
+                        #clear_memo_compressor_hours: [0x0470,16int], #seems to be write only
+                        # Application commands
+                        #buzzer_control: [0x402, 16int, 0, 1],
+                        defrost_control: [0x28B0, 16int, 12, 13], # 12 to stop defrost, 13 to start defrost
+                        #start_resistors_command: [0x475, 16int, 0, 1],
+                        # Status Read/Write
+                        on_standby_status: [0x0501,16int],
+                        light_status: [0x0502,16int],
+                        aux_output_status: [0x0503,16int],
+                        next_defrost_counter: [0x2886,16int],
+                        # Packed Status
+                        digital_io_status: [0x0551,16uint],
+                        # Probes
+                        cabinet_temperature: [0x552,16int],
+                        evaporator_temperature: [0x553,16int],
+                        auxiliary_temperature: [0x554,16int],
+                        # Alarms
+                        alarm_status: [0x0555,16int], # need to mask this
+                        # Regulators
+                        regulator_flag_1: [0x0556,16uint],
+                        regulator_flag_2: [0x0557,16uint],
+                        active_set_point: [0x0558,16int],
+                        time_until_defrost: [0x0559,16int],
+                        current_defrost_counter: [0x055A,16int],
+                        compressor_delay: [0x055B,16int],
+                        num_HAACP_alarm_historial: [0x055C,16int], #Number of HAACP alarm in historial
+                        # Digital output flags
+                        digital_output_flags: [0x28C1,16uint], # need to mask this
+                        # Parameters
+                        setpoint: [0x601,16int,0,1],
+                        CA1: [0x603,16int,0,2],
+                        CA2: [0x604,16int,0,3],
+                        CA3: [0x605,16int,0,4],
+                        p0: [0x606,16int,1,0],
+                        p1: [0x607,16int,1,0],
+                        p2: [0x608,16int,0,1],
+                        p3: [0x609,16int,1,0],
+                        p4: [0x60A,16int,3,0],
+                        p5: [0x60B,16int,0,1],
+                        p6: [0x60C,16int,0,1],
+                        r0: [0x60E,16int,2,1],
+                        r1: [0x60F,16int,-500,-501],
+                        r2: [0x610,16int,500,501],
+                        r3: [0x611,16int,0,1],
+                        r4: [0x612,16int,0,1],
+                        C0: [0x613,16int,0,1],
+                        C1: [0x614,16int,5,4],
+                        C2: [0x615,16int,3,4],
+                        C3: [0x616,16int,0,1],
+                        C4: [0x617,16int,10,9],
+                        C5: [0x618,16int,10,9],
+                        C6: [0x619,16int,80,79],
+                        C7: [0x61A,16int,90,89],
+                        C8: [0x61B,16int,1,2],
+                        C9: [0x61C,16int,5,6],
+                        C10: [0x61D,16int,1000,1001],
+                        d0: [0x61E,16int,8,9],
+                        d1: [0x61F,16int,0,1],
+                        d2: [0x620,16int,20,21],
+                        d3: [0x621,16int,30,31],
+                        d4: [0x622,16int,0,1],
+                        d5: [0x623,16int,0,1],
+                        d6: [0x624,16int,1,0],
+                        d7: [0x625,16int,2,2],
+                        d8: [0x626,16int,0,1],
+                        d9: [0x627,16int,0,1],
+                        dA: [0x628,16int,0,1],
+                        A0: [0x629,16int,0,1],
+                        A1: [0x62A,16int,-100,-99],
+                        A2: [0x62B,16int,1,0],
+                        A3: [0x62C,16int,0,1],
+                        A4: [0x62D,16int,100,99],
+                        A5: [0x62E,16int,1,0],
+                        A6: [0x62F,16int,120,121],
+                        A7: [0x630,16int,15,16],
+                        A8: [0x631,16int,15,16],
+                        A9: [0x632,16int,15,16],
+                        AA: [0x633,16int,1,2],
+                        F0: [0x634,16int,1,2],
+                        F1: [0x635,16int,-10,-9],
+                        F2: [0x636,16int,0,1],
+                        F3: [0x637,16int,2,0],
+                        i0: [0x638,16int,1,0],
+                        i1: [0x639,16int,0,1],
+                        i2: [0x63A,16int,30,29],
+                        i3: [0x63B,16int,15,14],
+                        i4: [0x63C,16int,0,1],
+                        i5: [0x63D,16int,4,5],
+                        i6: [0x63E,16int,0,1],
+                        i7: [0x63F,16int,0,1],
+                        i8: [0x640,16int,0,1],
+                        i9: [0x641,16int,240,241],
+                        u1: [0x642,16int,0,1],
+                        u2: [0x643,16int,0,1],
+                        u3: [0x644,16int,0,1],
+                        u4: [0x645,16int,0,1],
+                        u5: [0x646,16int,-1,0],
+                        u6: [0x647,16int,5,4],
+                        u7: [0x648,16int,2,1],
+                        u8: [0x649,16int,0,1],
+                        HE1: [0x64A,16int,0,1],
+                        HE2: [0x64B,16int,0,1],
+                        Hd1: [0x64C,16int,1440,1439],
+                        Hd2: [0x64D,16int,1440,1439],
+                        Hd3: [0x64E,16int,1440,1439],
+                        Hd4: [0x64F,16int,1440,1439],
+                        Hd5: [0x650,16int,1440,1439],
+                        Hd6: [0x651,16int,1440,1439],
+                        #LA: [0x652,16int],
+                        #LB: [0x653,16int],
+                        #LP: [0x654,16int],
+                        #KBD: [0x655,16int]
+                        # Info
+                        driver_identifier_A: [0xff02,16int],
+                        driver_identifier_B: [0xff03,16int],
+                        firmware_ID: [0xff08,16int],
+                        firmware_variation: [0xff09,16int]
+    }

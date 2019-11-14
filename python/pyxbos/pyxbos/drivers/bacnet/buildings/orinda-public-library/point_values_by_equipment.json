@@ -1,0 +1,429 @@
+{
+    "AHU": {
+        "AHU-3": {
+            "return_air_temperature_sensor": 77.43,
+            "mixed_air_temperature_setpoint": 55.0,
+            "outside_air_temperature_sensor": 91.44,
+            "zone_temperature_setpoint": 70.0,
+            "filter_status": false,
+            "mixed_air_temperature_low_limit_setpoint": 45.0,
+            "supply_air_damper_min_position_setpoint": 15.0,
+            "shutdown_command": false,
+            "zone_temperature_sensor": 73.78,
+            "mixed_air_temperature_sensor": 77.38,
+            "occupied_mode_status": true
+        },
+        "AHU-2": {
+            "mixed_air_temperature_sensor": 83.88,
+            "cooling_valve_command": 70.75,
+            "filter_status": false,
+            "discharge_air_static_pressure_setpoint": 1.5,
+            "building_static_pressure_sensor": 0.02,
+            "occupancy_command": true,
+            "building_static_pressure_setpoint": 0.05,
+            "discharge_air_static_pressure_sensor": 1.5,
+            "return_air_temperature_sensor": 82.5,
+            "heating_valve_command": 0.0,
+            "discharge_air_temperature_sensor": 54.56,
+            "outside_air_temperature_sensor": 91.44,
+            "discharge_air_temperature_setpoint": 55.0,
+            "cooling_demand": 100.0
+        },
+        "AHU-1": {
+            "mixed_air_temperature_sensor": 79.25,
+            "vvt": 74.56,
+            "heating_valve_command": 0.0,
+            "cooling_valve_command": 0.0,
+            "discharge_air_temperature_setpoint": 73.0,
+            "return_air_temperature_sensor": 79.5,
+            "outside_air_temperature_sensor": 91.56,
+            "occupancy_command": false,
+            "filter_status": false,
+            "discharge_air_temperature_sensor": 77.31
+        }
+    },
+    "Boiler": {
+        "CentralPlant": {
+            "on_off_command": false,
+            "alarm": false
+        }
+    },
+    "Chilled_Water_Pump": {
+        "CentralPlant": {
+            "pump_alarm": false,
+            "pump_status": true,
+            "pump_command": false
+        }
+    },
+    "Damper": {
+        "VAV2-1": {
+            "damper_position_sensor": 53.36,
+            "damper_position_command": 0.56
+        },
+        "VAV2-5": {
+            "damper_position_sensor": 36.75,
+            "damper_position_command": 0.27
+        },
+        "VVT-6": {
+            "damper_position_command": 50.0
+        },
+        "VAV2-3": {
+            "damper_position_command": 0.14,
+            "damper_position_sensor": 37.37
+        },
+        "VAV2-4": {
+            "damper_position_command": 0.0,
+            "damper_position_sensor": 16.18
+        },
+        "VAV2-2": {
+            "damper_position_command": 0.0,
+            "damper_position_sensor": 33.79
+        },
+        "VAV1-3": {
+            "damper_position_sensor": 0.0,
+            "damper_position_command": 3.33
+        },
+        "VVT-2": {
+            "damper_position_command": 50.0
+        },
+        "VAV2-11": {
+            "damper_position_command": 0.52,
+            "damper_position_sensor": 3.4
+        },
+        "VVT-1": {
+            "damper_position_command": 50.0
+        },
+        "VAV2-9": {
+            "damper_position_command": 0.0,
+            "damper_position_sensor": 100.0
+        },
+        "VVT-4": {
+            "damper_position_command": 50.0
+        },
+        "VAV1-5": {
+            "damper_position_sensor": 100.0,
+            "damper_position_command": 3.33
+        },
+        "AHU-3": {
+            "damper_position_command": 0.0
+        },
+        "VAV2-10": {
+            "damper_position_command": 0.29,
+            "damper_position_sensor": 16.73
+        },
+        "VAV2-7": {
+            "damper_position_sensor": 100.0,
+            "damper_position_command": 3.33
+        },
+        "VVT-5": {
+            "damper_position_command": 50.0
+        },
+        "VAV1-1": {
+            "damper_position_command": 0.2,
+            "damper_position_sensor": 59.36
+        },
+        "VAV1-2": {
+            "damper_position_sensor": 44.6,
+            "damper_position_command": 0.13
+        },
+        "VVT-3": {
+            "damper_position_command": 50.0
+        },
+        "VAV2-6": {
+            "damper_position_sensor": 12.34,
+            "damper_position_command": 0.3
+        },
+        "VVT-7": {
+            "damper_position_command": 50.0
+        },
+        "VAV2-8": {
+            "damper_position_command": 0.23,
+            "damper_position_sensor": 3.69
+        },
+        "VAV1-4": {
+            "damper_position_sensor": 49.55,
+            "damper_position_command": 0.23
+        },
+        "VAV2-12": {
+            "damper_position_sensor": 13.14,
+            "damper_position_command": 0.46
+        },
+        "AHU-2": {
+            "damper_position_command": 60.0
+        }
+    },
+    "Economizer": {
+        "AHU-3": {
+            "economizer_differential_air_temperature_setpoint": 8.0
+        }
+    },
+    "Fan": {
+        "VVT-7": {
+            "on_off_command": false
+        },
+        "AHU-1": {
+            "fan_reset_command": true,
+            "fan_status": false,
+            "fan_overload_alarm": false,
+            "on_off_command": false
+        },
+        "AHU-2": {
+            "fan_speed_setpoint": 60.53,
+            "on_off_command": true,
+            "vfd_alarm": true
+        },
+        "AHU-3": {
+            "fan_status": false,
+            "on_off_command": false,
+            "fan_overload_alarm": true
+        }
+    },
+    "Hot_Water_Pump": {
+        "CentralPlant": {
+            "pump_status": false,
+            "pump_alarm": false,
+            "pump_command": false,
+            "reset_command": true
+        }
+    },
+    "VAV": {
+        "VAV2-4": {
+            "zone_temperature_sensor": 72.96,
+            "thermostat_adjust_setpoint": 1.31,
+            "box_mode": false,
+            "cooling_max_supply_air_flow_setpoint": 1040.0,
+            "heating_demand": 0.0,
+            "cooling_demand": 0.0,
+            "zone_temperature_setpoint": 70.0,
+            "supply_air_flow_sensor": 334.42,
+            "occupied_heating_min_supply_air_flow_setpoint": 400.0,
+            "discharge_air_temperature_sensor": 58.72,
+            "supply_air_velocity_pressure_sensor": 0.03,
+            "supply_air_flow_setpoint": 325.0
+        },
+        "VAV2-12": {
+            "supply_air_flow_sensor": 226.56,
+            "supply_air_flow_setpoint": 225.0,
+            "cooling_max_supply_air_flow_setpoint": 1800.0,
+            "cooling_demand": 10.0,
+            "discharge_air_temperature_sensor": 56.75,
+            "occupied_heating_min_supply_air_flow_setpoint": 800.0,
+            "zone_temperature_setpoint": 74.0,
+            "heating_demand": 0.0,
+            "box_mode": false,
+            "zone_temperature_sensor": 100.0,
+            "supply_air_velocity_pressure_sensor": 0.01,
+            "thermostat_adjust_setpoint": 0.0
+        },
+        "VAV2-5": {
+            "cooling_demand": 100.0,
+            "zone_temperature_setpoint": 70.0,
+            "supply_air_flow_setpoint": 900.0,
+            "supply_air_flow_sensor": 879.82,
+            "cooling_max_supply_air_flow_setpoint": 900.0,
+            "zone_temperature_sensor": 71.31,
+            "heating_demand": 0.0,
+            "thermostat_adjust_setpoint": 0.79,
+            "discharge_air_temperature_sensor": 58.28,
+            "supply_air_velocity_pressure_sensor": 0.23,
+            "box_mode": false,
+            "occupied_heating_min_supply_air_flow_setpoint": 300.0
+        },
+        "VAV2-3": {
+            "cooling_max_supply_air_flow_setpoint": 275.0,
+            "supply_air_flow_sensor": 126.22,
+            "supply_air_flow_setpoint": 125.0,
+            "thermostat_adjust_setpoint": 3.32,
+            "heating_demand": 0.0,
+            "zone_temperature_sensor": 74.17,
+            "zone_temperature_setpoint": 69.9,
+            "supply_air_velocity_pressure_sensor": 0.09,
+            "discharge_air_temperature_sensor": 238.23,
+            "cooling_demand": 0.0,
+            "box_mode": false,
+            "occupied_heating_min_supply_air_flow_setpoint": 125.0
+        },
+        "VAV2-1": {
+            "box_mode": false,
+            "discharge_air_temperature_sensor": 59.83,
+            "supply_air_flow_setpoint": 150.0,
+            "zone_temperature_setpoint": 70.0,
+            "supply_air_flow_sensor": 149.6,
+            "zone_temperature_sensor": 72.26,
+            "heating_demand": 0.0,
+            "thermostat_adjust_setpoint": 0.61,
+            "cooling_max_supply_air_flow_setpoint": 350.0,
+            "cooling_demand": 0.0,
+            "occupied_heating_min_supply_air_flow_setpoint": 250.0,
+            "supply_air_velocity_pressure_sensor": 0.07
+        },
+        "VAV1-4": {
+            "zone_temperature_setpoint": 74.0,
+            "cooling_demand": 0.0,
+            "supply_air_flow_setpoint": 250.0,
+            "supply_air_velocity_pressure_sensor": 0.16,
+            "zone_temperature_sensor": 65.27,
+            "cooling_max_supply_air_flow_setpoint": 350.0,
+            "supply_air_flow_sensor": 243.59,
+            "thermostat_adjust_setpoint": 4.89,
+            "discharge_air_temperature_sensor": 56.48,
+            "occupied_heating_min_supply_air_flow_setpoint": 250.0,
+            "heating_demand": 100.0,
+            "box_mode": false
+        },
+        "VAV2-6": {
+            "cooling_max_supply_air_flow_setpoint": 1050.0,
+            "zone_temperature_setpoint": 70.0,
+            "supply_air_flow_setpoint": 325.0,
+            "supply_air_velocity_pressure_sensor": 0.03,
+            "cooling_demand": 0.02,
+            "zone_temperature_sensor": 73.85,
+            "occupied_heating_min_supply_air_flow_setpoint": 500.0,
+            "discharge_air_temperature_sensor": 58.13,
+            "box_mode": false,
+            "heating_demand": 0.0,
+            "supply_air_flow_sensor": 319.54,
+            "thermostat_adjust_setpoint": 3.75
+        },
+        "VAV2-7": {
+            "supply_air_flow_setpoint": 1330.0,
+            "discharge_air_temperature_sensor": 82.46,
+            "thermostat_adjust_setpoint": 0.0,
+            "cooling_demand": 100.0,
+            "cooling_max_supply_air_flow_setpoint": 1330.0,
+            "supply_air_flow_sensor": 0.0,
+            "heating_demand": 0.0,
+            "supply_air_velocity_pressure_sensor": 0.0,
+            "zone_temperature_sensor": 73.8,
+            "occupied_heating_min_supply_air_flow_setpoint": 600.0,
+            "box_mode": true,
+            "zone_temperature_setpoint": 70.0
+        },
+        "VAV1-5": {
+            "discharge_air_temperature_sensor": 69.03,
+            "supply_air_flow_setpoint": 400.0,
+            "cooling_demand": 100.0,
+            "heating_demand": 0.0,
+            "supply_air_velocity_pressure_sensor": 0.0,
+            "supply_air_flow_sensor": 23.99,
+            "cooling_max_supply_air_flow_setpoint": 400.0,
+            "thermostat_adjust_setpoint": 4.79,
+            "zone_temperature_setpoint": 66.5,
+            "occupied_heating_min_supply_air_flow_setpoint": 400.0,
+            "box_mode": false,
+            "zone_temperature_sensor": 68.59
+        },
+        "VAV2-10": {
+            "zone_temperature_setpoint": 74.0,
+            "supply_air_flow_setpoint": 100.0,
+            "thermostat_adjust_setpoint": 0.0,
+            "supply_air_flow_sensor": 90.0,
+            "discharge_air_temperature_sensor": 57.25,
+            "box_mode": false,
+            "occupied_heating_min_supply_air_flow_setpoint": 450.0,
+            "cooling_max_supply_air_flow_setpoint": 600.0,
+            "heating_demand": 100.0,
+            "supply_air_velocity_pressure_sensor": 0.0,
+            "zone_temperature_sensor": 62.53,
+            "cooling_demand": 0.0
+        },
+        "VAV2-2": {
+            "zone_temperature_setpoint": 70.0,
+            "zone_temperature_sensor": 73.01,
+            "thermostat_adjust_setpoint": 3.11,
+            "supply_air_velocity_pressure_sensor": 0.05,
+            "cooling_demand": 0.0,
+            "supply_air_flow_sensor": 127.61,
+            "supply_air_flow_setpoint": 125.0,
+            "box_mode": false,
+            "cooling_max_supply_air_flow_setpoint": 320.0,
+            "discharge_air_temperature_sensor": 59.81,
+            "heating_demand": 0.0,
+            "occupied_heating_min_supply_air_flow_setpoint": 150.0
+        },
+        "VAV1-3": {
+            "supply_air_flow_setpoint": 200.0,
+            "supply_air_velocity_pressure_sensor": 0.63,
+            "cooling_demand": 10.0,
+            "discharge_air_temperature_sensor": 56.77,
+            "occupied_heating_min_supply_air_flow_setpoint": 200.0,
+            "thermostat_adjust_setpoint": 3.95,
+            "box_mode": false,
+            "supply_air_flow_sensor": 476.14,
+            "zone_temperature_setpoint": 72.0,
+            "zone_temperature_sensor": 63.94,
+            "cooling_max_supply_air_flow_setpoint": 400.0,
+            "heating_demand": 20.0
+        },
+        "VAV2-11": {
+            "cooling_max_supply_air_flow_setpoint": 1200.0,
+            "heating_demand": 0.0,
+            "supply_air_velocity_pressure_sensor": 0.0,
+            "discharge_air_temperature_sensor": 58.17,
+            "box_mode": false,
+            "zone_temperature_setpoint": 65.0,
+            "cooling_demand": 0.0,
+            "supply_air_flow_setpoint": 50.0,
+            "supply_air_flow_sensor": 60.72,
+            "thermostat_adjust_setpoint": 0.0,
+            "zone_temperature_sensor": 68.37,
+            "occupied_heating_min_supply_air_flow_setpoint": 700.0
+        },
+        "VAV1-1": {
+            "cooling_demand": 100.0,
+            "occupied_heating_min_supply_air_flow_setpoint": 400.0,
+            "box_mode": false,
+            "discharge_air_temperature_sensor": 57.21,
+            "supply_air_flow_sensor": 741.27,
+            "cooling_max_supply_air_flow_setpoint": 750.0,
+            "supply_air_flow_setpoint": 750.0,
+            "zone_temperature_setpoint": 69.0,
+            "thermostat_adjust_setpoint": 4.77,
+            "supply_air_velocity_pressure_sensor": 0.34,
+            "zone_temperature_sensor": 66.33,
+            "heating_demand": 0.0
+        },
+        "VAV1-2": {
+            "box_mode": false,
+            "zone_temperature_sensor": 72.29,
+            "supply_air_flow_sensor": 1667.13,
+            "supply_air_velocity_pressure_sensor": 0.32,
+            "supply_air_flow_setpoint": 1700.0,
+            "zone_temperature_setpoint": 68.0,
+            "cooling_demand": 100.0,
+            "thermostat_adjust_setpoint": 0.0,
+            "occupied_heating_min_supply_air_flow_setpoint": 1000.0,
+            "discharge_air_temperature_sensor": 56.68,
+            "heating_demand": 0.0,
+            "cooling_max_supply_air_flow_setpoint": 1700.0
+        },
+        "VAV2-9": {
+            "zone_temperature_sensor": 71.05,
+            "occupied_heating_min_supply_air_flow_setpoint": 450.0,
+            "heating_demand": 0.0,
+            "cooling_max_supply_air_flow_setpoint": 800.0,
+            "box_mode": false,
+            "discharge_air_temperature_sensor": 66.98,
+            "supply_air_flow_setpoint": 50.0,
+            "zone_temperature_setpoint": 70.0,
+            "cooling_demand": 0.0,
+            "supply_air_flow_sensor": 43.19,
+            "thermostat_adjust_setpoint": 0.0,
+            "supply_air_velocity_pressure_sensor": 0.0
+        },
+        "VAV2-8": {
+            "zone_temperature_sensor": 65.42,
+            "occupied_heating_min_supply_air_flow_setpoint": 500.0,
+            "thermostat_adjust_setpoint": 0.0,
+            "heating_demand": 0.0,
+            "supply_air_flow_setpoint": 50.0,
+            "cooling_demand": 0.0,
+            "cooling_max_supply_air_flow_setpoint": 800.0,
+            "supply_air_velocity_pressure_sensor": 0.0,
+            "box_mode": false,
+            "supply_air_flow_sensor": 68.82,
+            "zone_temperature_setpoint": 70.0,
+            "discharge_air_temperature_sensor": 58.04
+        }
+    }
+}

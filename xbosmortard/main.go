@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"git.sr.ht/~gabe/mortar/stages"
 	"github.com/heptiolabs/healthcheck"
 	"github.com/pkg/profile"
@@ -14,6 +15,8 @@ import (
 
 var log = logrus.New()
 
+var configfile = flag.String("config", "mortarconfig.yml", "Path to mortarconfig.yml file")
+
 func init() {
 	log.SetFormatter(&logrus.TextFormatter{FullTimestamp: true, ForceColors: true})
 	log.SetOutput(os.Stdout)
@@ -21,6 +24,7 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
 	doCPUprofile := false
 	if doCPUprofile {
 		defer profile.Start(profile.CPUProfile, profile.ProfilePath(".")).Stop()
@@ -32,7 +36,7 @@ func main() {
 
 	maincontext, cancel := context.WithCancel(context.Background())
 
-	cfg, err := stages.ReadConfig("mortarconfig.yml")
+	cfg, err := stages.ReadConfig(*configfile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,15 +60,14 @@ func main() {
 		}
 	}()
 
-	frontend_stage_cfg := &stages.WAVEMQFrontendStageConfig{
-		SiteRouter: cfg.WAVEMQ.SiteRouter,
-		EntityFile: cfg.WAVEMQ.EntityFile,
-		Namespace:  cfg.WAVEMQ.Namespace,
-		BaseURI:    cfg.WAVEMQ.BaseURI,
-		ServerName: cfg.WAVEMQ.ServerName,
+	frontend_stage_cfg := &stages.ApiFrontendWAVEAuthStageConfig{
+		StageContext: maincontext,
+		ListenAddr:   cfg.ListenAddr,
+		Agent:        cfg.WAVE.Agent,
+		EntityFile:   cfg.WAVE.EntityFile,
+		ProofFile:    cfg.WAVE.ProofFile,
 	}
-
-	frontend_stage, err := stages.NewWAVEMQFrontendStage(frontend_stage_cfg)
+	frontend_stage, err := stages.NewApiFrontendWAVEAuthStage(frontend_stage_cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -111,7 +114,7 @@ func main() {
 		end = end.GetUpstream()
 	}
 
-	stages.Showtime(ts_stage.GetQueue())
+	//	stages.Showtime(ts_stage.GetQueue())
 
 	select {}
 	cancel()

@@ -21,3 +21,37 @@ message Double {
 message Bool {
     bool value = 1;
 }
+
+message FanMode {
+    FanModeValue value = 1;
+}
+
+message HVACMode {
+    HVACModeValue value = 1;
+}
+
+message HVACState {
+    HVACStateValue value = 1;
+}
+
+enum FanModeValue {
+    FanAuto = 0;
+    FanOn = 1;
+    FanOff = 2;
+}
+
+enum HVACModeValue {
+    HVACModeOff = 0;
+    HVACModeHeatOnly = 1;
+    HVACModeCoolOnly = 2;
+    HVACModeAuto = 3;
+}
+
+enum HVACStateValue {
+    HVACStateOff = 0;
+    HVACStateHeatStage1 = 1;
+    HVACStateCoolStage1 = 2;
+    HVACStateHeatStage2 = 3;
+    HVACStateCoolStage2 = 4;
+}
+

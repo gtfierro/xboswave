@@ -1,0 +1,193 @@
+syntax = "proto3";
+package xbospb;
+import "nullabletypes.proto";
+message ParkerState {
+	//unit: hours
+	Double compressor_working_hours = 1;
+	//on/standby
+	Int64 on_standby_status = 2;
+	Int64 light_status = 3;
+	Int64 aux_output_status = 4;
+	//counter reduces periodically (in 1/4 of a minute)
+	//unit: seconds
+	Double next_defrost_counter = 5;
+	//digital_io_status & 0x0001
+	Int64 door_switch_input_status = 6;
+	//digital_io_status & 0x0002
+	Int64 multipurpose_input_status = 7;
+	//digital_io_status & 0x0100
+	Int64 compressor_status = 8;
+	//digital_io_status & 0x0200
+	Int64 output_defrost_status = 9;
+	//digital_io_status & 0x0400
+	Int64 fans_status = 10;
+	//digital_io_status & 0x0800
+	Int64 output_k4_status = 11;
+	//temperature measured by cabinet probe (in 10x actual value)
+	//unit: C
+	Double cabinet_temperature = 12;
+	//temperature measured by evaporator probe (in 10x actual value)
+	//unit: C
+	Double evaporator_temperature = 13;
+	//temperature measured by auxiliary probe (if present) (in 10x actual value)
+	//unit: C
+	Double auxiliary_temperature = 14;
+	//alarm_status & 0x0100
+	Int64 probe1_failure_alarm = 15;
+	//alarm_status & 0x0200
+	Int64 probe2_failure_alarm = 16;
+	//alarm_status & 0x0400
+	Int64 probe3_failure_alarm = 17;
+	//alarm_status & 0x1000
+	Int64 minimum_temperature_alarm = 18;
+	//alarm_status & 0x2000
+	Int64 maximum_temperture_alarm = 19;
+	//alarm_status & 0x4000
+	Int64 condensor_temperature_failure_alarm = 20;
+	//alarm_status & 0x8000
+	Int64 condensor_pre_alarm = 21;
+	//alarm_status & 0x0004
+	Int64 door_alarm = 22;
+	//alarm_status & 0x0008
+	Int64 multipurpose_input_alarm = 23;
+	//alarm_status & 0x0010
+	Int64 compressor_blocked_alarm = 24;
+	//alarm_status & 0x0020
+	Int64 power_failure_alarm = 25;
+	//alarm_status & 0x0080
+	Int64 rtc_error_alarm = 26;
+	//regulator_flag_1 & 0x0100
+	Int64 energy_saving_regulator_flag = 27;
+	//regulator_flag_1 & 0x0200
+	Int64 energy_saving_real_time_regulator_flag = 28;
+	//regulator_flag_1 & 0x0400
+	Int64 service_request_regulator_flag = 29;
+	//regulator_flag_2 & 0x0001; 1=standby
+	Int64 on_standby_regulator_flag = 30;
+	//regulator_flag_2 & 0x0080
+	Int64 new_alarm_to_read_regulator_flag = 31;
+	//regulator_flag_2 & 0x0700; 0/1/2/3 = no defrost active/defrost running/dripping/fans stop
+	Int64 defrost_status_regulator_flag = 32;
+	//active_setpoint=setpoint(when no energy saving); else=setpoint+r4
+	//unit: C
+	Int64 active_setpoint = 33;
+	//time remaining to next defrost
+	//unit: seconds
+	Int64 time_until_defrost = 34;
+	//current defrost counter countdown (in 1/4 of a minute)
+	//unit: seconds
+	Int64 current_defrost_counter = 35;
+	//compressor delay in seconds
+	//unit: seconds
+	Int64 compressor_delay = 36;
+	//number of HACCP alarms in history (max of last 9 stored)
+	Int64 num_alarms_in_history = 37;
+	//is energy saving mode active or not; digital_output_flags & 0x0100
+	Int64 energy_saving_status = 38;
+	//digital_output_flags & 0x0200
+	Int64 service_request_status = 39;
+	//digital_output_flags & 0x001
+	Int64 resistors_activated_by_aux_key_status = 40;
+	//digital_output_flags & 0x002
+	Int64 evaporator_valve_state = 41;
+	//digital_output_flags & 0x004
+	Int64 output_defrost_state = 42;
+	//digital_output_flags & 0x008
+	Int64 output_lux_state = 43;
+	//digital_output_flags & 0x0010
+	Int64 output_aux_state = 44;
+	//activated by cabinet probe; digital_output_flags & 0x0020
+	Int64 resistors_state = 45;
+	//digital_output_flags & 0x0040
+	Int64 output_alarm_state = 46;
+	//digital_output_flags & 0x0080
+	Int64 second_compressor_state = 47;
+	//setpoint
+	Double setpoint = 48;
+	//min working setpoint
+	//unit: C
+	Double r1 = 49;
+	//max working setpoint
+	//unit: C
+	Double r2 = 50;
+	//used for active_set_point calculation in energy saving mode; adds to active setpoint
+	Double r4 = 51;
+	//compressor delay after turning on controller
+	//unit: minutes
+	Double C0 = 52;
+	//min time between 2 activations in succession of compressor
+	//unit: minutes
+	Double C1 = 53;
+	//defrost interval (only if d8 = 0/1/2); 0 = the defrost at intervals will never be activated
+	//unit: hours
+	Double d0 = 54;
+	//defrost duration if P3=0 or 2; max duration if P3=1
+	//unit: minutes
+	Double d3 = 55;
+	//defrost delay when you turn on controller; only if d4=1
+	//unit: minutes
+	Double d5 = 56;
+	//drip delay
+	//unit: minutes
+	Double d7 = 57;
+	//kind of defrost interval; 0/1/2/3=defrost on when controller/compressor/evaporator temperature is below d9  is on for d0 hours/realtime
+	Int64 d8 = 58;
+	//measured input for low temp alarm; 0/1/2=cab/evap/aux (only if P4=1/2)
+	Int64 A0 = 59;
+	//temperature below which low temperature alarm is activated
+	//unit: C
+	Double A1 = 60;
+	//kind of lower temp alarm; 0/1/2=disabled/working setpoint-A1/absolute (or A1)
+	Int64 A2 = 61;
+	//measured input for high temp alarm; 0/1/2=cab/evap/aux (only if P4=1/2)
+	Int64 A3 = 62;
+	//temperature above which high temperature alarm is activated
+	//unit: C
+	Double A4 = 63;
+	//kind of high temp alarm; 0/1/2=disabled/working setpoint+A4/absolute (or A4)
+	Int64 A5 = 64;
+	//high temperature alarm delay after turning on controller; only if A3=0
+	//unit: minutes
+	Double A6 = 65;
+	//temperature alarm delay
+	//unit: minutes
+	Double A7 = 66;
+	//high temperature alarm delay after end of defrost; only if A3=0
+	//unit: minutes
+	Double A8 = 67;
+	//high temperature alarm delay after deactivation of microport input only if A3=0
+	//unit: minutes
+	Double A9 = 68;
+	//evap fan activity during normal operation; 0/1/2/3/4=off/on/in parallel with compressor/dependent on F1/off if compressor is off and depedent on F1 if compressor is on
+	Int64 F0 = 69;
+	//evap temperature above which evap fan is turned off; only if F0=3/4
+	//unit: C
+	Double F1 = 70;
+	//evap fan activity during defrost and drip delay; 0/1/2 = off/on/dependent on F0
+	Int64 F2 = 71;
+	//fan delay after evap drip completes
+	//unit: minutes
+	Double F3 = 72;
+	//first real time defrost activation time; only if d8=3
+	//unit: hh:mm
+	Double Hd1 = 73;
+	//second real time defrost activation time; only if d8=3
+	//unit: hh:mm
+	Double Hd2 = 74;
+	//third real time defrost activation time; only if d8=3
+	//unit: hh:mm
+	Double Hd3 = 75;
+	//fourth real time defrost activation time; only if d8=3
+	//unit: hh:mm
+	Double Hd4 = 76;
+	//fifth real time defrost activation time; only if d8=3
+	//unit: hh:mm
+	Double Hd5 = 77;
+	//sixth real time defrost activation time; only if d8=3
+	//unit: hh:mm
+	Double Hd6 = 78;
+
+    // current UNIX epoch time
+    //unit:ns
+    uint64 time = 79;
+}
