@@ -1,0 +1,154 @@
+xbos:
+    waved: localhost:777
+    wavemq: localhost:4516
+    base_resource: wattnode
+    rate: 60
+    entity: 
+    namespace: 
+    service_name_map: 
+        ref_evapfan: 0x2
+        ref_comp: 0x3
+        fre_comp_evapfan: 0x4
+        building_main: 0x5
+        hvac_west_comp: 0x6
+        hvac_east_comp: 0x7
+    id: wattnode-driver
+
+modbus:
+    UNIT_ID: [0x2, 0x3, 0x4, 0x5, 0x6, 0x7]
+    byte_order: big
+    word_order: little
+    enable_logging: False
+    modbus_type: serial
+    method: rtu
+    stopbits: 1
+    bytesize: 8
+    parity: N
+    serial_port: /dev/ttyUSB0
+    baudrate: 19200
+    ip: 127.0.0.1
+    tcp_port: 5020
+    OFFSET_REGISTERS: 0
+    coil_registers: {}
+    discrete_registers: {}
+    input_registers: {}
+    holding_registers: {
+                        # Floating Energy Registers
+                        EnergySum: [1000,32float],
+                        EnergyPosSum: [1002,32float],
+                        EnergySumNR: [1004,32float],
+                        EnergyPosSumNr: [1006,32float],
+                        # Floating Power Registers
+                        PowerSum: [1008,32float],
+                        PowerA: [1010,32float],
+                        PowerB: [1012,32float],
+                        PowerC: [1014,32float],
+                        # Floating Voltage Registers
+                        VoltAvgLN: [1016,32float],
+                        VoltA: [1018,32float],
+                        VoltB: [1020,32float],
+                        VoltC: [1022,32float],
+                        VoltAvgLL: [1024,32float],
+                        VoltAB: [1026,32float],
+                        VoltBC: [1028,32float],
+                        VoltAC: [1030,32float],
+                        # Floating Frequency Register
+                        Freq: [1032,32float],
+                        # Advanced Registers - Floating Point
+                        EnergyA: [1100,32float],
+                        EnergyB: [1102,32float],
+                        EnergyC: [1104,32float],
+                        EnergyPosA: [1106,32float],
+                        EnergyPosB: [1108,32float],
+                        EnergyPosC: [1110,32float],
+                        EnergyNegSum: [1112,32float],
+                        EnergyNegSumNR: [1114,32float],
+                        EnergyNegA: [1116,32float],
+                        EnergyNegB: [1118,32float],
+                        EnergyNegC: [1120,32float],
+                        EnergyReacSum: [1122,32float],
+                        EnergyReacA: [1124,32float],
+                        EnergyReacB: [1126,32float],
+                        EnergyReacC: [1128,32float],
+                        EnergyAppSum: [1130,32float],
+                        EnergyAppA: [1132,32float],
+                        EnergyAppB: [1134,32float],
+                        EnergyAppC: [1136,32float],
+                        PowerFactorAvg: [1138,32float],
+                        PowerFactorA: [1140,32float],
+                        PowerFactorB: [1142,32float],
+                        PowerFactorC: [1144,32float],
+                        PowerReacSum: [1146,32float],
+                        PowerReacA: [1148,32float],
+                        PowerReacB: [1150,32float],
+                        PowerReacC: [1152,32float],
+                        PowerAppSum: [1154,32float],
+                        PowerAppA: [1156,32float],
+                        PowerAppB: [1158,32float],
+                        PowerAppC: [1160,32float],
+                        CurrentA: [1162,32float],
+                        CurrentB: [1164,32float],
+                        CurrentC: [1166,32float],
+                        Demand: [1168,32float],
+                        DemandMin: [1170,32float],
+                        DemandMax: [1172,32float],
+                        DemandApp: [1174,32float],
+                        DemandA: [1176,32float],
+                        DemandB: [1178,32float],
+                        DemandC: [1180,32float],
+
+                        # IoPinState_int: [1360,16int],
+                        # PulseCount_int: [1361,32int],
+                        # # Configuration Registers
+                        # ConfigPasscode: [1600,32int],
+                        # CtAmps: [1602,16int],
+                        # CtAmpsA: [1603,16int],
+                        # CtAmpsB: [1604,16int],
+                        # CtAmpsC: [1605,16int],
+                        # CtDirections: [1606,16int],
+                        # Averaging: [1607,16int],
+                        # PowerIntScale: [1608,16int],
+                        # DemPerMins: [1609,16int],
+                        # DemSubints: [1610,16int],
+                        # GainAdjustA: [1611,16int],
+                        # GainAdjustB: [1612,16int],
+                        # GainAdjustC: [1613,16int],
+                        # PhaseAdjustA: [1614,16int],
+                        # PhaseAdjustB: [1615,16int],
+                        # PhaseAdjustC: [1616,16int],
+                        # CreepLimit: [1617,16int],
+                        # PhaseOffset: [1618,16int],
+                        # ZeroEnergy: [1619,16int],
+                        # ZeroDemand: [1620,16int],
+                        # CurrentIntScale: [1621,16int],
+                        # IoPinMode: [1622,16int],
+                        # # Communication Registers
+                        # ApplyComConfig: [1650,16int],
+                        # Address: [1651,16int],
+                        # BaudRate: [1652,16int],
+                        # ParityMode: [1653,16int],
+                        # ModbusMode: [1654,16int],
+                        # ReplyDelay: [1655,16int],
+                        # # Customer Diagnostic Registers
+                        # DummyReg: [0000,32int],
+                        # SerialNumber: [1700,32int],
+                        # UptimeSecs: [1702,32int],
+                        # TotalSecs: [1704,32int],
+                        # Model: [1706,16int],
+                        # Version: [1707,16int],
+                        # Options: [1708,16int],
+                        # ErrorStatus: [1709,16int],
+                        # PowerFailCount: [1710,16int],
+                        # CrcErrorCount: [1712,16int],
+                        # FrameErrorCount: [1713,16int],
+                        # PacketErrorCount: [1713,16int],
+                        # OverrunCount: [1714,16int],
+                        # ErrorStatus1: [1715,16int],
+                        # ErrorStatus2: [1716,16int],
+                        # ErrorStatus3: [1717,16int],
+                        # ErrorStatus4: [1718,16int],
+                        # ErrorStatus5: [1719,16int],
+                        # ErrorStatus6: [1720,16int],
+                        # ErrorStatus7: [1721,16int],
+                        # ErrorStatus8: [1722,16int]
+}

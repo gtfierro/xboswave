@@ -584,7 +584,7 @@ func build_device(uri types.SubscriptionURI, name string, msg xbospb.XBOS) types
 }
 
 func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.ExtractedTimeseries) error) error {
-	if msg.XBOSIoTDeviceState != nil {
+	if msg.ParkerState != nil {
 		if has_device(msg) {
 			// Go through each Field in the Xbos Message
 			for name := range device_lookup {

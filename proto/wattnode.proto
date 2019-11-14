@@ -1,0 +1,179 @@
+syntax = "proto3";
+package xbospb;
+import "nullabletypes.proto";
+message WattnodeState {
+	//total net (bidirectional) energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergySum = 1;
+	//total positive energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyPosSum = 2;
+	//total net (bidirectional) energy - non resettable and preserved across power failures
+	//unit: kWh
+	Double EnergySumNR = 3;
+	//total positive energy - non resettable and preserverd across power failures
+	//unit: kWh
+	Double EnergyPosSumNr = 4;
+	//real power; sum of active phases
+	//unit: W
+	Double PowerSum = 5;
+	//real power; phase A
+	//unit: W
+	Double PowerA = 6;
+	//real power; phase B
+	//unit: W
+	Double PowerB = 7;
+	//real power; phase C
+	//unit: W
+	Double PowerC = 8;
+	//average line-to-neutral voltage
+	//unit: V
+	Double VoltAvgLN = 9;
+	//RMS voltage; phase A to neutral
+	//unit: V
+	Double VoltA = 10;
+	//RMS voltage; phase B to neutral
+	//unit: V
+	Double VoltB = 11;
+	//RMS voltage; phase C to neutral
+	//unit: V
+	Double VoltC = 12;
+	//average line-to-line voltage
+	//unit: V
+	Double VoltAvgLL = 13;
+	//RMS voltage; line-to-line; phase A to B
+	//unit: V
+	Double VoltAB = 14;
+	//RMS voltage; line-to-line; phase B to C
+	//unit: V
+	Double VoltBC = 15;
+	//RMS voltage; line-to-line; phase A to C
+	//unit: V
+	Double VoltAC = 16;
+	//power line frequency
+	//unit: Hz
+	Double Freq = 17;
+	//phase A net (bidirectional) energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyA = 18;
+	//phase B net (bidirectional) energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyB = 19;
+	//phase C net (bidirectional) energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyC = 20;
+	//phase A positive energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyPosA = 21;
+	//phase B positive energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyPosB = 22;
+	//phase C positive energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyPosC = 23;
+	//total negative energy; sum of active phases - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyNegSum = 24;
+	//total negative energy; sum of active phases - non resettable and preserved across power failures
+	//unit: kWh
+	Double EnergyNegSumNR = 25;
+	//phase A negative energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyNegA = 26;
+	//phase B negative energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyNegB = 27;
+	//phase C negative energy - preserved across power failures; can be reset or preset
+	//unit: kWh
+	Double EnergyNegC = 28;
+	//reactive energy; sum of active phases - preserved across power failures; can be reset or preset
+	//unit: kVARh
+	Double EnergyReacSum = 29;
+	//phase A net reactive energy - preserved across power failures; can be reset or preset
+	//unit: kVARh
+	Double EnergyReacA = 30;
+	//phase B net reactive energy - preserved across power failures; can be reset or preset
+	//unit: kVARh
+	Double EnergyReacB = 31;
+	//phase C net reactive energy - preserved across power failures; can be reset or preset
+	//unit: kVARh
+	Double EnergyReacC = 32;
+	//total apparent energy; sum of active phases - preserved across power failures; can be reset or preset
+	//unit: kVAh
+	Double EnergyAppSum = 33;
+	//phase A apparent energy - preserved across power failures; can be reset or preset
+	//unit: kVAh
+	Double EnergyAppA = 34;
+	//phase B apparent energy - preserved across power failures; can be reset or preset
+	//unit: kVAh
+	Double EnergyAppB = 35;
+	//phase C apparent energy - preserved across power failures; can be reset or preset
+	//unit: kVAh
+	Double EnergyAppC = 36;
+	//average power factor
+	Double PowerFactorAvg = 37;
+	//phase A power factor
+	Double PowerFactorA = 38;
+	//phase B power factor
+	Double PowerFactorB = 39;
+	//phase C power factor
+	Double PowerFactorC = 40;
+	//total reactive power; sum of active phases
+	//unit: VAR
+	Double PowerReacSum = 41;
+	//phase A reactive power
+	//unit: VAR
+	Double PowerReacA = 42;
+	//phase B reactive power
+	//unit: VAR
+	Double PowerReacB = 43;
+	//phase C reactive power
+	//unit: VAR
+	Double PowerReacC = 44;
+	//total apparent power; sum of active phases
+	//unit: VA
+	Double PowerAppSum = 45;
+	//phase A apparent power
+	//unit: VA
+	Double PowerAppA = 46;
+	//phase B apparent power
+	//unit: VA
+	Double PowerAppB = 47;
+	//phase C apparent power
+	//unit: VA
+	Double PowerAppC = 48;
+	//RMS current; phase A
+	//unit: A
+	Double CurrentA = 49;
+	//RMS current; phase B
+	//unit: A
+	Double CurrentB = 50;
+	//RMS current; phase C
+	//unit: A
+	Double CurrentC = 51;
+	//real power demand average over demand period
+	//unit: W
+	Double Demand = 52;
+	//minimum power demand
+	//unit: W
+	Double DemandMin = 53;
+	//maximum power demand
+	//unit: W
+	Double DemandMax = 54;
+	//apparent power demand
+	//unit: W
+	Double DemandApp = 55;
+	//phase A real power demand
+	//unit: W
+	Double DemandA = 56;
+	//phase B real power demand
+	//unit: W
+	Double DemandB = 57;
+	//phase C real power demand
+	//unit: W
+	Double DemandC = 58;
+
+	//epoch time
+	uint64 time = 59;
+}
+
