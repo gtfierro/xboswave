@@ -438,10 +438,11 @@ func getConn(agent string) pb.WAVEClient {
 // - INSTEAD: generate instructions so entities/edges can be done non-centrally
 // - terminal nodes can be hashes; we don't create these, just grant to the hash
 func main() {
-	g := GraphEngineFromSpecFile("energise.toml")
-	if err := g.AddApplicationGraph("test.ttl"); err != nil {
-		log.Fatal(err)
-	}
+	g := GraphEngineFromSpecFile(os.Args[1])
+	//g := GraphEngineFromSpecFile("energise.toml")
+	//if err := g.AddApplicationGraph("test.ttl"); err != nil {
+	//	log.Fatal(err)
+	//}
 	all_visited, unreachable := g.ValidateConnectivity()
 	fmt.Println("Fully connected?", all_visited, "unreachable:", unreachable)
 	fmt.Println("Prepare entities")

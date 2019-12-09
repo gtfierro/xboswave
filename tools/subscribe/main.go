@@ -31,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	conn, err := grpc.Dial("localhost:4716", grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:4516", grpc.WithInsecure(), grpc.FailOnNonTempDialError(true), grpc.WithBlock())
 	if err != nil {
 		log.Fatal(err)
 	}
