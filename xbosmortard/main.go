@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"git.sr.ht/~gabe/mortar/stages"
+	"github.com/SoftwareDefinedBuildings/mortar/stages"
 	"github.com/heptiolabs/healthcheck"
 	"github.com/pkg/profile"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

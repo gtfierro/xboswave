@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	mortarpb "git.sr.ht/~gabe/mortar/proto"
+	mortarpb "github.com/SoftwareDefinedBuildings/mortar/proto"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	xbospb "github.com/gtfierro/xboswave/proto"

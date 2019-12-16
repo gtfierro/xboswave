@@ -14,8 +14,6 @@ git.apache.org/thrift.git v0.0.0-20181218151757-9b75e4fe745a/go.mod h1:fPE2ZNJGy
 git.apache.org/thrift.git v0.12.0/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
 git.sr.ht/~gabe/hod v0.6.11 h1:p82wXFSuQ1XHbGsgaKoq6QkWOdof50nkECiYQw4Z764=
 git.sr.ht/~gabe/hod v0.6.11/go.mod h1:RWvhEC6WCTlPZnsOt74bqHIcM1qOHf9dCJ5OoIZpjM4=
-git.sr.ht/~gabe/mortar v1.1.0-alpha4 h1:XBIpOySpwK/8/eXkC05DrhYjtDdtxPrnqrcGdwF0qUc=
-git.sr.ht/~gabe/mortar v1.1.0-alpha4/go.mod h1:hOiPNbc1jHoYsbWZcyywwm+2zjRFUSkeNB48SRxlmvE=
 github.com/AndreasBriese/bbloom v0.0.0-20180913140656-343706a395b7 h1:PqzgE6kAMi81xWQA2QIVxjWkFHptGgC547vchpUbtFo=
 github.com/AndreasBriese/bbloom v0.0.0-20180913140656-343706a395b7/go.mod h1:bOvUY6CB00SOBii9/FifXqc0awNKxLFCL/+pkDPuyl8=
 github.com/AndreasBriese/bbloom v0.0.0-20190306092124-e2d15f34fcf9 h1:HD8gA2tkByhMAwYaFAX9w2l7vxvBQ5NMoxDrkhqhtn4=
