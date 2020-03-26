@@ -113,6 +113,8 @@ class SPBCProcess(XBOSProcess):
             'do_control': True,
         }
         """
+        if len(resp.values) == 0 or resp.values[-1] is None:
+            return
         statuses = resp.values[-1]
         timestamp = statuses['time']
         for status in statuses['statuses']:
