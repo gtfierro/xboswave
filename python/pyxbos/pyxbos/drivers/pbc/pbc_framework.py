@@ -113,9 +113,11 @@ class SPBCProcess(XBOSProcess):
             'do_control': True,
         }
         """
-        if len(resp.values) == 0 or resp.values[-1] is None:
+        if len(resp.values) == 0:
             return
         statuses = resp.values[-1]
+        if statuses is None:
+            return
         timestamp = statuses['time']
         for status in statuses['statuses']:
             if status['nodeID'] not in self.lpbcs:
