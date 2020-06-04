@@ -213,7 +213,7 @@ def schedule(f):
     def handle_exception(f=None):
         exc = fun.exception()
         if exc is not None:
-            self._log.error(exc)
+            logging.error(exc)
     fun.add_done_callback(handle_exception)
 
 def run_loop():
