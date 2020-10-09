@@ -84,6 +84,18 @@ class SPBCProcess(XBOSProcess):
         """
         upmu = resp.uri[5:]
         self.reference_phasors[upmu] = resp.values[-1]['phasorChannels'][0]['data']
+        for chan in resp.values[-1]['scalarChannels']:
+            if chan['channelName'] == 'FREQ':
+                key = 'freq'
+            elif chan['channelName'] == 'DFREQ':
+                key = 'dfreq'
+            else:
+                continue
+            for upmu_name, phasor in self.reference_phasors.items():
+                for idx, d in enumerate(phasor):
+                    assert chan['data'][idx]['time'] == d['time']
+                    d[key] = chan['data'][idx].get('value')
+
 
     def _lpbccb(self, resp):
         """
@@ -234,7 +246,18 @@ class LPBCProcess(XBOSProcess):
         #self._log.info(f"got {len(frame['data'])} values on local")
         if channel not in self.local_phasor_data:
             self.local_phasor_data[channel] = []
-        self.local_phasor_data[channel].extend(frame['data'])
+        data = frame['data']
+        for chan in resp.values[-1]['scalarChannels']:
+            if chan['channelName'] == 'FREQ':
+                key = 'freq'
+            elif chan['channelName'] == 'DFREQ':
+                key = 'dfreq'
+            else:
+                continue
+            for idx, d in enumerate(data):
+                assert chan['data'][idx]['time'] == d['time']
+                d[key] = chan['data'][idx].get('value')
+        self.local_phasor_data[channel].extend(data)
 
     def _reference_upmucb(self, channel, resp):
         """Stores the most recent reference upmu reading"""
@@ -247,7 +270,18 @@ class LPBCProcess(XBOSProcess):
         frame = resp.values[-1]['phasorChannels'][0]
         if channel not in self.reference_phasor_data:
             self.reference_phasor_data[channel] = []
-        self.reference_phasor_data[channel].extend(frame['data'])
+        data = frame['data']
+        for chan in resp.values[-1]['scalarChannels']:
+            if chan['channelName'] == 'FREQ':
+                key = 'freq'
+            elif chan['channelName'] == 'DFREQ':
+                key = 'dfreq'
+            else:
+                continue
+            for idx, d in enumerate(data):
+                assert chan['data'][idx]['time'] == d['time']
+                d[key] = chan['data'][idx].get('value')
+        self.reference_phasor_data[channel].extend(data)
 
     def _spbccb(self, resp):
         """Stores the most recent SPBC command"""
