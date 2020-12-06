@@ -23,6 +23,12 @@ import "system_monitor.proto";
 // parker refrigerator
 import "parker.proto";
 
+// wattnode power meter
+import "wattnode.proto";
+
+// kmc flexstat thermostat
+import "flexstat.proto";
+
 // c37 + other energise-related
 import "c37.proto";
 import "energise.proto";
@@ -44,6 +50,9 @@ message XBOS {
   //Vendor-specific Device Fields
   DentMeterState DentMeterState = 150;
   ParkerState parker_state = 151;
+  WattnodeState wattnode_state = 152;
+  FlexstatState flexstat_state = 153;
+  FlexstatActuationMessage flexstat_actuation_message = 154;
 
   //System Status Fields
   BasicServerStatus BasicServerStatus = 200;

@@ -1,0 +1,52 @@
+xbos:
+    waved: localhost:777
+    wavemq: localhost:4516
+    base_resource: flexstat
+    rate: 60
+    entity: 
+    namespace: 
+    service_name_map: 
+        thermostat_west: {'ip': <>.10, 'device_id': 1}
+        thermostat_east: {'ip': <>.11, 'device_id': 1}
+    id: flexstat-driver
+
+thermostat_config:
+  bacnet_network_mask: <>.5/16
+  bacnet_router_address: <>.254
+  bbmd_ttl: 600
+  ip_addresses: [<>.10, <>.11]
+  bacnet_device_ids: [1, 1]
+  point_map:
+    space_temp_sensor: SPACE TEMP SENSOR
+    minimum_proportional: MINIMUM PROPORTIONAL
+    active_cooling_setpt: ACTIVE COOLING SETPT
+    active_heating_setpt: ACTIVE HEATING SETPT
+    unocc_cooling_setpt: UNOCC COOLING SETPT
+    unocc_heating_setpt: UNOCC HEATING SETPT
+    occ_min_clg_setpt: OCC MIN CLG SETPT
+    occ_max_htg_setpt: OCC MAX HTG SETPT
+    override_timer: OVERRIDE TIMER
+    occ_cooling_setpt: OCC COOLING SETPT
+    occ_heating_setpt: OCC HEATING SETPT
+    current_mode_setpt: CURRENT MODE SETPT
+    ui_setpt: UI SETPT
+    cooling_need: COOLING NEED
+    heating_need: HEATING NEED
+    unocc_min_clg_setpt: UNOCC MIN CLG SETPT
+    unocc_max_htg_setpt: UNOCC MAX HTG SETPT
+    min_setpt_diff: MIN SETPT DIFF
+    min_setpt_limit: MIN SETPT LIMIT
+    space_temp: SPACE TEMP
+    cooling_prop: COOLING PROP
+    heating_prop: HEATING PROP
+    cooling_intg: COOLING INTG
+    heating_intg: HEATING INTG
+    fan: FAN
+    occupancy_mode: OCCUPANCY MODE
+    setpt_override_mode: SETPT OVERRIDE MODE
+    fan_alarm: FAN ALARM
+    fan_need: FAN NEED
+    heating_cooling_mode: HEATING/COOLING MODE
+    occ_fan_auto_on: OCC FAN AUTO/ON
+    unocc_fan_auto_on: UNOCC FAN AUTO/ON
+    fan_status: FAN STATUS

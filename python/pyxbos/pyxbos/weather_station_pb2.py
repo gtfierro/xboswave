@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='xbospb',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x15weather_station.proto\x12\x06xbospb\x1a\x13nullabletypes.proto\x1a\x0b\x62rick.proto\"\xfa\x08\n\x0eWeatherStation\x12\x1f\n\x04time\x18\x01 \x01(\x0b\x32\r.xbospb.Int64B\x02\x18\x01\x12\x0c\n\x04icon\x18\x02 \x01(\t\x12,\n\x14nearestStormDistance\x18\x03 \x01(\x0b\x32\x0e.xbospb.Double\x12+\n\x13nearestStormBearing\x18\x04 \x01(\x0b\x32\x0e.xbospb.Double\x12\'\n\x0fprecipIntensity\x18\x05 \x01(\x0b\x32\x0e.xbospb.Double\x12,\n\x14precipIntensityError\x18\x06 \x01(\x0b\x32\x0e.xbospb.Double\x12)\n\x11precipProbability\x18\x07 \x01(\x0b\x32\x0e.xbospb.Double\x12\x12\n\nprecipType\x18\x08 \x01(\t\x12z\n\x0btemperature\x18\t \x01(\x0b\x32\x0e.xbospb.DoubleBU\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18 \x12\x1eOutside_Air_Temperature_Sensor\x12+\n\x13\x61pparentTemperature\x18\n \x01(\x0b\x32\x0e.xbospb.Double\x12 \n\x08\x64\x65wPoint\x18\x0b \x01(\x0b\x32\x0e.xbospb.Double\x12y\n\x08humidity\x18\x0c \x01(\x0b\x32\x0e.xbospb.DoubleBW\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\"\x12 Weather_Relative_Humidity_Sensor\x12 \n\x08pressure\x18\r \x01(\x0b\x32\x0e.xbospb.Double\x12s\n\twindSpeed\x18\x0e \x01(\x0b\x32\x0e.xbospb.DoubleBP\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1b\x12\x19Weather_Wind_Speed_Sensor\x12 \n\x08windGust\x18\x0f \x01(\x0b\x32\x0e.xbospb.Double\x12y\n\x0bwindBearing\x18\x10 \x01(\x0b\x32\x0e.xbospb.DoubleBT\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1f\x12\x1dWeather_Wind_Direction_Sensor\x12\"\n\ncloudCover\x18\x11 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07uvIndex\x18\x12 \x01(\x0b\x32\x0e.xbospb.Double\x12\"\n\nvisibility\x18\x13 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1d\n\x05ozone\x18\x14 \x01(\x0b\x32\x0e.xbospb.Double:F\x82\xf1\x04-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xf1\x04\x11\x12\x0fWeather_Station\"\xaf\x01\n\x18WeatherStationPrediction\x12@\n\x0bpredictions\x18\x01 \x03(\x0b\x32+.xbospb.WeatherStationPrediction.Prediction\x1aQ\n\nPrediction\x12\x17\n\x0fprediction_time\x18\x01 \x01(\x04\x12*\n\nprediction\x18\x02 \x01(\x0b\x32\x16.xbospb.WeatherStationb\x06proto3')
+  serialized_pb=_b('\n\x15weather_station.proto\x12\x06xbospb\x1a\x13nullabletypes.proto\x1a\x0b\x62rick.proto\"\xbc\n\n\x0eWeatherStation\x12\x1f\n\x04time\x18\x01 \x01(\x0b\x32\r.xbospb.Int64B\x02\x18\x01\x12\x0c\n\x04icon\x18\x02 \x01(\t\x12,\n\x14nearestStormDistance\x18\x03 \x01(\x0b\x32\x0e.xbospb.Double\x12+\n\x13nearestStormBearing\x18\x04 \x01(\x0b\x32\x0e.xbospb.Double\x12\'\n\x0fprecipIntensity\x18\x05 \x01(\x0b\x32\x0e.xbospb.Double\x12,\n\x14precipIntensityError\x18\x06 \x01(\x0b\x32\x0e.xbospb.Double\x12)\n\x11precipProbability\x18\x07 \x01(\x0b\x32\x0e.xbospb.Double\x12\x12\n\nprecipType\x18\x08 \x01(\t\x12z\n\x0btemperature\x18\t \x01(\x0b\x32\x0e.xbospb.DoubleBU\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18 \x12\x1eOutside_Air_Temperature_Sensor\x12+\n\x13\x61pparentTemperature\x18\n \x01(\x0b\x32\x0e.xbospb.Double\x12 \n\x08\x64\x65wPoint\x18\x0b \x01(\x0b\x32\x0e.xbospb.Double\x12y\n\x08humidity\x18\x0c \x01(\x0b\x32\x0e.xbospb.DoubleBW\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\"\x12 Weather_Relative_Humidity_Sensor\x12 \n\x08pressure\x18\r \x01(\x0b\x32\x0e.xbospb.Double\x12s\n\twindSpeed\x18\x0e \x01(\x0b\x32\x0e.xbospb.DoubleBP\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1b\x12\x19Weather_Wind_Speed_Sensor\x12 \n\x08windGust\x18\x0f \x01(\x0b\x32\x0e.xbospb.Double\x12y\n\x0bwindBearing\x18\x10 \x01(\x0b\x32\x0e.xbospb.DoubleBT\x82\xb5\x18-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xb5\x18\x1f\x12\x1dWeather_Wind_Direction_Sensor\x12\"\n\ncloudCover\x18\x11 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1f\n\x07uvIndex\x18\x12 \x01(\x0b\x32\x0e.xbospb.Double\x12\"\n\nvisibility\x18\x13 \x01(\x0b\x32\x0e.xbospb.Double\x12\x1d\n\x05ozone\x18\x14 \x01(\x0b\x32\x0e.xbospb.Double\x12$\n\x0c\x65stimatedGhi\x18\x15 \x01(\x0b\x32\x0e.xbospb.Double\x12%\n\rbeamRadiation\x18\x16 \x01(\x0b\x32\x0e.xbospb.Double\x12(\n\x10\x64iffuseRadiation\x18\x17 \x01(\x0b\x32\x0e.xbospb.Double\x12!\n\tpoaSrOnPV\x18\x18 \x01(\x0b\x32\x0e.xbospb.Double\x12&\n\x0epoaSrOnWindows\x18\x19 \x01(\x0b\x32\x0e.xbospb.Double:F\x82\xf1\x04-\n+https://brickschema.org/schema/1.0.3/Brick#\x82\xf1\x04\x11\x12\x0fWeather_Station\"\xaf\x01\n\x18WeatherStationPrediction\x12@\n\x0bpredictions\x18\x01 \x03(\x0b\x32+.xbospb.WeatherStationPrediction.Prediction\x1aQ\n\nPrediction\x12\x17\n\x0fprediction_time\x18\x01 \x01(\x04\x12*\n\nprediction\x18\x02 \x01(\x0b\x32\x16.xbospb.WeatherStationb\x06proto3')
   ,
   dependencies=[nullabletypes__pb2.DESCRIPTOR,brick__pb2.DESCRIPTOR,])
 
@@ -175,6 +175,41 @@ _WEATHERSTATION = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='estimatedGhi', full_name='xbospb.WeatherStation.estimatedGhi', index=20,
+      number=21, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='beamRadiation', full_name='xbospb.WeatherStation.beamRadiation', index=21,
+      number=22, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='diffuseRadiation', full_name='xbospb.WeatherStation.diffuseRadiation', index=22,
+      number=23, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='poaSrOnPV', full_name='xbospb.WeatherStation.poaSrOnPV', index=23,
+      number=24, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='poaSrOnWindows', full_name='xbospb.WeatherStation.poaSrOnWindows', index=24,
+      number=25, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -188,7 +223,7 @@ _WEATHERSTATION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=68,
-  serialized_end=1214,
+  serialized_end=1408,
 )
 
 
@@ -225,8 +260,8 @@ _WEATHERSTATIONPREDICTION_PREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1311,
-  serialized_end=1392,
+  serialized_start=1505,
+  serialized_end=1586,
 )
 
 _WEATHERSTATIONPREDICTION = _descriptor.Descriptor(
@@ -255,8 +290,8 @@ _WEATHERSTATIONPREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1217,
-  serialized_end=1392,
+  serialized_start=1411,
+  serialized_end=1586,
 )
 
 _WEATHERSTATION.fields_by_name['time'].message_type = nullabletypes__pb2._INT64
@@ -277,6 +312,11 @@ _WEATHERSTATION.fields_by_name['cloudCover'].message_type = nullabletypes__pb2._
 _WEATHERSTATION.fields_by_name['uvIndex'].message_type = nullabletypes__pb2._DOUBLE
 _WEATHERSTATION.fields_by_name['visibility'].message_type = nullabletypes__pb2._DOUBLE
 _WEATHERSTATION.fields_by_name['ozone'].message_type = nullabletypes__pb2._DOUBLE
+_WEATHERSTATION.fields_by_name['estimatedGhi'].message_type = nullabletypes__pb2._DOUBLE
+_WEATHERSTATION.fields_by_name['beamRadiation'].message_type = nullabletypes__pb2._DOUBLE
+_WEATHERSTATION.fields_by_name['diffuseRadiation'].message_type = nullabletypes__pb2._DOUBLE
+_WEATHERSTATION.fields_by_name['poaSrOnPV'].message_type = nullabletypes__pb2._DOUBLE
+_WEATHERSTATION.fields_by_name['poaSrOnWindows'].message_type = nullabletypes__pb2._DOUBLE
 _WEATHERSTATIONPREDICTION_PREDICTION.fields_by_name['prediction'].message_type = _WEATHERSTATION
 _WEATHERSTATIONPREDICTION_PREDICTION.containing_type = _WEATHERSTATIONPREDICTION
 _WEATHERSTATIONPREDICTION.fields_by_name['predictions'].message_type = _WEATHERSTATIONPREDICTION_PREDICTION

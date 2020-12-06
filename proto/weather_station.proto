@@ -60,6 +60,22 @@ message WeatherStation {
     //the columnar density of total atmospheric ozone
     //unit: Dobson
     Double ozone = 20;
+
+    //estimated global horizontal irradiance
+    //unit: W per m2
+    Double estimatedGhi = 21;
+    //beam radiation
+    //unit: W per m2
+    Double beamRadiation = 22;
+    //diffuse radiation
+    //unit: W per m2
+    Double diffuseRadiation = 23;
+    //plane of array solar irradiance on PV panels
+    //unit: W per m2
+    Double poaSrOnPV = 24;
+    //plane of array solar irradiance on windows
+    //unit: W per m2
+    Double poaSrOnWindows = 25;
 }
 
 message WeatherStationPrediction {

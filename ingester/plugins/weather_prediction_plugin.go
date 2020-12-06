@@ -31,6 +31,11 @@ var device_units = map[string]string{
 	"uvindex":              "",
 	"visibility":           "miles",
 	"ozone":                "Dobson",
+    "estimatedGhi ":        "W per m2",
+    "beamRadiation ":       "W per m2",
+    "diffuseRadiation ":    "W per m2",
+    "poaSrOnPV ":           "W per m2",
+    "poaSrOnWindows ":      "W per m2",
 }
 
 func ingest_time_series(value float64, name string, toInflux types.ExtractedTimeseries,
@@ -186,6 +191,41 @@ func Extract(uri types.SubscriptionURI, msg xbospb.XBOS, add func(types.Extracte
 				if prediction.Ozone != nil {
 					err := ingest_time_series(float64(prediction.Ozone.Value),
 						"ozone", extracted, add, prediction_time, step, uri)
+					if err != nil {
+						return err
+					}
+				}
+				if prediction.EstimatedGhi != nil {
+					err := ingest_time_series(float64(prediction.EstimatedGhi.Value),
+						"estimatedGhi", extracted, add, prediction_time, step, uri)
+					if err != nil {
+						return err
+					}
+				}
+				if prediction.BeamRadiation != nil {
+					err := ingest_time_series(float64(prediction.BeamRadiation.Value),
+						"beamRadiation", extracted, add, prediction_time, step, uri)
+					if err != nil {
+						return err
+					}
+				}
+				if prediction.DiffuseRadiation != nil {
+					err := ingest_time_series(float64(prediction.DiffuseRadiation.Value),
+						"diffuseRadiation", extracted, add, prediction_time, step, uri)
+					if err != nil {
+						return err
+					}
+				}
+				if prediction.PoaSrOnPV != nil {
+					err := ingest_time_series(float64(prediction.PoaSrOnPV.Value),
+						"poaSrOnPV", extracted, add, prediction_time, step, uri)
+					if err != nil {
+						return err
+					}
+				}
+				if prediction.PoaSrOnWindows != nil {
+					err := ingest_time_series(float64(prediction.PoaSrOnWindows.Value),
+						"poaSrOnWindows", extracted, add, prediction_time, step, uri)
 					if err != nil {
 						return err
 					}
