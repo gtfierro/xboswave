@@ -33,5 +33,5 @@ require (
 	google.golang.org/grpc v1.21.1
 	gopkg.in/BTrDB/btrdb.v4 v4.15.3 // indirect
 	gopkg.in/btrdb.v4 v4.15.3
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v2 v2.2.8
 )
