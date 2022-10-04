@@ -31,6 +31,11 @@ var device_units = map[string]string{
 	"uvIndex":              "miles",
 	"visibility":           "",
 	"ozone":                "Dobson",
+    "estimatedGhi ":        "W per m2",
+    "beamRadiation ":       "W per m2",
+    "diffuseRadiation ":    "W per m2",
+    "poaSrOnPV ":           "W per m2",
+    "poaSrOnWindows ":      "W per m2",
 }
 var device_lookup = map[string]func(msg xbospb.XBOS) (float64, bool){
 
@@ -137,8 +142,38 @@ var device_lookup = map[string]func(msg xbospb.XBOS) (float64, bool){
 		return 0, false
 	},
 	"ozone": func(msg xbospb.XBOS) (float64, bool) {
-		if has_device(msg) && msg.XBOSIoTDeviceState.WeatherStation.Ozone != nil {
+		if has_device(msg) && msg.XBOSIoTDeviceState.WeatherStation.EstimatedGhi != nil {
 			return float64(msg.XBOSIoTDeviceState.WeatherStation.Ozone.Value), true
+		}
+		return 0, false
+	},
+	"estimatedGhi": func(msg xbospb.XBOS) (float64, bool) {
+		if has_device(msg) && msg.XBOSIoTDeviceState.WeatherStation.EstimatedGhi != nil {
+			return float64(msg.XBOSIoTDeviceState.WeatherStation.EstimatedGhi.Value), true
+		}
+		return 0, false
+	},
+	"beamRadiation": func(msg xbospb.XBOS) (float64, bool) {
+		if has_device(msg) && msg.XBOSIoTDeviceState.WeatherStation.BeamRadiation != nil {
+			return float64(msg.XBOSIoTDeviceState.WeatherStation.BeamRadiation.Value), true
+		}
+		return 0, false
+	},
+	"diffuseRadiation": func(msg xbospb.XBOS) (float64, bool) {
+		if has_device(msg) && msg.XBOSIoTDeviceState.WeatherStation.DiffuseRadiation != nil {
+			return float64(msg.XBOSIoTDeviceState.WeatherStation.DiffuseRadiation.Value), true
+		}
+		return 0, false
+	},
+	"poaSrOnPV": func(msg xbospb.XBOS) (float64, bool) {
+		if has_device(msg) && msg.XBOSIoTDeviceState.WeatherStation.PoaSrOnPV != nil {
+			return float64(msg.XBOSIoTDeviceState.WeatherStation.PoaSrOnPV.Value), true
+		}
+		return 0, false
+	},
+	"poaSrOnWindows": func(msg xbospb.XBOS) (float64, bool) {
+		if has_device(msg) && msg.XBOSIoTDeviceState.WeatherStation.PoaSrOnWindows != nil {
+			return float64(msg.XBOSIoTDeviceState.WeatherStation.PoaSrOnWindows.Value), true
 		}
 		return 0, false
 	},
