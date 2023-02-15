@@ -12,7 +12,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gliderlabs/ssh v0.2.2
 	github.com/gogo/protobuf v1.3.2
-	github.com/golang/protobuf v1.3.2
+	github.com/golang/protobuf v1.4.3
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
 	github.com/huichen/murmur v0.0.0-20130808212358-e0489551cf51 // indirect
 	github.com/immesys/wavemq v1.3.0
@@ -25,13 +25,13 @@ require (
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/parnurzeal/gorequest v0.2.15
 	github.com/pborman/uuid v1.2.0
-	github.com/pkg/errors v0.8.1
-	github.com/prometheus/client_golang v1.0.0
-	github.com/sirupsen/logrus v1.4.2
+	github.com/pkg/errors v0.9.1
+	github.com/prometheus/client_golang v1.11.1
+	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.4.0
 	github.com/yoheimuta/go-protoparser v2.0.0+incompatible
 	google.golang.org/grpc v1.21.1
 	gopkg.in/BTrDB/btrdb.v4 v4.15.3 // indirect
 	gopkg.in/btrdb.v4 v4.15.3
-	gopkg.in/yaml.v2 v2.2.8
+	gopkg.in/yaml.v2 v2.3.0
 )
